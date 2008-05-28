@@ -79,6 +79,7 @@ function getLinkSortOrder($lid)
 // avddelete()
 function avddelete($file)
 {
+    $file = html_entity_decode($file, ENT_QUOTES);
     chmod($file,0777);
     if (@is_dir($file))
     {
