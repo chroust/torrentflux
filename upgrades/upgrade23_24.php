@@ -23,6 +23,11 @@ if ($_GET["upgrade"] == "yes")
     $connect = mysql_select_db($cfg["db_name"]);
 
     mysql_query("update tf_settings set tf_value = 'PirateBay' where tf_key = 'searchEngine' and tf_value = 'TorrentSpy';");
+
+    mysql_query("INSERT INTO `tf_settings` VALUES ('crypto_allowed', 1)");
+    mysql_query("INSERT INTO `tf_settings` VALUES ('crypto_only', 1)");
+    mysql_query("INSERT INTO `tf_settings` VALUES ('crypto_stealth', 0)");
+
     
 
 	echo "TorrentFlux upgrade to version 2.4 is complete!<br><br>"

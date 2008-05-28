@@ -194,6 +194,24 @@ if(!empty($torrent))
             }
         }
 
+        $crypto_allowed = getRequestVar('crypto_allowed');
+        if (empty($crypto_allowed))
+        {
+            $crypto_allowed = $cfg["crypto_allowed"];
+        }
+
+        $crypto_only = getRequestVar('crypto_only');
+        if (empty($crypto_only))
+        {
+            $crypto_only = $cfg["crypto_only"];
+        }
+
+        $crypto_stealth = getRequestVar('crypto_stealth');
+        if (empty($crypto_stealth))
+        {
+            $crypto_stealth = $cfg["crypto_stealth"];
+        }
+
         //$torrent = urldecode($torrent);
         $alias = getAliasName($torrent);
         $owner = getOwner($torrent);
@@ -243,7 +261,7 @@ if(!empty($torrent))
 
         if (usingTornado())
         {
-            $command = escapeshellarg($runtime)." ".escapeshellarg($sharekill)." '".$cfg["torrent_file_path"].$alias.".stat' ".$owner." --responsefile '".$cfg["torrent_file_path"].$torrent."' --display_interval 5 --max_download_rate ". escapeshellarg($drate) ." --max_upload_rate ".escapeshellarg($rate)." --max_uploads ".escapeshellarg($maxuploads)." --minport ".escapeshellarg($minport)." --maxport ".escapeshellarg($maxport)." --rerequest_interval ".escapeshellarg($rerequest)." --super_seeder ".escapeshellarg($superseeder);
+            $command = escapeshellarg($runtime)." ".escapeshellarg($sharekill)." '".$cfg["torrent_file_path"].$alias.".stat' ".$owner." --responsefile '".$cfg["torrent_file_path"].$torrent."' --display_interval 5 --max_download_rate ". escapeshellarg($drate) ." --max_upload_rate ".escapeshellarg($rate)." --max_uploads ".escapeshellarg($maxuploads)." --minport ".escapeshellarg($minport)." --maxport ".escapeshellarg($maxport)." --rerequest_interval ".escapeshellarg($rerequest)." --super_seeder ".escapeshellarg($superseeder)." --crypto_allowed ".escapeshellarg($crypto_allowed)." --crypto_only ".escapeshellarg($crypto_only)." --crypto_stealth ".escapeshellarg($crypto_stealth);;
 
             if(file_exists($cfg["torrent_file_path"].$alias.".prio")) {
                 $priolist = explode(',',file_get_contents($cfg["torrent_file_path"].$alias.".prio"));
@@ -251,7 +269,7 @@ if(!empty($torrent))
                 $command .= " --priority ".escapeshellarg($priolist);
             }
 
-            $command .= " ".escapeshellarg($cfg["cmd_options"])." > /dev/null &";
+            $command .= " ".($cfg["cmd_options"])." > /dev/null &";
 
             if ($cfg["AllowQueing"] && $queue == "1")
             {
