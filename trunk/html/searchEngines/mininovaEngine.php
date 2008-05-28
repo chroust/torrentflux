@@ -22,6 +22,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 /*
+    v 1.01 - Update parsing
     v 1.00
 */
 
@@ -67,12 +68,7 @@ class SearchEngine extends SearchEngineBase
     // Function to get Latest..
     function getLatest()
     {
-        $request = "/latest.php?mode=bt";
-
-        if (!empty($this->pg))
-        {
-            $request .= "&pg=" . $this->pg;
-        }
+        $request = "/today/";
 
         if ($this->makeRequest($request))
         {
@@ -94,13 +90,6 @@ class SearchEngine extends SearchEngineBase
         // create the request string.
         $searchTerm = str_replace(" ", "+", $searchTerm);
         $request = "/search/?search=".$searchTerm;
-
-        if (!empty($this->pg))
-        {
-            $request .= "&ihs1=18&iho1=d&iht=-1&ihp=" . $this->pg;
-        }
-
-        $request .= "&submit=Torrents";
 
         // make the request if successful call the parse routine.
         if ($this->makeRequest($request))
