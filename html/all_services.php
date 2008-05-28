@@ -25,6 +25,10 @@
 include_once("config.php");
 include_once("functions.php");
 
+if (! IsAdmin($cfg["user"])) {
+    header("Location:index.php");
+}
+
 $result = shell_exec("df -h ".$cfg["path"]);
 $result2 = shell_exec("du -sh ".$cfg["path"]."*");
 $result4 = shell_exec("w");

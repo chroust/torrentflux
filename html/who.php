@@ -25,6 +25,9 @@
 include_once("config.php");
 include_once("functions.php");
 
+if (! IsAdmin($cfg["user"])) {
+    header("Location:index.php");
+}
 
 $result = shell_exec("w");
 $result2 = shell_exec("free -mo");
