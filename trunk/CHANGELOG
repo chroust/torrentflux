@@ -7,7 +7,7 @@ Change Log
 TorrentFlux v2.4
 ------------------
 * Removed TorrentSpy search plugin
-* Updated PirateBay plugin to newest version (1.06)
+* Cryptography functionality & enabled by default (by imrook)
 
 TorrentFlux v2.3
 ------------------

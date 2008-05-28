@@ -1371,9 +1371,55 @@ function configSettings()
             </td>
         </tr>
         <tr>
+            <td align="left" width="350" valign="top"><strong>Allow encrypted connections</strong><br>
+            Check to allow the client to accept encrypted connections.
+            </td>
+            <td valign="top">
+                <select name="crypto_allowed">
+                        <option value="1">true</option>
+                        <option value="0" <?php
+                        if (!$cfg["crypto_allowed"])
+                        {
+                            echo "selected";
+                        }
+                        ?>>false</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" width="350" valign="top"><strong>Only allow encrypted connections</strong><br>
+            Check to force the client to only create and accept encrypted connections.
+            </td>
+            <td valign="top">
+                <select name="crypto_only">
+                        <option value="1">true</option>
+                        <option value="0" <?php
+                        if (!$cfg["crypto_only"])
+                        {
+                            echo "selected";
+                        }
+                        ?>>false</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" width="350" valign="top"><strong>Stealth crypto</strong><br>
+	    Prevent all non-encrypted connection attempts.  (Note: will result in an effectively firewalled state on older trackers.)
+            <td valign="top">
+                <select name="crypto_stealth">
+                        <option value="1">true</option>
+                        <option value="0" <?php
+                        if (!$cfg["crypto_stealth"])
+                        {
+                            echo "selected";
+                        }
+                        ?>>false</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
             <td align="left" width="350" valign="top"><strong>Extra BitTornado Commandline Options</strong><br>
-            DO NOT include --max_upload_rate, --minport, --maxport, --max_uploads here as they are
-            included by TorrentFlux settings above:
+            DO NOT include --max_upload_rate, --minport, --maxport, --max_uploads, --crypto_allowed, --crypto_only, --crypto_stealth here as they are included by TorrentFlux settings above:
             </td>
             <td valign="top">
                 <input name="cmd_options" type="Text" maxlength="254" value="<?php    echo($cfg["cmd_options"]); ?>" size="55">
