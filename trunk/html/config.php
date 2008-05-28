@@ -55,7 +55,7 @@ $cfg["db_pass"] = "";            // password for database
 $cfg["pagetitle"] = "TorrentFlux";
 
 // TorrentFlux Version
-$cfg["version"] = "2.3";
+$cfg["version"] = "2.4";
 
 // CONSTANTS
 $cfg["constants"] = array();

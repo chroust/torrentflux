@@ -991,7 +991,7 @@ function GetRSSLinks()
 
 // ***************************************************************************
 // Build Search Engine Drop Down List
-function buildSearchEngineDDL($selectedEngine = 'TorrentSpy', $autoSubmit = false)
+function buildSearchEngineDDL($selectedEngine = 'PirateBay', $autoSubmit = false)
 {
     $output = "<select name=\"searchEngine\" ";
     if ($autoSubmit)
@@ -1028,7 +1028,7 @@ function buildSearchEngineDDL($selectedEngine = 'TorrentSpy', $autoSubmit = fals
 
 // ***************************************************************************
 // Build Search Engine Links
-function buildSearchEngineLinks($selectedEngine = 'TorrentSpy')
+function buildSearchEngineLinks($selectedEngine = 'PirateBay')
 {
     global $cfg;
 
