@@ -13,7 +13,7 @@ For support visit the forums:
 See the thanks list at the bottom.
 
 =================================================================
-TorrentFlux Version: 2.3
+TorrentFlux Version: 2.4
 =================================================================
 
 PLEASE READ CAREFULLY THE FOLLOWING INSTRUCTIONS. IF YOU DO THIS,
@@ -138,7 +138,7 @@ from the upgrades directory.  Place the upgrade file in your
 web root with your config.php file and launch your web browser 
 to that file:
 
-    http://www.yourdomain.com/upgrade22_23.php
+    http://www.yourdomain.com/upgrade23_24.php
     
 All the database changes will be added and updated automatically 
 without touching your old data.  You should delete the upgrade 
@@ -204,9 +204,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 Visit TorrentFlux.com
-Contact Qrome:  http://www.torrentflux.com/contact.php
 
-Contact me with questions / comments -- I may or may not respond. =)
+Contact benajnim with questions / comments -- I may or may not respond. =)
 Visit the forum:  http://www.torrentflux.com/forum/
 
 
