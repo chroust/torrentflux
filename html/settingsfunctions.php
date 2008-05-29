@@ -155,6 +155,9 @@ function saveSettings($settings)
 {
     global $cfg, $db;
 
+    if ($settings == null)
+        return;
+        
     foreach ($settings as $key => $value)
     {
         if (array_key_exists($key, $cfg))

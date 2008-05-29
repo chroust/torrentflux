@@ -1282,16 +1282,16 @@ function configSettings()
             </td>
         </tr>
         <tr>
-            <td align="left" width="350" valign="top"><strong>btphptornado.py Path</strong><br>
-            Specify the path to the btphptornado.py python script:
+            <td align="left" width="350" valign="top"><strong>btphptornado Path</strong><br>
+            Specify the path to the btphptornado python script:
             </td>
             <td valign="top">
                 <input name="btphpbin" type="Text" maxlength="254" value="<?php    echo($cfg["btphpbin"]); ?>" size="55"><?php echo validateFile($cfg["btphpbin"]) ?>
             </td>
         </tr>
         <tr>
-            <td align="left" width="350" valign="top"><strong>btshowmetainfo.py Path</strong><br>
-            Specify the path to the btshowmetainfo.py python script:
+            <td align="left" width="350" valign="top"><strong>btshowmetainfo Path</strong><br>
+            Specify the path to the btshowmetainfo python script:
             </td>
             <td valign="top">
                 <input name="btshowmetainfo" type="Text" maxlength="254" value="<?php    echo($cfg["btshowmetainfo"]); ?>" size="55"><?php echo validateFile($cfg["btshowmetainfo"]) ?>
@@ -1878,7 +1878,7 @@ function queueSettings()
             </tr>
             <tr>
                 <td align="left" width="350" valign="top"><strong>tfQManager Path</strong><br>
-                Specify the path to the tfQManager.py python script:
+                Specify the path to the tfQManager python script:
                 </td>
                 <td valign="top">
                     <input name="tfQManager" type="Text" maxlength="254" value="<?php    echo($cfg["tfQManager"]); ?>" size="55"><?php echo validateFile($cfg["tfQManager"]) ?>
