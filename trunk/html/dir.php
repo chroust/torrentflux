@@ -32,6 +32,7 @@ $del = getRequestVar('del');
 $down = getRequestVar('down');
 $tar = getRequestVar('tar');
 $dir = stripslashes(urldecode(getRequestVar('dir')));
+if (strpos(stripslashes($dir),"../")===false) {} else {echo "Can't go to parent directories!";exit;}
 
 // Are we to delete something?
 if ($del != "")

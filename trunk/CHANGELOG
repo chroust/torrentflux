@@ -13,6 +13,12 @@ TorrentFlux v2.4
 * Removed CSV files for BitTornado
 * Converted \r\n to \n in all source files
 
+Bug fixes from Debian team
+* Recursive call error in SearchEngineBase
+* Python filename dependency
+* Parameter check in directory browser to prevent traversal above download directory
+* Update settings fails with blank search filter
+
 TorrentFlux v2.3
 ------------------
 * Fixed more Arbitrary File Creation/Overwrite/Deletion & Command 

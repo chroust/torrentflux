@@ -1495,14 +1495,7 @@ function cleanFileName($inName)
 // returns true if client is tornado
 function usingTornado()
 {
-    global $cfg;
-    $rtnValue = false;
-    if (preg_match("/btphptornado/i", $cfg["btphpbin"]))
-    {
-        $rtnValue = true;
-    }
-
-    return $rtnValue;
+    return true;
 }
 
 //**************************************************************************
@@ -1955,7 +1948,7 @@ function runPS()
 {
     global $cfg;
 
-    return shell_exec("ps x -o pid='' -o ppid='' -o command='' -ww | grep btphptornado | grep ".$cfg["torrent_file_path"]." | grep -v grep");
+    return shell_exec("ps x -o pid='' -o ppid='' -o command='' -ww | grep ".basename($cfg["btphpbin"])." | grep ".$cfg["torrent_file_path"]." | grep -v grep");
 }
 
 //**************************************************************************
@@ -1992,7 +1985,7 @@ function RunningProcessInfo()
             }
             else
             {
-               if(strpos($arScreen[$i], "btphptornado.py") !== false)
+               if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false)
                {
                    $pinfo = new ProcessInfo($arScreen[$i]);
 
@@ -2099,7 +2092,7 @@ function getRunningTorrents()
     {
         if(! strpos($arScreen[$i], $cfg["tfQManager"]) > 0)
         {
-           if(strpos($arScreen[$i], "btphptornado.py") !== false)
+           if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false)
            {
                $pinfo = new ProcessInfo($arScreen[$i]);
 

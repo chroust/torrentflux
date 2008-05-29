@@ -46,13 +46,11 @@ def run(qDirectory,maxSvrThreads,maxUsrThreads,sleepInterval,execPath):
     # this will be used during the process Counts to ensure we are 
     # unique from other running instances.
 
-    ePath = execPath.split(" ")
-    for x in ePath:
-        if (re.search('btphptornado', x) > 0 ):
-            btphp = x
+    ePath = execPath.split()
+    btphp = ePath[-1]
     if __debug__: traceMsg("btphp ->"+btphp)
 
-    if (re.search('btphptornado', btphp) > 0 ):
+    if (1):
         try:    
             while 1:
 
@@ -193,7 +191,7 @@ def checkThreadCount(btphp):
     psLine = []
     line = ""
     counter = 0
-    list = doCommand("ps x -o pid,ppid,command -ww | grep '" + btphp + "' | grep -v tfQManager | grep -v grep")
+    list = doCommand("ps x -o pid,ppid,command -ww | grep '" + btphp + "' | grep -v " + argv[0] + " | grep -v grep")
 
     try:
         for c in list:
@@ -204,7 +202,7 @@ def checkThreadCount(btphp):
 
         # look for the grep line
         for line in psLine:
-            if (re.search('btphptornado.py',line) > 0):
+            if (re.search(btphp,line) > 0):
                 # now see if this is the main process and not a child.
                 if (re.search(' 1 /',line) > 0):
                     counter += 1
@@ -238,7 +236,7 @@ def getUserThreadCount(userName, btphp):
     psLine = []
     line = ""
     counter = 0
-    list = doCommand("ps x -o pid,ppid,command -ww | grep '" + btphp + "' | grep -v tfQManager | grep -v grep")
+    list = doCommand("ps x -o pid,ppid,command -ww | grep '" + btphp + "' | grep -v " + argv[0] + " | grep -v grep")
 
     try:
         for c in list:
@@ -249,7 +247,7 @@ def getUserThreadCount(userName, btphp):
 
         # look for the grep line
         for line in psLine:
-            if (re.search('btphptornado.py',line) > 0):
+            if (re.search(btphp,line) > 0):
                 # now see if this is the main process and not a child.
                 if (re.search(' 1 /',line) > 0):
                     # look for the userName

@@ -105,12 +105,14 @@ class HeadlessDisplayer:
             raise KeyboardInterrupt
         if __debug__: traceMsg('finished - end')
 
-    def failed(self):
+    def failed(self, errormsg = None):
         if __debug__: traceMsg('failed - begin')
         self.done = True
         self.percentDone = '0'
         self.timeEst = 'Download Failed!'
         self.downRate = ''
+        if errormsg:
+            self.errors.append(errormsg)
         self.display()
         if self.autoShutdown == 'True':
             self.upRate = ''
