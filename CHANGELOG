@@ -8,6 +8,10 @@ TorrentFlux v2.4
 ------------------
 * Removed TorrentSpy search plugin
 * Cryptography functionality & enabled by default (by imrook)
+* Added checks to prevent normal users from seeing sensitive information (by deadeyes)
+* Updated MiniNova search plugin (by alx)
+* Removed CSV files for BitTornado
+* Converted \r\n to \n in all source files
 
 TorrentFlux v2.3
 ------------------

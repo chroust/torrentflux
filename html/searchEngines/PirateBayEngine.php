@@ -408,6 +408,8 @@ class SearchEngine extends SearchEngineBase
 
 				$output .= "<div align=center>".$pages."</div>";
 			}
+        
+        }
 
         return $output;
     }
