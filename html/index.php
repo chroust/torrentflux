@@ -261,15 +261,17 @@ if(!empty($torrent))
 
         if (usingTornado())
         {
-            $command = escapeshellarg($runtime)." ".escapeshellarg($sharekill)." '".$cfg["torrent_file_path"].$alias.".stat' ".$owner." --responsefile '".$cfg["torrent_file_path"].$torrent."' --display_interval 5 --max_download_rate ". escapeshellarg($drate) ." --max_upload_rate ".escapeshellarg($rate)." --max_uploads ".escapeshellarg($maxuploads)." --minport ".escapeshellarg($minport)." --maxport ".escapeshellarg($maxport)." --rerequest_interval ".escapeshellarg($rerequest)." --super_seeder ".escapeshellarg($superseeder)." --crypto_allowed ".escapeshellarg($crypto_allowed)." --crypto_only ".escapeshellarg($crypto_only)." --crypto_stealth ".escapeshellarg($crypto_stealth);;
+            $command = escapeshellarg($runtime)." ".escapeshellarg($sharekill)." '".$cfg["torrent_file_path"].$alias.".stat' ".$owner." --responsefile '".$cfg["torrent_file_path"].$torrent."' --display_interval 5 --max_download_rate ". escapeshellarg($drate) ." --max_upload_rate ".escapeshellarg($rate)." --max_uploads ".escapeshellarg($maxuploads)." --minport ".escapeshellarg($minport)." --maxport ".escapeshellarg($maxport)." --rerequest_interval ".escapeshellarg($rerequest)." --super_seeder ".escapeshellarg($superseeder)." --crypto_allowed ".escapeshellarg($crypto_allowed)." --crypto_only ".escapeshellarg($crypto_only)." --crypto_stealth ".escapeshellarg($crypto_stealth);
 
             if(file_exists($cfg["torrent_file_path"].$alias.".prio")) {
                 $priolist = explode(',',file_get_contents($cfg["torrent_file_path"].$alias.".prio"));
                 $priolist = implode(',',array_slice($priolist,1,$priolist[0]));
                 $command .= " --priority ".escapeshellarg($priolist);
             }
-
-            $command .= " ".($cfg["cmd_options"])." > /dev/null &";
+            if ($cfg["cmd_options"])
+            	$command .= " ".escapeshellarg($cfg["cmd_options"]);
+            
+            $command .= " > /dev/null &";
 
             if ($cfg["AllowQueing"] && $queue == "1")
             {
