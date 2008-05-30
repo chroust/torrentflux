@@ -136,6 +136,7 @@ class AliasFile
     // Private Function to put the variables into a string for writing to file
     function BuildOutput()
     {
+        if (strlen($this->time_left) > 10) { $this->time_left = "unknown"; }
         $output  = $this->running."\n";
         $output .= $this->percent_done."\n";
         $output .= $this->time_left."\n";
