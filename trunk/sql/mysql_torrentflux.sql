@@ -11,7 +11,7 @@ CREATE TABLE `tf_links` (
   `sitename` varchar(255) NOT NULL default 'Old Link',
   `sort_order` tinyint(3) unsigned default '0',
   PRIMARY KEY  (`lid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `tf_links`
@@ -35,7 +35,7 @@ CREATE TABLE `tf_log` (
   `user_agent` varchar(200) NOT NULL default '',
   `time` varchar(14) NOT NULL default '0',
   PRIMARY KEY  (`cid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -53,7 +53,7 @@ CREATE TABLE `tf_messages` (
   `time` varchar(14) NOT NULL default '0',
   `force_read` tinyint(1) default '0',
   PRIMARY KEY  (`mid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 
 -- --------------------------------------------------------
@@ -66,7 +66,7 @@ CREATE TABLE `tf_rss` (
   `rid` int(10) NOT NULL auto_increment,
   `url` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`rid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `tf_rss`
@@ -84,7 +84,7 @@ CREATE TABLE `tf_settings` (
   `tf_key` varchar(255) NOT NULL default '',
   `tf_value` text NOT NULL,
   PRIMARY KEY  (`tf_key`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `tf_settings`
@@ -104,7 +104,7 @@ INSERT INTO `tf_settings` VALUES ('cmd_options', '');
 INSERT INTO `tf_settings` VALUES ('enable_search', '1');
 INSERT INTO `tf_settings` VALUES ('enable_file_download', '1');
 INSERT INTO `tf_settings` VALUES ('enable_view_nfo', '1');
-INSERT INTO `tf_settings` VALUES ('package_type', 'zip');
+INSERT INTO `tf_settings` VALUES ('package_ENGINE', 'zip');
 INSERT INTO `tf_settings` VALUES ('show_server_load', '1');
 INSERT INTO `tf_settings` VALUES ('loadavg_path', '/proc/loadavg');
 INSERT INTO `tf_settings` VALUES ('days_to_keep', '30');
@@ -153,7 +153,7 @@ CREATE TABLE `tf_users` (
   `theme` varchar(100) NOT NULL default 'mint',
   `language_file` varchar(60) default 'lang-english.php',
   PRIMARY KEY  (`uid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 
 
@@ -167,4 +167,4 @@ CREATE TABLE `tf_cookies` (
   `host` varchar(255) default NULL,
   `data` varchar(255) default NULL,
   PRIMARY KEY  (`cid`)
-) TYPE=MyISAM ;
+) ENGINE=MyISAM ;
