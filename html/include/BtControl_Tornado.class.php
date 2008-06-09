@@ -35,6 +35,10 @@ var $rate;
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
 		//creat .stat file
+		CheckHung($this->alias);
+			if(CheckRunning($this->alias))
+				return;
+		
 		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.".stat", $this->owner);
 			if ($cfg["AllowQueing"] AND $queue == "1"){
 				$af->QueueTorrentFile();  // this only writes out the stat file (does not start torrent)
@@ -50,11 +54,11 @@ var $rate;
 					}else{
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
-				$command = "cd " . $cfg["path"].$owner . ";";
-				$command = " HOME=".$cfg["path"].";";
-				$command = "export HOME; nohup " . $pyCmd;
-				$command = " ".escapeshellarg($cfg["btphpbin"])." ";
-				$command = escapeshellarg($this->runtime)." ".escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->alias.".stat' ".$this->owner;
+				$command.= "cd " . $cfg["path"].$owner . ";";
+				$command.= " HOME=".$cfg["path"].";";
+				$command.= "export HOME; nohup " . $pyCmd;
+				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
+				$command.= escapeshellarg($this->runtime)." ".escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->alias.".stat' ".$this->owner;
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
 				$command.= " --display_interval 1 ";
 				$command.= " --max_download_rate ". escapeshellarg($this->drate) ;
@@ -82,6 +86,7 @@ var $rate;
 					}
 				passthru($command);
 				sleep(1);
+				echo $command;
 			}
 	}
 	
@@ -135,6 +140,7 @@ var $rate;
 	}
 	
 	function CheckTorrent($torrent){
+		Global $cfg;
 			if(!is_file($cfg["torrent_file_path"].$this->torrent)){
 				die($torrent.' not exist');
 			}
