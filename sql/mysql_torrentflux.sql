@@ -132,6 +132,9 @@ INSERT INTO `tf_settings` VALUES ('btmakemetafile','/var/www/TF_BitTornado/btmak
 INSERT INTO `tf_settings` VALUES ('enable_torrent_download','1');
 INSERT INTO `tf_settings` VALUES ('enable_file_priority','1');
 INSERT INTO `tf_settings` VALUES ('security_code','0');
+INSERT INTO `tf_settings` VALUES ('crypto_allowed', '1');
+INSERT INTO `tf_settings` VALUES ('crypto_only', '1');
+INSERT INTO `tf_settings` VALUES ('crypto_stealth', '0');
 
 
 
