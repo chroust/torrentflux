@@ -28,10 +28,10 @@ include_once("functions.php");
 checkUserPath();
 
 // Setup some defaults if they are not set.
-$del = getRequestVar('del');
-$down = getRequestVar('down');
-$tar = getRequestVar('tar');
-$dir = stripslashes(urldecode(getRequestVar('dir')));
+$del = html_entity_decode(getRequestVar('del'), ENT_QUOTES);
+$down = html_entity_decode(getRequestVar('down'), ENT_QUOTES);
+$tar = html_entity_decode(getRequestVar('tar'), ENT_QUOTES);
+$dir = stripslashes(html_entity_decode(urldecode(getRequestVar('dir')), ENT_QUOTES));
 if (strpos(stripslashes($dir),"../")===false) {} else {echo "Can't go to parent directories!";exit;}
 
 // Are we to delete something?
