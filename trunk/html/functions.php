@@ -2681,6 +2681,9 @@ function CheckHomeDir($owner){
 				}
 		}
 }
+// ***************************************************************************
+// ***************************************************************************
+// check if any hung
 function CheckHung($alias){
 	include_once("RunningTorrent.php");
 		if (!is_file($cfg["torrent_file_path"].$alias.".pid")){
@@ -2694,8 +2697,9 @@ function CheckHung($alias){
 				}
 		}
 }
-
-
+// ***************************************************************************
+// ***************************************************************************
+//get pid from alias
 function GetPid($alias){
 	global $cfg;
 			if(!is_file($cfg["torrent_file_path"].$alias.".pid"))
@@ -2703,6 +2707,9 @@ function GetPid($alias){
 		$content = file($cfg["torrent_file_path"].$alias.".pid");
 		return $content[0];
 }
+// ***************************************************************************
+// ***************************************************************************
+// convert XX:yyyyyy;XXXXX:yyyyyyy; to $XX=yyyyyy;
 function Options2Vars($options,$allowedVars){
 	$output= Array();
 		if($options==''){
@@ -2716,5 +2723,19 @@ function Options2Vars($options,$allowedVars){
 				}
 		}
 	return $output;
+}
+// ***************************************************************************
+// ***************************************************************************
+//Check if process is running
+function CheckRunning($alias=''){
+	global $cfg;
+	if($alias){
+		// if check one torrent running or not
+		return (!is_file($cfg["torrent_file_path"].$alias.".pid")) ? 1:0;
+	}else{
+		// if check any torrent running or not 
+		//* not build yet
+		return 0;
+	}
 }
 ?>
