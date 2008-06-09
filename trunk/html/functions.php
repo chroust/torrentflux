@@ -2662,4 +2662,59 @@ function getDirList($dirName)
         }
     }
 }
+// ***************************************************************************
+// ***************************************************************************
+//check if user home folder exist, if not  , creat it 
+function CheckHomeDir($owner){
+	global $owner;
+		if (!is_dir($cfg["path"]."/".$owner)){
+				if (is_writable($cfg["path"])){
+					mkdir($cfg["path"]."/".$owner, 0777);
+				}else{
+				  AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
+						if (IsAdmin()){
+							header("location: admin.php?op=configSettings");
+						   exit();
+						}else{
+							$messages .= "<b>Error</b> TorrentFlux settings are not correct (path is not writable) -- please contact an admin.<br>";
+						}
+				}
+		}
+}
+function CheckHung($alias){
+	include_once("RunningTorrent.php");
+		if (!is_file($cfg["torrent_file_path"].$alias.".pid")){
+			$runningTorrents = getRunningTorrents();
+				foreach ($runningTorrents as $key => $value){
+					$rt = new RunningTorrent($value);
+						if ($rt->statFile == $alias) {
+							AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
+							//    $result = exec("kill ".$rt->processId);
+						}
+				}
+		}
+}
+
+
+function GetPid($alias){
+	global $cfg;
+			if(!is_file($cfg["torrent_file_path"].$alias.".pid"))
+				return -1;
+		$content = file($cfg["torrent_file_path"].$alias.".pid");
+		return $content[0];
+}
+function Options2Vars($options,$allowedVars){
+	$output= Array();
+		if($options==''){
+			return $output;
+		}
+	$options=split(';', $options);
+		foreach($options as $option){
+			$tmp=split(':',$option ,2);
+				if(in_array($tmp[0],$allowedVars)){
+					$output[$tmp[0]]=$tmp[1];
+				}
+		}
+	return $output;
+}
 ?>
