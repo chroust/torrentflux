@@ -15,6 +15,7 @@ TorrentFlux v2.4
 * Bug fix for torrents dying after they're started (tornado shell args not escaped)
 * Postgres 8 sql install scripts
 * Updated MySQL install scripts (TYPE clause depreciated for storage engine declarations)
+* Fixed bug preventing torrents from starting in simple mode
 
 Bug fixes from Debian team
 * Recursive call error in SearchEngineBase
