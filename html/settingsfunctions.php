@@ -26,7 +26,7 @@
 // This file contains methods used by both the login.php and the
 // main application
 //*************************************************************
-function getRequestVar($varName)
+function getRequestVar($varName,$limited_values='')
 {
     if (array_key_exists($varName,$_REQUEST))
     {
@@ -35,13 +35,19 @@ function getRequestVar($varName)
             $tmpArr = $_REQUEST[$varName];
             foreach($tmpArr as $key => $value);
             {
-                $tmpArr[$key] = htmlentities(trim($value), ENT_QUOTES);
+                $tmp = htmlentities(trim($value), ENT_QUOTES);
+					if($limited_values !=='' && is_array($limited_values) && in_array($tmp,$limited_values)){
+						$tmpArr[$key]=$tmp;
+					}
             }
-
             return $tmpArr;
-
         } else {
-            return htmlentities(trim($_REQUEST[$varName]), ENT_QUOTES);
+			$tmp = htmlentities(trim($_REQUEST[$varName]), ENT_QUOTES);
+				if($limited_values !=='' && is_array($limited_values) && in_array($tmp,$limited_values)){
+					return $tmp;
+				}else{
+					return '';
+				}
         }
     }
     else
