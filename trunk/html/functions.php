@@ -2289,19 +2289,13 @@ function getDirList($dirName)
     $arList = array();
     $file_filter = getFileFilter($cfg["file_types_array"]);
 
-    if (is_dir($dirName))
-    {
+    if (is_dir($dirName)){
         $handle = opendir($dirName);
-    }
-    else
-    {
+    }else{
         // nothing to read
-        if (IsAdmin())
-        {
+        if (IsAdmin()){
             echo "<b>ERROR:</b> ".$dirName." Path is not valid. Please edit <a href='admin.php?op=configSettings'>settings</a><br>";
-        }
-        else
-        {
+        }else{
             echo "<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
         }
         return;
@@ -2311,18 +2305,12 @@ function getDirList($dirName)
     $arUserTorrent = array();
     $arListTorrent = array();
 
-    while($entry = readdir($handle))
-    {
-        if ($entry != "." && $entry != "..")
-        {
-            if (is_dir($dirName."/".$entry))
-            {
+    while($entry = readdir($handle)) {
+        if ($entry != "." && $entry != ".."){
+            if (is_dir($dirName."/".$entry)){
                 // don''t do a thing
-            }
-            else
-            {
-                if (ereg($file_filter, $entry))
-                {
+            }else{
+                if (ereg($file_filter, $entry)){
                     $key = filemtime($dirName."/".$entry).md5($entry);
                     $arList[$key] = $entry;
                 }
@@ -2761,4 +2749,51 @@ function NewTorrent($file){
 		}
 	return 0;
 }
+function All($action){
+	global $cfg;
+		if(!in_array($action,Array('Start','Kill'))){
+			return 0;
+		}
+	$file_filter = getFileFilter($cfg["file_types_array"]);
+	$dirName=$cfg["torrent_file_path"];
+		if (is_dir($dirName)){
+			$handle = opendir($dirName);
+		}else{
+			// nothing to read
+				if (IsAdmin()){
+					echo "<b>ERROR:</b> ".$dirName." Path is not valid. Please edit <a href='admin.php?op=configSettings'>settings</a><br>";
+				}else{
+					echo "<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
+				}
+			return;
+		}
+    while($entry = readdir($handle)) {
+        if ($entry != "." && $entry != ".."){
+            if (is_dir($dirName."/".$entry)){
+                // don''t do a thing
+            }else{
+                if (ereg($file_filter, $entry)){
+                    $key = filemtime($dirName."/".$entry).md5($entry);
+                    $arList[$key] = $entry;
+                }
+            }
+        }
+    }
+
+    // sort the files by date
+    krsort($arList);
+		if($action=='Start'){
+				foreach($arList as $entry){
+					$abd=new BtControl($entry,'');
+					$abd->Start();
+				}
+		}elseif($action=='Kill'){
+				foreach($arList as $entry){
+					$abd=new BtControl($entry,'');
+					$abd->Kill();
+				}
+		}	
+
+}
+
 ?>
