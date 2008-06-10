@@ -2738,4 +2738,27 @@ function CheckRunning($alias=''){
 		return 0;
 	}
 }
+// ***************************************************************************
+// ***************************************************************************
+//Upload a Torrent
+function NewTorrent($file){
+	global $cfg;
+		if(!is_file($file)){
+			return 'no file';
+		}
+	$filesize=filesize($file);
+		if(!($filesize <= 1000000 && $filesize > 0)){
+			return 'filesize error';
+		}
+		if(is_file($cfg["torrent_file_path"].$file_name)){
+			return 'file exist already';
+		}
+	$file_name = cleanFileName(str_replace(array("'",","), "", basename($file)));
+		if (ereg(getFileFilter($cfg["file_types_array"]), $file)){
+			rename($file,$cfg["torrent_file_path"].$file_name);
+			chmod($file, 0644);
+			return 1;
+		}
+	return 0;
+}
 ?>
