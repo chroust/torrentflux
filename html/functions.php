@@ -2289,13 +2289,19 @@ function getDirList($dirName)
     $arList = array();
     $file_filter = getFileFilter($cfg["file_types_array"]);
 
-    if (is_dir($dirName)){
+    if (is_dir($dirName))
+    {
         $handle = opendir($dirName);
-    }else{
+    }
+    else
+    {
         // nothing to read
-        if (IsAdmin()){
+        if (IsAdmin())
+        {
             echo "<b>ERROR:</b> ".$dirName." Path is not valid. Please edit <a href='admin.php?op=configSettings'>settings</a><br>";
-        }else{
+        }
+        else
+        {
             echo "<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
         }
         return;
@@ -2305,12 +2311,18 @@ function getDirList($dirName)
     $arUserTorrent = array();
     $arListTorrent = array();
 
-    while($entry = readdir($handle)) {
-        if ($entry != "." && $entry != ".."){
-            if (is_dir($dirName."/".$entry)){
+    while($entry = readdir($handle))
+    {
+        if ($entry != "." && $entry != "..")
+        {
+            if (is_dir($dirName."/".$entry))
+            {
                 // don''t do a thing
-            }else{
-                if (ereg($file_filter, $entry)){
+            }
+            else
+            {
+                if (ereg($file_filter, $entry))
+                {
                     $key = filemtime($dirName."/".$entry).md5($entry);
                     $arList[$key] = $entry;
                 }
@@ -2650,150 +2662,4 @@ function getDirList($dirName)
         }
     }
 }
-// ***************************************************************************
-// ***************************************************************************
-//check if user home folder exist, if not  , creat it 
-function CheckHomeDir($owner){
-	global $owner;
-		if (!is_dir($cfg["path"]."/".$owner)){
-				if (is_writable($cfg["path"])){
-					mkdir($cfg["path"]."/".$owner, 0777);
-				}else{
-				  AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
-						if (IsAdmin()){
-							header("location: admin.php?op=configSettings");
-						   exit();
-						}else{
-							$messages .= "<b>Error</b> TorrentFlux settings are not correct (path is not writable) -- please contact an admin.<br>";
-						}
-				}
-		}
-}
-// ***************************************************************************
-// ***************************************************************************
-// check if any hung
-function CheckHung($alias){
-	include_once("RunningTorrent.php");
-		if (!is_file($cfg["torrent_file_path"].$alias.".pid")){
-			$runningTorrents = getRunningTorrents();
-				foreach ($runningTorrents as $key => $value){
-					$rt = new RunningTorrent($value);
-						if ($rt->statFile == $alias) {
-							AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
-							//    $result = exec("kill ".$rt->processId);
-						}
-				}
-		}
-}
-// ***************************************************************************
-// ***************************************************************************
-//get pid from alias
-function GetPid($alias){
-	global $cfg;
-			if(!is_file($cfg["torrent_file_path"].$alias.".pid"))
-				return -1;
-		$content = file($cfg["torrent_file_path"].$alias.".pid");
-		return $content[0];
-}
-// ***************************************************************************
-// ***************************************************************************
-// convert XX:yyyyyy;XXXXX:yyyyyyy; to $XX=yyyyyy;
-function Options2Vars($options,$allowedVars){
-	$output= Array();
-		if($options==''){
-			return $output;
-		}
-	$options=split(';', $options);
-		foreach($options as $option){
-			$tmp=split(':',$option ,2);
-				if(in_array($tmp[0],$allowedVars)){
-					$output[$tmp[0]]=$tmp[1];
-				}
-		}
-	return $output;
-}
-// ***************************************************************************
-// ***************************************************************************
-//Check if process is running
-function CheckRunning($alias=''){
-	global $cfg;
-	if($alias){
-		// if check one torrent running or not
-		return (!is_file($cfg["torrent_file_path"].$alias.".pid")) ? 1:0;
-	}else{
-		// if check any torrent running or not 
-		//* not build yet
-		return 0;
-	}
-}
-// ***************************************************************************
-// ***************************************************************************
-//Upload a Torrent
-function NewTorrent($file){
-	global $cfg;
-		if(!is_file($file)){
-			return 'no file';
-		}
-	$filesize=filesize($file);
-		if(!($filesize <= 1000000 && $filesize > 0)){
-			return 'filesize error';
-		}
-		if(is_file($cfg["torrent_file_path"].$file_name)){
-			return 'file exist already';
-		}
-	$file_name = cleanFileName(str_replace(array("'",","), "", basename($file)));
-		if (ereg(getFileFilter($cfg["file_types_array"]), $file)){
-			rename($file,$cfg["torrent_file_path"].$file_name);
-			chmod($file, 0644);
-			return 1;
-		}
-	return 0;
-}
-function All($action){
-	global $cfg;
-		if(!in_array($action,Array('Start','Kill'))){
-			return 0;
-		}
-	$file_filter = getFileFilter($cfg["file_types_array"]);
-	$dirName=$cfg["torrent_file_path"];
-		if (is_dir($dirName)){
-			$handle = opendir($dirName);
-		}else{
-			// nothing to read
-				if (IsAdmin()){
-					echo "<b>ERROR:</b> ".$dirName." Path is not valid. Please edit <a href='admin.php?op=configSettings'>settings</a><br>";
-				}else{
-					echo "<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
-				}
-			return;
-		}
-    while($entry = readdir($handle)) {
-        if ($entry != "." && $entry != ".."){
-            if (is_dir($dirName."/".$entry)){
-                // don''t do a thing
-            }else{
-                if (ereg($file_filter, $entry)){
-                    $key = filemtime($dirName."/".$entry).md5($entry);
-                    $arList[$key] = $entry;
-                }
-            }
-        }
-    }
-
-    // sort the files by date
-    krsort($arList);
-		if($action=='Start'){
-				foreach($arList as $entry){
-					$abd=new BtControl($entry,'');
-					$abd->Start();
-				}
-		}elseif($action=='Kill'){
-				foreach($arList as $entry){
-					$abd=new BtControl($entry,'');
-					$abd->Kill();
-				}
-		}	
-
-}
-
 ?>
