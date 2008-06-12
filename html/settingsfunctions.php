@@ -26,15 +26,11 @@
 // This file contains methods used by both the login.php and the
 // main application
 //*************************************************************
-function getRequestVar($varName,$limited_values='')
-{
-    if (array_key_exists($varName,$_REQUEST))
-    {
-        if (is_array($_REQUEST[$varName]))
-        {
+function getRequestVar($varName,$limited_values=''){
+    if (array_key_exists($varName,$_REQUEST)){
+        if (is_array($_REQUEST[$varName])){
             $tmpArr = $_REQUEST[$varName];
-            foreach($tmpArr as $key => $value);
-            {
+            foreach($tmpArr as $key => $value){
                 $tmp = htmlentities(trim($value), ENT_QUOTES);
 					if($limited_values !=='' && is_array($limited_values) && in_array($tmp,$limited_values)){
 						$tmpArr[$key]=$tmp;
@@ -43,15 +39,17 @@ function getRequestVar($varName,$limited_values='')
             return $tmpArr;
         } else {
 			$tmp = htmlentities(trim($_REQUEST[$varName]), ENT_QUOTES);
-				if($limited_values !=='' && is_array($limited_values) && in_array($tmp,$limited_values)){
-					return $tmp;
+				if(is_array($limited_values)){
+						if(in_array($tmp,$limited_values)){
+							return $tmp;
+						}else{
+							exit('<b>Warning: '.$varName.' is not in limited values</b>');
+						}
 				}else{
-					return '';
+					return $tmp;
 				}
         }
-    }
-    else
-    {
+    }else{
         return '';
     }
 }
