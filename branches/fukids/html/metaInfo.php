@@ -213,7 +213,6 @@ function showMetaInfo($torrent, $allowSave=false)
     
                 echo "<tr><td>Selected size:</td><td id=\"sel\">0</td></tr>";
                 echo "</table><br>\n";
-    
                 if ($allowSave)
                 {
                     echo "<form name=\"priority\" action=\"index.php\" method=\"POST\" >";

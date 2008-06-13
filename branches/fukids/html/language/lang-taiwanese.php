@@ -1,4 +1,4 @@
-<?php
+ï»¿<?php
 
 /**************************************************************************/
 /* TorrentFlux - PHP Torrent Client
@@ -26,145 +26,156 @@
 /**************************************************************************/
 
 define("_CHARSET","big5");  // if you don't know... then leave this as is.
-define("_SELECTFILE","½Ð¿ï¾Ü¤@­Ó­n¤W¶Çªº Torrent ÀÉ®×");
-define("_URLFILE","Torrent ÀÉ®×ªººô§}");
-define("_UPLOAD","¤W¶Ç");
-define("_GETFILE","¨ú±oÀÉ®×");
-define("_TORRENTLINKS","Torrent ªº³sµ²");
-define("_ONLINE","¦b½u");
-define("_OFFLINE","Â÷½u");
-define("_STORAGE","ÀxÂÃªÅ¶¡");
-define("_DRIVESPACE","ºÏºÐªÅ¶¡");
-define("_SERVERSTATS","¥D¾÷²Î­p¸ê°T");
-define("_DIRECTORYLIST","¥Ø¿ý²M³æ");
-define("_ALL","¥þ³¡¸ê°T");
-define("_PAGEWILLREFRESH","­¶­±·|¦Û°Ê¨C");
-define("_SECONDS","¬í§ó·s");
-define("_TURNONREFRESH","±Ò°Ê­¶­±§ó·s");
-define("_TURNOFFREFRESH","Ãö³¬­¶­±§ó·s");
-define("_WARNING","Äµ§i");
-define("_DRIVESPACEUSED","ºÏºÐªÅ¶¡¤w³Q¨Ï¥Î!");
-define("_ADMINMESSAGE","§Aªº°T®§§¨¤¤¦³¤@«ÊºÞ²z­û±Hµ¹§Aªº°T®§.");
+define("_SELECTFILE","è«‹é¸æ“‡ä¸€å€‹è¦ä¸Šå‚³çš„ Torrent æª”æ¡ˆ");
+define("_URLFILE","Torrent æª”æ¡ˆçš„ç¶²å€");
+define("_UPLOAD","ä¸Šå‚³");
+define("_GETFILE","å–å¾—æª”æ¡ˆ");
+define("_TORRENTLINKS","Torrent çš„é€£çµ");
+define("_ONLINE","åœ¨ç·š");
+define("_OFFLINE","é›¢ç·š");
+define("_STORAGE","å„²è—ç©ºé–“");
+define("_DRIVESPACE","ç£ç¢Ÿç©ºé–“");
+define("_SERVERSTATS","ä¸»æ©Ÿçµ±è¨ˆè³‡è¨Š");
+define("_DIRECTORYLIST","ç›®éŒ„æ¸…å–®");
+define("_ALL","å…¨éƒ¨è³‡è¨Š");
+define("_PAGEWILLREFRESH","é é¢æœƒè‡ªå‹•æ¯");
+define("_SECONDS","ç§’æ›´æ–°");
+define("_TURNONREFRESH","å•Ÿå‹•é é¢æ›´æ–°");
+define("_TURNOFFREFRESH","é—œé–‰é é¢æ›´æ–°");
+define("_WARNING","è­¦å‘Š");
+define("_DRIVESPACEUSED","ç£ç¢Ÿç©ºé–“å·²è¢«ä½¿ç”¨!");
+define("_ADMINMESSAGE","ä½ çš„è¨Šæ¯å¤¾ä¸­æœ‰ä¸€å°ç®¡ç†å“¡å¯„çµ¦ä½ çš„è¨Šæ¯.");
 define("_TORRENTS","Torrents");
-define("_UPLOADHISTORY","¤W¶Ç¬ö¿ý");
-define("_MYPROFILE","½s¿è§Úªº­Ó¤H¸ê®Æ");
-define("_ADMINISTRATION","ºÞ²z±±¨î¥x");
-define("_SENDMESSAGETO","¶Ç°e°T®§µ¹");
-define("_TORRENTFILE","Torrent ÀÉ®×");
-define("_FILESIZE","ÀÉ®×¤j¤p");
-define("_STATUS","ª¬ºA");
-define("_ADMIN","ºÞ²z");
-define("_BADFILE","·lÃaÀÉ®×");
+define("_UPLOADHISTORY","ä¸Šå‚³ç´€éŒ„");
+define("_MYPROFILE","ç·¨è¼¯æˆ‘çš„å€‹äººè³‡æ–™");
+define("_ADMINISTRATION","ç®¡ç†æŽ§åˆ¶å°");
+define("_SENDMESSAGETO","å‚³é€è¨Šæ¯çµ¦");
+define("_TORRENTFILE","Torrent æª”æ¡ˆ");
+define("_FILESIZE","æª”æ¡ˆå¤§å°");
+define("_STATUS","ç‹€æ…‹");
+define("_ADMIN","ç®¡ç†");
+define("_BADFILE","æå£žæª”æ¡ˆ");
 define("_DATETIMEFORMAT","Y/m/d g:i a"); //Date Time mask '2004/02/26 03:53 pm'
 define("_DATEFORMAT","Y/m/d"); //Date mask '2004/02/26'
-define("_ESTIMATEDTIME","¦ô­p®É¶¡");
-define("_DOWNLOADSPEED","¤U¸ü³t«×");
-define("_UPLOADSPEED","¤W¶Ç³t«×");
-define("_SHARING","¤À¨É¤ñ¨Ò");
-define("_USER","¥Î¤á");
-define("_DONE","¤wµ²§ô");
-define("_INCOMPLETE","¥¼§¹¦¨");
-define("_NEW","·s¼W");
-define("_TORRENTDETAILS","Torrent ªº¸Ô²Ó¸ê°T");
-define("_STOPDOWNLOAD","°±¤î Torrent");
-define("_RUNTORRENT","±Ò°Ê Torrent");
+define("_ESTIMATEDTIME","ä¼°è¨ˆæ™‚é–“");
+define("_DOWNLOADSPEED","ä¸‹è¼‰é€Ÿåº¦");
+define("_UPLOADSPEED","ä¸Šå‚³é€Ÿåº¦");
+define("_SHARING","åˆ†äº«æ¯”ä¾‹");
+define("_USER","ç”¨æˆ¶");
+define("_DONE","å·²çµæŸ");
+define("_INCOMPLETE","æœªå®Œæˆ");
+define("_NEW","æ–°å¢ž");
+define("_TORRENTDETAILS","Torrent çš„è©³ç´°è³‡è¨Š");
+define("_STOPDOWNLOAD","åœæ­¢ Torrent");
+define("_RUNTORRENT","å•Ÿå‹• Torrent");
 define("_SEEDTORRENT","Seed Torrent"); // No Official Chinese translation for "seed"
-define("_DELETE","§R°£");
-define("_ABOUTTODELETE","§A±N­n§R°£");
-define("_NOTOWNER","§A¤£¬O³o­Ó Torrent ÀÉªº¤W¶ÇªÌ");
-define("_MESSAGETOALL","³o­Ó°T®§±N¶Ç°eµ¹¨C¤@¦ì¥Î¤á");
-define("_TRYDIFFERENTUSERID","µo¥Í¿ù»~: ½Ð¸Õ¸Õ¥t¤@­Ó¥Î¤á±b¸¹.");
-define("_HASBEENUSED","¤w¸g³Q¨Ï¥Î¤F.");
-define("_RETURNTOEDIT","¦^¨ì½s¿è");
-define("_ADMINUSERACTIVITY","ºÞ²z - ¥Î¤á¬¡°Ê°O¿ý");
-define("_ADMIN_MENU","ºÞ²z");
-define("_ACTIVITY_MENU","¬¡°Ê°O¿ý");
-define("_LINKS_MENU","³sµ²");
-define("_NEWUSER_MENU","·sªº¥Î¤á");
-define("_BACKUP_MENU","³Æ¥÷");
-define("_ALLUSERS","©Ò¦³¥Î¤á");
-define("_NORECORDSFOUND","¨S¦³§ä¨ì¸ê®Æ");
-define("_SHOWPREVIOUS","Åã¥Ü«e¤@­Ó");
-define("_SHOWMORE","Åã¥Ü§ó¦h");
-define("_ACTIVITYSEARCH","·j´M¬¡°Ê°O¿ý");
-define("_FILE","ÀÉ®×");
-define("_ACTION","°Ê§@");
-define("_SEARCH","·j´M");
-define("_ACTIVITYLOG","¬¡°Ê°O¿ý²M³æ - ³Ì«á");
-define("_DAYS","¤é");
+define("_DELETE","åˆªé™¤");
+define("_ABOUTTODELETE","ä½ å°‡è¦åˆªé™¤");
+define("_NOTOWNER","ä½ ä¸æ˜¯é€™å€‹ Torrent æª”çš„ä¸Šå‚³è€…");
+define("_MESSAGETOALL","é€™å€‹è¨Šæ¯å°‡å‚³é€çµ¦æ¯ä¸€ä½ç”¨æˆ¶");
+define("_TRYDIFFERENTUSERID","ç™¼ç”ŸéŒ¯èª¤: è«‹è©¦è©¦å¦ä¸€å€‹ç”¨æˆ¶å¸³è™Ÿ.");
+define("_HASBEENUSED","å·²ç¶“è¢«ä½¿ç”¨äº†.");
+define("_RETURNTOEDIT","å›žåˆ°ç·¨è¼¯");
+define("_ADMINUSERACTIVITY","ç®¡ç† - ç”¨æˆ¶æ´»å‹•è¨˜éŒ„");
+define("_ADMIN_MENU","ç®¡ç†");
+define("_ACTIVITY_MENU","æ´»å‹•è¨˜éŒ„");
+define("_LINKS_MENU","é€£çµ");
+define("_NEWUSER_MENU","æ–°çš„ç”¨æˆ¶");
+define("_BACKUP_MENU","å‚™ä»½");
+define("_ALLUSERS","æ‰€æœ‰ç”¨æˆ¶");
+define("_NORECORDSFOUND","æ²’æœ‰æ‰¾åˆ°è³‡æ–™");
+define("_SHOWPREVIOUS","é¡¯ç¤ºå‰ä¸€å€‹");
+define("_SHOWMORE","é¡¯ç¤ºæ›´å¤š");
+define("_ACTIVITYSEARCH","æœå°‹æ´»å‹•è¨˜éŒ„");
+define("_FILE","æª”æ¡ˆ");
+define("_ACTION","å‹•ä½œ");
+define("_SEARCH","æœå°‹");
+define("_ACTIVITYLOG","æ´»å‹•è¨˜éŒ„æ¸…å–® - æœ€å¾Œ");
+define("_DAYS","æ—¥");
 define("_IP","IP");
-define("_TIMESTAMP","¤é´Á");
-define("_USERDETAILS","¥Î¤á¸ê®Æ");
-define("_HITS","¦¸¼Æ");
-define("_UPLOADACTIVITY","¤W¶Ç°O¿ý");
-define("_JOINED","¥[¤J¥»¯¸¤é´Á"); // header for the date when the user joined (became a member)
-define("_LASTVISIT","³Ì«á¨ì³X"); // header for when the user last visited the site
-define("_USERSACTIVITY","¬¡°Ê°O¿ý"); // used for popup to display Activity next to users name
-define("_NORMALUSER","°òÂ¦¥Î¤á"); // used to describe a normal user's account type
-define("_ADMINISTRATOR","ºÞ²z­û"); // used to describe an administrator's account type
-define("_SUPERADMIN","¶W¯ÅºÞ²z­û"); // used to describe Super Admin's account type
-define("_EDIT","½s¿è");
-define("_USERADMIN","ºÞ²z - ºÞ²z¥Î¤á"); // title of page for user administration
-define("_EDITUSER","½s¿è¥Î¤á");
-define("_UPLOADPARTICIPATION","¤W¶Çªº°Ñ»P«×");
-define("_UPLOADS","¤W¶ÇÁ`¼Æ"); // Number of uploads a user has contributed
-define("_PERCENTPARTICIPATION","°Ñ»P«×¦Ê¤À¤ñ");
-define("_PARTICIPATIONSTATEMENT","°Ñ»P«×¥H¤Î¤W¶Ç¼Æ¶qªº­pºâ¤Ñ¼Æ:"); // ends with 15 Days
-define("_TOTALPAGEVIEWS","Á`¦@Æ[¬Ýªº­¶¼Æ");
-define("_THEME","­·®æ");
-define("_USERTYPE","±b¸¹Ãþ§O");
-define("_NEWPASSWORD","·sªº±K½X");
-define("_CONFIRMPASSWORD","½T»{±K½X");
-define("_HIDEOFFLINEUSERS","¦b­º­¶ÁôÂÃÂ÷½u¥Î¤á");
-define("_UPDATE","§ó·s");
-define("_USERIDREQUIRED","»Ý­n¥Î¤á ID.");
-define("_PASSWORDLENGTH","±K½X¥²¶·¬O¤»¦ì¼Æªø.");
-define("_PASSWORDNOTMATCH","±K½X¤£²Å¦X");
-define("_PLEASECHECKFOLLOWING","½Ð½T»{¥H¤U°ÝÃD"); // Displays errors after this statement
-define("_NEWUSER","·sªº¥Î¤á");
-define("_PASSWORD","±K½X");
-define("_CREATE","·s¼W"); // button text to create a new user
-define("_ADMINEDITLINKS","ºÞ²z - ½s¿è³sµ²");
-define("_FULLURLLINK","§¹¾ã³sµ²");
-define("_BACKTOPARRENT","¦^¨ì¤W¤@­Ó¥Ø¿ý");  // indicates going back to parent directory
-define("_DOWNLOADDETAILS","¤U¸ü¸ê°T");
-define("_PERCENTDONE","§¹¦¨¦Ê¤À¤ñ");
-define("_RETURNTOTORRENTS","¦^¨ì Torrents"); // Link at the bottom of each page
-define("_DATE","¤é´Á");
-define("_WROTE","¼g¨ì");  // Used in a reply to tag what the user had writen
-define("_SENDMESSAGETITLE","°e¥X¤@­Ó°T®§");  // Title of page
-define("_TO","±Hµ¹");
-define("_FROM","¨Ó¦Û");
-define("_YOURMESSAGE","§Aªº°T®§");
-define("_SENDTOALLUSERS","¶Ç°eµ¹©Ò¦³¥Î¤á");
-define("_FORCEUSERSTOREAD","±j¨î·|­û¾\Åª"); // Admin option in messaging
-define("_SEND","¶Ç°e");  // Button to send private message
-define("_PROFILE","­Ó¤H¸ê®Æ");
-define("_PROFILEUPDATEDFOR","¦¹·|­ûªº¸ê®Æ¤w¸g½s¿è§¹¦¨: ");  // Profile updated for 'username'
-define("_REPLY","¦^ÂÐ");  // popup text for reply button
-define("_MESSAGE","°T®§");
-define("_MESSAGES","°T®§");  // plural (more than one)
-define("_RETURNTOMESSAGES","¦^¨ì°T®§");
-define("_COMPOSE","½s¼g");  // As in 'Compose a message' for button
-define("_LANGUAGE","»y¨t"); // label
+define("_TIMESTAMP","æ—¥æœŸ");
+define("_USERDETAILS","ç”¨æˆ¶è³‡æ–™");
+define("_HITS","æ¬¡æ•¸");
+define("_UPLOADACTIVITY","ä¸Šå‚³è¨˜éŒ„");
+define("_JOINED","åŠ å…¥æœ¬ç«™æ—¥æœŸ"); // header for the date when the user joined (became a member)
+define("_LASTVISIT","æœ€å¾Œåˆ°è¨ª"); // header for when the user last visited the site
+define("_USERSACTIVITY","æ´»å‹•è¨˜éŒ„"); // used for popup to display Activity next to users name
+define("_NORMALUSER","åŸºç¤Žç”¨æˆ¶"); // used to describe a normal user's account type
+define("_ADMINISTRATOR","ç®¡ç†å“¡"); // used to describe an administrator's account type
+define("_SUPERADMIN","è¶…ç´šç®¡ç†å“¡"); // used to describe Super Admin's account type
+define("_EDIT","ç·¨è¼¯");
+define("_USERADMIN","ç®¡ç† - ç®¡ç†ç”¨æˆ¶"); // title of page for user administration
+define("_EDITUSER","ç·¨è¼¯ç”¨æˆ¶");
+define("_UPLOADPARTICIPATION","ä¸Šå‚³çš„åƒèˆ‡åº¦");
+define("_UPLOADS","ä¸Šå‚³ç¸½æ•¸"); // Number of uploads a user has contributed
+define("_PERCENTPARTICIPATION","åƒèˆ‡åº¦ç™¾åˆ†æ¯”");
+define("_PARTICIPATIONSTATEMENT","åƒèˆ‡åº¦ä»¥åŠä¸Šå‚³æ•¸é‡çš„è¨ˆç®—å¤©æ•¸:"); // ends with 15 Days
+define("_TOTALPAGEVIEWS","ç¸½å…±è§€çœ‹çš„é æ•¸");
+define("_THEME","é¢¨æ ¼");
+define("_USERTYPE","å¸³è™Ÿé¡žåˆ¥");
+define("_NEWPASSWORD","æ–°çš„å¯†ç¢¼");
+define("_CONFIRMPASSWORD","ç¢ºèªå¯†ç¢¼");
+define("_HIDEOFFLINEUSERS","åœ¨é¦–é éš±è—é›¢ç·šç”¨æˆ¶");
+define("_UPDATE","æ›´æ–°");
+define("_USERIDREQUIRED","éœ€è¦ç”¨æˆ¶ ID.");
+define("_PASSWORDLENGTH","å¯†ç¢¼å¿…é ˆæ˜¯å…­ä½æ•¸é•·.");
+define("_PASSWORDNOTMATCH","å¯†ç¢¼ä¸ç¬¦åˆ");
+define("_PLEASECHECKFOLLOWING","è«‹ç¢ºèªä»¥ä¸‹å•é¡Œ"); // Displays errors after this statement
+define("_NEWUSER","æ–°çš„ç”¨æˆ¶");
+define("_PASSWORD","å¯†ç¢¼");
+define("_CREATE","æ–°å¢ž"); // button text to create a new user
+define("_ADMINEDITLINKS","ç®¡ç† - ç·¨è¼¯é€£çµ");
+define("_FULLURLLINK","å®Œæ•´é€£çµ");
+define("_BACKTOPARRENT","å›žåˆ°ä¸Šä¸€å€‹ç›®éŒ„");  // indicates going back to parent directory
+define("_DOWNLOADDETAILS","ä¸‹è¼‰è³‡è¨Š");
+define("_PERCENTDONE","å®Œæˆç™¾åˆ†æ¯”");
+define("_RETURNTOTORRENTS","å›žåˆ° Torrents"); // Link at the bottom of each page
+define("_DATE","æ—¥æœŸ");
+define("_WROTE","å¯«åˆ°");  // Used in a reply to tag what the user had writen
+define("_SENDMESSAGETITLE","é€å‡ºä¸€å€‹è¨Šæ¯");  // Title of page
+define("_TO","å¯„çµ¦");
+define("_FROM","ä¾†è‡ª");
+define("_YOURMESSAGE","ä½ çš„è¨Šæ¯");
+define("_SENDTOALLUSERS","å‚³é€çµ¦æ‰€æœ‰ç”¨æˆ¶");
+define("_FORCEUSERSTOREAD","å¼·åˆ¶æœƒå“¡é–±è®€"); // Admin option in messaging
+define("_SEND","å‚³é€");  // Button to send private message
+define("_PROFILE","å€‹äººè³‡æ–™");
+define("_PROFILEUPDATEDFOR","æ­¤æœƒå“¡çš„è³‡æ–™å·²ç¶“ç·¨è¼¯å®Œæˆ: ");  // Profile updated for 'username'
+define("_REPLY","å›žè¦†");  // popup text for reply button
+define("_MESSAGE","è¨Šæ¯");
+define("_MESSAGES","è¨Šæ¯");  // plural (more than one)
+define("_RETURNTOMESSAGES","å›žåˆ°è¨Šæ¯");
+define("_COMPOSE","ç·¨å¯«");  // As in 'Compose a message' for button
+define("_LANGUAGE","èªžç³»"); // label
 
 
-define("_CURRENTDOWNLOAD","Current Download");
-define("_CURRENTUPLOAD","Current Upload");
+define("_CURRENTDOWNLOAD","ç›®å‰ä¸‹è¼‰");
+define("_CURRENTUPLOAD","ç›®å‰ä¸Šè¼‰");
 define("_SERVERLOAD","Server Load");
 define("_FREESPACE","Free Space");
 define("_UPLOADED", "Uploaded");
 
 define("_QMANAGER_MENU","queue");
-define("_SETTINGS_MENU","settings");
-define("_SEARCHSETTINGS_MENU","search settings");
-define("_ERRORSREPORTED","Errors");
-define("_STARTED", "Started");
-define("_ENDED", "Ended");
+define("_SETTINGS_MENU","è¨­å®š");
+define("_SEARCHSETTINGS_MENU","æœå°‹è¨­å®š");
+define("_ERRORSREPORTED","éŒ¯èª¤");
+define("_STARTED", "å·²é–‹å§‹");
+define("_ENDED", "å·²å®Œçµ");
 define("_QUEUED","Queued");
 define("_DELQUEUE","Remove from Queue");
 define("_FORCESTOP","Kill Torrent");
 define("_STOPPING","Stopping");
 define("_COOKIE_MENU","cookies");
 
+define("_CLICK_TO_AUTOSTART","æŒ‰æˆ‘è‡ªå‹•é–‹å•Ÿ");
+
+//status
+define("_show_status_Downloading","ä¸‹è¼‰ä¸­");
+define("_show_status_Seeding","åšç¨®ä¸­");
+define("_show_status_Finished","å·²å®Œæˆ");
+define("_show_status_Stopped","å·²åœæ­¢");
+
+define("_SEEDS","ç¨®å­");
+define("_PEERS","ä¸‹è¼‰è€…");
+define("_NAME","åç¨±");
 ?>

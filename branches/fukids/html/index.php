@@ -26,6 +26,7 @@
 include_once("config.php");
 include_once("functions.php");
 
+var_dump( $_REQUEST);
 $messages = "";
 
 // set refresh option into the session cookie
@@ -89,7 +90,6 @@ if(!empty($torrent))
     $spo = getRequestVar('setPriorityOnly');
     if (!empty($spo)){
         // This is a setPriortiyOnly Request.
-
     }else
     {
         // if we are to start a torrent then do so
@@ -108,7 +108,7 @@ if(!empty($torrent))
                 $messages .= "<b>Error</b> TorrentFlux settings are not correct (path to python script is not valid) -- please contact an admin.<br>";
             }
         }
-
+	
         $command = "";
 
         $rate = getRequestVar('rate');

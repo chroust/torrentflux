@@ -6,11 +6,14 @@ include_once("AliasFile.php");
 include_once("setpriority.php");
 
 Class BtControl {
-var $torrent;
-var $rate;
-	function BtControl($torrent,$options=''){
-		GLOBAL $cfg;
-		$this->torrent = $torrent;
+	function BtControl($torrentid,$options=''){
+		GLOBAL $cfg,$db;
+		$this->torrentid=intval($torrentid);
+		$sql='SELECT torrent FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		$result=$db->GetOne($sql);
+		showError($db,$sql);
+		$this->torrent = $result;
+		$torrent=$result;
 		$this->CheckTorrent($torrent);
 		//grab the options to variables
 		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
@@ -36,9 +39,10 @@ var $rate;
 		CheckHomeDir($this->owner);
 		//creat .stat file
 		CheckHung($this->alias);
-			if(CheckRunning($this->alias))
-				return;
-		
+			if(CheckRunning($this->alias)!==0){
+				echo 'already running'.$this->alias;
+				exit();
+			}
 		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.".stat", $this->owner);
 			if ($cfg["AllowQueing"] AND $queue == "1"){
 				$af->QueueTorrentFile();  // this only writes out the stat file (does not start torrent)
@@ -84,9 +88,9 @@ var $rate;
 					if (! array_key_exists("debugTorrents", $cfg)){
 						insertSetting("debugTorrents", "0");
 					}
+					
 				passthru($command);
 				sleep(1);
-				echo $command;
 			}
 	}
 	
@@ -94,10 +98,10 @@ var $rate;
 	function Kill(){
 		global $cfg;
 		// write the new state to .state
-		$af = new AliasFile($cfg["torrent_file_path"].$this->alias, $this->owner);
+		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.'.stat', $this->owner);
 			if($af->percent_done < 100){
 				// The torrent is being stopped but is not completed dowloading
-				$af->percent_done = ($af->percent_done + 100)*-1;
+				$af->percent_done = ($af->percent_done+100)*-1;
 				$af->running = "0";
 				$af->time_left = "Torrent Stopped";
 			}else{
@@ -116,33 +120,33 @@ var $rate;
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 	}
 
-	function Delete($delTorrent=0,$delFile=0){
+	function Delete($delTorrent=1,$delFile=0){
 		GLOBAL $cfg;
 		if ( !(($cfg["user"] == getOwner($this->torrent)) || IsAdmin())){
 			AuditAction($cfg["constants"]["error"], $cfg["user"]." attempted to delete ".$this->torrent);
 		}
 		//kill the process first
 		$this->Kill();
-		// del torrent not working, as now use torrent to check process, so the torrent must have to delete
-		$delTorrent=1;
+		DelTorrentSQL($this->torrentid);
+		@unlink($cfg["torrent_file_path"].$this->alias.'.stat');
+		@unlink($cfg["torrent_file_path"].$this->alias.'.log');
 			if($delTorrent){
 				@unlink($cfg["torrent_file_path"].$this->torrent);
 			}
 			if($delFile){
-				@unlink($cfg["torrent_file_path"].$this->alias);
 				// try to remove the QInfo if in case it was queued.
 				@unlink($cfg["torrent_file_path"]."queue/".$alias_file.".Qinfo");
 				// try to remove the pid file
 				@unlink($cfg["torrent_file_path"].$this->alias.".pid");
 				@unlink($cfg["torrent_file_path"].$this->alias.".prio");
-				AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
 			}
+		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
 	}
 	
 	function CheckTorrent($torrent){
 		Global $cfg;
 			if(!is_file($cfg["torrent_file_path"].$this->torrent)){
-				die($torrent.' not exist');
+				showmessage($torrent.' not exist');
 			}
 	}
 }

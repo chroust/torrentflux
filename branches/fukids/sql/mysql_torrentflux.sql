@@ -171,3 +171,14 @@ CREATE TABLE `tf_cookies` (
   `data` varchar(255) default NULL,
   PRIMARY KEY  (`cid`)
 ) ENGINE=MyISAM ;
+
+
+CREATE TABLE IF NOT EXISTS `tf_torrents` (
+  `id` mediumint(8) NOT NULL auto_increment,
+  `file_name` varchar(100) NOT NULL,
+  `torrent` varchar(50) NOT NULL,
+  `hash` varchar(100) NOT NULL,
+  `owner_id` int(10) NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `hash` (`hash`)
+) ENGINE=MyISAM ;
