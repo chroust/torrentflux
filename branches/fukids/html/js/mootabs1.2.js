@@ -6,7 +6,6 @@ var mootabs = new Class({
 			changeTransition:	Fx.Transitions.Bounce.easeOut,
 			duration:			1000,
 			mouseOverClass:		'active',
-			activateOnLoad:		'first',
 			useAjax: 			false,
 			ajaxUrl: 			'',
 			ajaxOptions: 		{method:'get'},
@@ -40,25 +39,11 @@ var mootabs = new Class({
 			}.bind(this));
 			
 			item.addEvent('mouseout', function() {
-				if(item != this.activeTitle)
-				{
+				if(item != this.activeTitle){
 					item.removeClass(this.options.mouseOverClass);
 				}
 			}.bind(this));
 		}.bind(this));
-		
-		
-		if(this.options.activateOnLoad != 'none')
-		{
-			if(this.options.activateOnLoad == 'first')
-			{
-				this.activate(this.titles[0], true);
-			}
-			else
-			{
-				this.activate(this.options.activateOnLoad, true);	
-			}
-		}
 	},
 	
 	activate: function(tab, skipAnim){
@@ -84,7 +69,7 @@ var mootabs = new Class({
 			this.titles.removeClass('active');
 			tab.addClass('active');
 			this.activeTitle = tab;
-			this.activePanel.set('load', {evalScripts: true}).load('ajax.php?action=tabs&tab=' + this.activeTitle.getProperty('title')+'&torrentId='+selecting.id);
+			new Request.HTML({evalScripts:true,update:this.activePanel}).get('ajax.php?action=tabs&tab=' + this.activeTitle.getProperty('title')+'&torrentId='+selecting.id);
 		}
 	},
 	

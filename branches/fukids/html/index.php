@@ -336,10 +336,7 @@ if(!empty($torrent))
             if (array_key_exists("closeme",$_POST))
             {
 ?>
-                <script  language="JavaScript">
-                    window.opener.location.reload(true);
-                    window.close();
-                </script>
+
 <?php
                exit();
             }

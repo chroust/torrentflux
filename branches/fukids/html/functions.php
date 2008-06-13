@@ -2713,7 +2713,7 @@ function NewTorrent($file,$name){
 		}while(is_file($cfg["torrent_file_path"].$file_name));
 	rename($file,$file_name);
 	chmod ($file_name, 0644);
-	return NewTorrentInjectSQL($file_name);
+	return NewTorrentInjectDATA($file_name);
 }
 
 // ***************************************************************************
@@ -2743,7 +2743,7 @@ function UrlTorrent($url){
 	$fp = fopen($file_name, 'w');
 	fwrite($fp, $return);
 	fclose($fp);
-	return NewTorrentInjectSQL($file_name);
+	return NewTorrentInjectDATA($file_name);
 }
 // ***************************************************************************
 // ***************************************************************************
@@ -2760,6 +2760,9 @@ function CreatNewStat($torrent,$filesize){
 function torrent2stat($torrent){
 	return RemoveExtension(basename($torrent)).'.stat';
 }
+function torrent2log($torrent){
+	return RemoveExtension(basename($torrent)).'.log';
+}
 // ***************************************************************************
 // ***************************************************************************
 //function for removing the extension
@@ -2769,18 +2772,26 @@ function RemoveExtension($strName){
 			$strName = substr($strName, 0, -strlen($ext));
 		}
 return $strName;
-} 
+}
+function GrabTorrentInfo($basename){
+	require_once './include/BEncode.php';
+	require_once 'include/TorrentFile.class.php';
+	$basename=basename($basename);
+    $torrent = new BDECODE($basename);
+    $torrent->result['hash']=@sha1(BEncode($torrent->result["info"]));
+	return $torrent->result;
+}
 // ***************************************************************************
 // ***************************************************************************
 //function for injecting SQL while creating a torrent job
-function NewTorrentInjectSQL($filename){
+function NewTorrentInjectDATA($filename){
 	global $db,$cfg;
-	require_once './include/BEncode.php';
-	require_once 'include/TorrentFile.class.php';
 	$basename=basename($filename);
+	
+	$info=GrabTorrentInfo($basename);
     $torrent = new BDECODE($basename);
-    $hash=@sha1(BEncode($torrent->result["info"]));
-	$name=$torrent->result['info']['name.utf-8']?$torrent->result['info']['name.utf-8'] :$torrent->result['info']['name'];
+    $hash=@sha1(BEncode($info["info"]));
+	$name=$info['info']['name.utf-8']?$info['info']['name.utf-8'] :$info['info']['name'];
 		if(!$name || !$hash){
 			unlink($filename);
 			showmessage('WRONG TORRENT FORMAT');
@@ -2793,7 +2804,7 @@ function NewTorrentInjectSQL($filename){
 		if($recordset->RecordCount() == 1){
 			showmessage('TORRENT ALREADY EXIST');
 		}
-	$filesize=$torrent->result["info"]["piece length"] * (strlen($torrent->result["info"]["pieces"]) / 20);
+	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
 	CreatNewStat($basename,$filesize);
 	$sql = 'INSERT INTO `tf_torrents` (`file_name`,`torrent` ,`hash` ,`owner_id`) VALUES (\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\');';
 	$recordset = $db->Execute($sql);
@@ -2940,4 +2951,11 @@ function grabbingStatus($running,$percent_done){
 	return array($status,$status_text);
 }
 
+function TorrentIDtoTorrent($id){
+	global $db;
+	$sql='select `torrent` From `tf_torrents` WHERE `id`=\''.intval($id).'\' LIMIT 1';
+	$recordset = $db->Execute($sql);
+	$return=$recordset->FetchRow();
+	return $return['torrent'];
+}
 ?>

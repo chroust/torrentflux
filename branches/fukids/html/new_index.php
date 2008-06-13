@@ -225,17 +225,14 @@ var selected_tags =0;
 			<li title="tab3">user</li>
 			<li title="tab4">file</li>
 			<li title="tab5">speed</li>
+			<li title="tab6">log</li>
 		</ul>
-		<div id="tab1" class="mootabs_panel">
-		</div>
-		<div id="tab2" class="mootabs_panel">
-		</div>
-		<div id="tab3" class="mootabs_panel">
-		</div>
-		<div id="tab4" class="mootabs_panel">
-		</div>
-		<div id="tab5" class="mootabs_panel">
-		</div>
+		<div id="tab1" class="mootabs_panel"></div>
+		<div id="tab2" class="mootabs_panel"></div>
+		<div id="tab3" class="mootabs_panel"></div>
+		<div id="tab4" class="mootabs_panel"></div>
+		<div id="tab5" class="mootabs_panel"></div>
+		<div id="tab6" class="mootabs_panel"></div>
 	</div>
 </div>
 <div id="down_left">

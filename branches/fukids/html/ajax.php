@@ -35,18 +35,45 @@ if($action=='icon'){
 		
 		}
 }elseif($action=='tabs'){
-	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5'));
+	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5','tab6'));
+	$torrentId=intval(getRequestVar('torrentId'));
+		if(!$torrentId){
+			showmessage('torrentId Error',1);
+		}
 		if($tab=='tab1'){
 			//normal
-			echo '1';
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
+			$info['info']['pieces']='';
+			echo "<pre>".var_dump($info).'</pre>';
 		}elseif($tab=='tab2'){
 			//Tracker
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
+				foreach($info['announce-list'] as $announce){
+					echo $announce[0].'<br />';
+				}
 		}elseif($tab=='tab3'){
 			//user
 		}elseif($tab=='tab4'){
 			//file
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
+				if(is_array($info['info']['files'])){
+					//if this is a list of file
+					foreach($info['info']['files'] as $file){
+						echo $file['path.utf-8']['0'].'<br />';
+					}
+				}else{
+					echo $info['info']['name.utf-8'];
+				}
 		}elseif($tab=='tab5'){
 			//speed
+		}elseif($tab=='tab6'){
+			//log
+			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));
+			$fh = fopen($logfile, 'r');
+			$log = fread($fh, filesize($logfile));
+			fclose($fh);
+			echo $log;
+
 		}
 }
 ?>

@@ -5,6 +5,7 @@
 	margin: 0px;
 	padding: 0px;
 	height: 24px;
+	width:1000px;
 }
 
 .mootabs_title li {
@@ -25,11 +26,11 @@
 	display: none;
 	background-color: #ddd;
 	position: relative;
-	width: 100%;
+	width: 1000px;
 	top: -1px;
 	clear: both;
 	overflow: auto;
-	
+	height:100%;
 }
 
 .mootabs_panel.active {
