@@ -9,7 +9,8 @@ loadSettings();
 $Update_interval = 5;
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
@@ -17,35 +18,49 @@ $Update_interval = 5;
 <script type="text/javascript" src="js/sortableTable.js"></script>
 <script type="text/javascript" src="js/mootabs1.2.js"></script>
 <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
-<script type="text/javascript" src="js/moo.ddmenu.0.21.js"></script>		
+<script type="text/javascript" src="js/uimenu.js"></script>		
 <!--[if IE]>
-	<script type="text/javascript" src="js/excanvas-compressed.js"></script>		
+	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
+	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
 <![endif]-->
-<script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>	
+<script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>
 <link href="css/mocha.css" rel="stylesheet" type="text/css" />
 <link href="css/sortableTable.css" rel="stylesheet" type="text/css" />
 <link href="css/mootabs1.2.css" rel="stylesheet" type="text/css" />
-<link href="css/ddmenu.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="css/menu.css" rel="stylesheet" type="text/css" media="screen" />
+<!--[if IE]>
+	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
+<![endif]-->
 </head>
 <body>
 <script  type="text/javascript">
 function echo (a){
 	console.log(a);
 }
-
-window.addEvent('domready', function() {
-	forceUpdate=function(){
-		clearTimeout(timer);
-		get_data();
-	}
-	get_data=function(){
-		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&tags='+selected_tags, 
-			onComplete: function(data) {
+function getSelText(){
+	var txt = '';
+	if (window.getSelection){
+		txt = window.getSelection();
+	}else if (document.getSelection){
+		txt = document.getSelection();
+	}else if (document.selection){
+		txt = document.selection.createRange().text;
+	}else return;
+}
+document.onselectstart=new Function ("return false");
+if (window.sidebar){
+	document.onmousedown=$break;
+}
+	var get_data=function(){
+		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&tags='+selected_tags,onComplete:function(data){
 				update_data(data['torrents']);
 				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
 				timer=setTimeout('get_data()', UpdateInterval*1000);
-			}
-		}).get();
+			}}).get();
+	}
+	forceUpdate=function(){
+		clearTimeout(timer);
+		get_data();
 	}
 	update_data =function (Torrents){
 		var thisarray=new Array();
@@ -60,7 +75,7 @@ window.addEvent('domready', function() {
 				MaxdownSpeed[torrent.id]=0;
 			}
 			upSpeed[torrent.id][uploadcount]=parseFloat(torrent.up_speed);
-			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);echo(MaxdownSpeed[torrent.id]);
+			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);
 			MaxdownSpeed[torrent.id]=(downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id])?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
 		
 		});
@@ -93,17 +108,21 @@ window.addEvent('domready', function() {
 				myTabs1.activate(down_selecting_tab);
 			}
 		});
-		new DDMenu ('ddmenu_torrentAction', tr, {
-		onOpen: function (e) { 
-			this.enableItems(true);
-		}, 
-		onItemSelect: function (act_id, act_el, menu_bindon) {
-			torrentControl(act_id,tr.id);
-		}
-		});
+		torrent_RightMenu  = new UI.Menu( torrent.id, { event : 'rightClick' } );
+		torrent_RightMenu.addItems( [
+		{ label :'_Start', onclick : function() {}},
+		{ label :'_Kill', onclick : function() {}},
+		{ label :'_Del', onclick : function() {}},
+		{ label :'_DelAnd',id:torrent.id+'_DelAnd'}
+		]);
+		demoMenu3 = torrent_RightMenu.addSubMenu( torrent.id+'_DelAnd');
+		demoMenu3.addItems([
+		{label : '_RemoveTorrentAndFile'},
+		{label : '_RemoveTorrent'},
+		{label : '_RemoveFile'},
+		]);
 	}
 	ChangeTorrent=function(torrent){
-
 		$$('div#tbody div#'+torrent.id+' .tl_name').set('html',torrent.title);
 		$$('div#tbody div#'+torrent.id+' .tl_percent').set('html',torrent.percent);
 		$$('div#tbody div#'+torrent.id+' .tl_filesize').set('html',torrent.size);
@@ -119,9 +138,7 @@ window.addEvent('domready', function() {
 		new Request.HTML({complete:function(){echo('213123');}}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
 		forceUpdate();
 	}
-	sorted1 = new tableSoort('list_torrent')
-	myTabs1 = new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
-	function OpenWindow(id,title){
+	OpenWindow=function(id,title){
 				new MochaUI.Window({
 				id: 'window_',
 				title: title,
@@ -142,17 +159,18 @@ window.addEvent('domready', function() {
 						});
 					}else{
 							thisform.addEvent('submit',function(){
-								thisform.set('send', {evalResponse: 1,
-									url:thisform.action+'&usejs=1',
-								}).send();
+								thisform.set('send', {evalResponse: 1,url:thisform.action+'&usejs=1'}).send();
 								return false;
-							})
+							});
 					}
 				})
 				}
 			});
 	}
 
+window.addEvent('domready', function() {
+	sorted1 = new tableSoort('list_torrent')
+	myTabs1 = new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
 			OpenWindow(item.id,item.title);
@@ -182,15 +200,19 @@ window.addEvent('domready', function() {
 				MochaUI.closeAll();
 			}
 	});
-	pagemenu = new DDMenu ('ddmenu_torrentList', $('torrent_list_div'), {			
-		onOpen: function (e) { 
-			this.enableItems(true);						  //enable all 
-		}, 
-		onItemSelect: function (act_id, act_el, menu_bindon) {
-			OpenWindow(act_id,act_id);
-			console.info("menu action -> item id: \"%s\" from: %o in %o", act_id, act_el, menu_bindon) 
-		}
-	});
+	
+	// right click menu
+	uiMenu_listTorrent  = new UI.Menu( 'torrent_list_div', { event : 'rightClick' } );
+	uiMenu_listTorrent.addItems([
+			{label :'_Upload_Torrent', onclick : function(){}}
+		,   {label :'_Url_Torrent',  onclick : function(){} }
+		,   {label :'_Creat_Torrent',  onclick : function(){} }
+		,   {separator : true}
+		,   {label :'_Add_Feed', icon : 'menu/add.png' }
+		]);
+
+	//uiMenu_listTorrent.updateItemOnclick( 'button11', function() { if ( uiMenu_listTorrent.getSeparator(0) ) uiMenu_listTorrent.removeSeparator(0); else alert('already removed !'); } );
+
 	get_data();
 });
 var selecting;
@@ -216,7 +238,7 @@ var UpdateInterval=<?php echo $Update_interval?>;
 <div class="icon-seperator"></div>
 <div class="icon icon_window" id="New_Feed"><img src="images/icon/New_Feed.PNG" alt="new Feed"/></div>
 </div>
-
+<div id="down">
 <div id="down_right">
 	<div id="torrent_list_div">
 		<div id="list_torrent" >
@@ -253,6 +275,7 @@ var UpdateInterval=<?php echo $Update_interval?>;
 		<div id="tab6" class="mootabs_panel"></div>
 	</div>
 </div>
+
 <div id="down_left">
 <select size="5" id="torrent_multiselect1">
 <option VALUE="0">all</option>
@@ -265,7 +288,7 @@ var UpdateInterval=<?php echo $Update_interval?>;
 <select id="torrent_multiselect3" size="20">
 <option VALUE="0">all feed</option>
 </select>
-
+</div>
 </div>
 </div>
 
@@ -276,15 +299,6 @@ var UpdateInterval=<?php echo $Update_interval?>;
 <li class="item" id="Creat_Torrent"><a href="#"><?php echo _Creat_Torrent ?></a></li>
 <li class="sepline"></li>
 <li class="item" id="New_Feed"><a href="#"><?php echo _New_Feed ?></a></li>
-</ul>
-</div>
-
-<div class="ddmenu def" id="ddmenu_torrentAction" style="display:none">
-<ul>
-<li class="item" id="Start"><a href="#"><?php echo _Start ?></a></li>
-<li class="item" id="Kill"><a href="#"><?php echo _Kill ?></a></li>
-<li class="item" id="Del"><a href="#"><?php echo _Del ?></a></li>
-<li class="sepline"></li>
 </ul>
 </div>
 

@@ -26,7 +26,7 @@
 
 session_name("TorrentFlux");
 session_start();
-header("Content-Type: text/html; charset=utf8"); 
+header("Content-Type: text/html; charset=utf-8"); 
 $cfg["user"] = isset($_SESSION['user'])?strtolower($_SESSION['user']):'';
 include_once('db.php');
 include_once("settingsfunctions.php");

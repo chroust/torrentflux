@@ -176,7 +176,7 @@ if(!empty($user) && !empty($iamhim))
     }
     
     /* First User check */
-    $next_loc = "index.php";
+    $next_loc = "new_index.php";
     $sql = "SELECT count(*) FROM tf_users";
     $user_count = $db->GetOne($sql);
     if($user_count == 0 && $allow_login)

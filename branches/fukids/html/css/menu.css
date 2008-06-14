@@ -1,0 +1,96 @@
+
+html, body {
+    height :                    100%;
+}
+
+/*
+    Menu
+*/
+.ui-menu {
+    list-style :                none;
+    padding :                   1px;
+    margin :                    0px;
+    position :                  absolute;
+    z-index :                   9000;
+    visibility :                hidden;
+}
+
+.ui-menu.ui-menu-visible {
+    visibility :                visible;
+	/* make it on top*/
+    z-index :                   9999;
+}
+
+.ui-menu li {
+    cursor :                    pointer;
+	padding:0px;
+	border:1px solid transparent;
+    font-size :                 11px;
+	width:auto !important;
+	width:1px ;
+	overflow:visable;
+    line-height :               100%;
+}
+
+.ui-menu li {
+    white-space :               nowrap;
+}
+
+.ui-menu li.ui-menu-sep {
+    height :                    2px;
+    line-height :               2px;
+    cursor :                    default;
+}
+
+.ui-menu li.ui-menu-item img {
+    vertical-align :            top;
+    margin :                    0px 12px 0px 0px;
+    width :                     16px;
+    height :                    16px;
+}
+
+.ui-menu li.ui-menu-item span.ui-menu-label {
+    margin-right :              5px;
+    padding :                   3px 16px 3px 3px;
+    display :                   block;
+    height :                    16px;
+    line-height :               16px;
+}
+
+.ui-menu li.ui-menu-sep span {
+    display :                   block;
+}
+
+/*
+    Menu
+*/
+.ui-menu {
+    width:auto;
+	overflow:visible;
+    border :                    1px solid #868686;
+    background :                #FAFAFA url('../images/rightmenu/bg.gif') repeat-y left;
+}
+
+.ui-menu li.ui-menu-sep span {
+    height :                    1px;
+    line-height :               1px;
+    background :                transparent url('../images/rightmenu/sep.gif') no-repeat 30px 0px;
+}
+
+.ui-menu li.ui-menu-item.over {
+	padding:0px;
+    border :                    1px solid #DBCE99;
+    background :                url('../images/rightmenu/over.gif') repeat-x left;
+}
+
+.ui-menu li.ui-menu-item span.ui-menu-label.arrow {
+    background :                transparent url('../images/rightmenu/arrow_r.png') no-repeat right;
+}
+
+.ui-menu li.ui-menu-item.disable {
+    color : #A1A7AD;
+}
+.disabled {
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+} 

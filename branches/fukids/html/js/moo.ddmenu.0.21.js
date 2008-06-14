@@ -62,7 +62,7 @@ var DDMenu = new Class ({
         this.clickedElement = $empty;
         
         this.eBindon.addEvents ({
-            'mousedown': function () { this.eBindon.addEvent ('contextmenu', $break) }.bind(this),
+            'mousedown': function () { console.log('clicked: '+bindon); this.eBindon.addEvent ('contextmenu', $break) }.bind(this),
             'mouseup': this.preOpenEvent
         });
         
@@ -73,7 +73,7 @@ var DDMenu = new Class ({
     //while hidden
 
     preOpenEvent: function (event) {  
-    
+	console.log('called: '+this.eBindon.id);
         if (event.shift) {
             this.eBindon.removeEvent ('contextmenu', $break);
         }
