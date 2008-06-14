@@ -8,7 +8,9 @@ $db = getdb();
 loadSettings();
 $Update_interval = 5;
 ?>
-<html>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
 <script type="text/javascript" src="js/mootools-1.2-more.js"></script>
@@ -20,8 +22,6 @@ $Update_interval = 5;
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>		
 <![endif]-->
 <script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>	
-
-
 <link href="css/mocha.css" rel="stylesheet" type="text/css" />
 <link href="css/sortableTable.css" rel="stylesheet" type="text/css" />
 <link href="css/mootabs1.2.css" rel="stylesheet" type="text/css" />
@@ -206,15 +206,15 @@ var UpdateInterval=<?php echo $Update_interval?>;
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">
-<div class="icon icon_window" id="Upload_Torrent" title="Upload Torrent"><img src="images/icon/Upload_Torrent.PNG" /></div>
-<div class="icon icon_window" id="Url_Torrent" title="Url Torrent"><img src="images/icon/Url_Torrent.PNG" /></div>
-<div class="icon icon_window" id="Creat_Torrent"><img src="images/icon/Creat_Torrent.PNG" /></div>
+<div class="icon icon_window" id="Upload_Torrent" title="Upload Torrent"><img src="images/icon/Upload_Torrent.PNG" alt="upload_torrent" /></div>
+<div class="icon icon_window" id="Url_Torrent" title="Url Torrent"><img src="images/icon/Url_Torrent.PNG" alt="uplaod torrent from url" /></div>
+<div class="icon icon_window" id="Creat_Torrent"><img src="images/icon/Creat_Torrent.PNG" alt="creat torrent" /></div>
 <div class="icon-seperator"></div>
-<div class="icon icon_control" id="Start" title="Start"><img src="images/icon/Start.PNG" /></div>
-<div class="icon icon_control" id="Stop" title="Kill"><img src="images/icon/Stop.PNG" /></div>
-<div class="icon icon_control" id="Del" title="Del"><img src="images/icon/Del.PNG" /></div>
+<div class="icon icon_control" id="Start" title="Start"><img src="images/icon/Start.PNG" alt="start" /></div>
+<div class="icon icon_control" id="Stop" title="Kill"><img src="images/icon/Stop.PNG" alt="stop"/></div>
+<div class="icon icon_control" id="Del" title="Del"><img src="images/icon/Del.PNG" alt="del"/></div>
 <div class="icon-seperator"></div>
-<div class="icon icon_window" id="New_Feed"><img src="images/icon/New_Feed.PNG" /></div>
+<div class="icon icon_window" id="New_Feed"><img src="images/icon/New_Feed.PNG" alt="new Feed"/></div>
 </div>
 
 <div id="down_right">
@@ -254,17 +254,17 @@ var UpdateInterval=<?php echo $Update_interval?>;
 	</div>
 </div>
 <div id="down_left">
-<SELECT MULTIPLE size="5" id="torrent_multiselect1">
-<OPTION VALUE="0">all</OPTION>
- <OPTION VALUE="1">downloading</OPTION>
- <OPTION VALUE="2">finished</OPTION>
-</SELECT>
-<SELECT MULTIPLE size="2" id="torrent_multiselect2">
+<select size="5" id="torrent_multiselect1">
+<option VALUE="0">all</option>
+ <option VALUE="1">downloading</option>
+ <option VALUE="2">finished</option>
+</select>
+<select size="2" id="torrent_multiselect2">
 <option >user......</option>
-</SELECT>
-<SELECT MULTIPLE  id="torrent_multiselect3" size="20">
-<OPTION VALUE="0">all feed</OPTION>
-</SELECT>
+</select>
+<select id="torrent_multiselect3" size="20">
+<option VALUE="0">all feed</option>
+</select>
 
 </div>
 </div>
