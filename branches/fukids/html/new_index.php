@@ -6,7 +6,7 @@ session_name("TorrentFlux");
 session_start();
 $db = getdb();
 loadSettings();
-$Update_interval = 5000;
+$Update_interval = 5;
 ?>
 <html>
 <head>
@@ -43,7 +43,7 @@ window.addEvent('domready', function() {
 			onComplete: function(data) {
 				update_data(data['torrents']);
 				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
-				timer=setTimeout('get_data()', <?php echo $Update_interval; ?>);
+				timer=setTimeout('get_data()', UpdateInterval*1000);
 			}
 		}).get();
 	}
@@ -57,17 +57,18 @@ window.addEvent('domready', function() {
 				NewTorrent(torrent);
 				upSpeed[torrent.id]=new Array();
 				downSpeed[torrent.id]=new Array();
+				MaxdownSpeed[torrent.id]=0;
 			}
 			upSpeed[torrent.id][uploadcount]=parseFloat(torrent.up_speed);
-			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);
-			MaxdownSpeed[torrent.id]=downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id]?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
+			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);echo(MaxdownSpeed[torrent.id]);
+			MaxdownSpeed[torrent.id]=(downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id])?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
+		
 		});
 		$$('#tbody div.rows').each(function(item){
 			if(thisarray[item.id] !==1){
 				$(item.id).destroy();
 				downSpeed[item.id]=new Array();
 				upSpeed[item.id]=new Array();
-				MaxdownSpeed[torrent.id]=0;
 			}
 		});
 		uploadcount++;
@@ -80,8 +81,8 @@ window.addEvent('domready', function() {
 		new Element('div',{'class':'tl_status'}).set('html',torrent.status).injectInside(tr);
 		new Element('div',{'class':'tl_seeds'}).set('html',torrent.seeds).injectInside(tr);
 		new Element('div',{'class':'tl_peers'}).set('html',torrent.peers).injectInside(tr);
-		new Element('div',{'class':'tl_downloadspeed'}).set('html',torrent.down_speed).injectInside(tr);
-		new Element('div',{'class':'tl_uploadspeed'}).set('html',torrent.up_speed).injectInside(tr);
+		new Element('div',{'class':'tl_downloadspeed'}).set('html',torrent.down_speed+' KB/s').injectInside(tr);
+		new Element('div',{'class':'tl_uploadspeed'}).set('html',torrent.up_speed+' KB/s').injectInside(tr);
 		new Element('div',{'class':'tl_estime'}).set('html',torrent.estTime).injectInside(tr);
 		new Element('div',{'class':'tl_totalupload'}).set('html',torrent.totalUpload).injectInside(tr);
 		tr.addEvents({
@@ -109,8 +110,8 @@ window.addEvent('domready', function() {
 		$$('div#tbody div#'+torrent.id+' .tl_status').set('html',torrent.status);
 		$$('div#tbody div#'+torrent.id+' .tl_seeds').set('html',torrent.seeds);
 		$$('div#tbody div#'+torrent.id+' .tl_peers').set('html',torrent.peers);
-		$$('div#tbody div#'+torrent.id+' .tl_downloadspeed').set('html',torrent.down_speed);
-		$$('div#tbody div#'+torrent.id+' .tl_uploadspeed').set('html',torrent.up_speed);
+		$$('div#tbody div#'+torrent.id+' .tl_downloadspeed').set('html',torrent.down_speed+' KB/s');
+		$$('div#tbody div#'+torrent.id+' .tl_uploadspeed').set('html',torrent.up_speed+' KB/s');
 		$$('div#tbody div#'+torrent.id+' .tl_estime').set('html',torrent.estTime);
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
@@ -201,6 +202,7 @@ var selected_tags =0;
 var upSpeed=new Array();
 var downSpeed=new Array();
 var MaxdownSpeed=new Array();
+var UpdateInterval=<?php echo $Update_interval?>;
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">
