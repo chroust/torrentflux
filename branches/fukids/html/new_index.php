@@ -32,6 +32,7 @@ $Update_interval = 5000;
 function echo (a){
 	console.log(a);
 }
+
 window.addEvent('domready', function() {
 	forceUpdate=function(){
 		clearTimeout(timer);
@@ -54,11 +55,22 @@ window.addEvent('domready', function() {
 				ChangeTorrent(torrent);
 			}else{
 				NewTorrent(torrent);
+				upSpeed[torrent.id]=new Array();
+				downSpeed[torrent.id]=new Array();
 			}
+			upSpeed[torrent.id][uploadcount]=parseFloat(torrent.up_speed);
+			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);
+			MaxdownSpeed[torrent.id]=downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id]?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
 		});
 		$$('#tbody div.rows').each(function(item){
-			if(thisarray[item.id] !==1) $(item.id).destroy();
+			if(thisarray[item.id] !==1){
+				$(item.id).destroy();
+				downSpeed[item.id]=new Array();
+				upSpeed[item.id]=new Array();
+				MaxdownSpeed[torrent.id]=0;
+			}
 		});
+		uploadcount++;
 	}
 	NewTorrent=function(torrent){
 		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody'));
@@ -181,10 +193,14 @@ window.addEvent('domready', function() {
 	get_data();
 });
 var selecting;
+var uploadcount=0;
 var down_selecting_tab;
 var selected_feeds =0;
 var selected_status =0;
 var selected_tags =0;
+var upSpeed=new Array();
+var downSpeed=new Array();
+var MaxdownSpeed=new Array();
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">

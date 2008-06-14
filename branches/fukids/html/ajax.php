@@ -66,6 +66,37 @@ if($action=='icon'){
 				}
 		}elseif($tab=='tab5'){
 			//speed
+			?>
+			<img src="" alt="" id="thisspeed">
+			<script type="text/javascript">
+			echo('speed loaded');
+			if($defined(downSpeed[selecting.id])){
+				downSpeedLength=downSpeed[selecting.id].length;
+				var chd1='';
+				var max=0;
+				var comma='';
+					for ( i = 0; i < downSpeedLength; i++) {
+						chd1=chd1+comma+downSpeed[selecting.id][i];
+							if(downSpeed[selecting.id][i] > max){
+								max=downSpeed[selecting.id][i];
+							}
+						comma=',';
+					}
+				var chd2='';
+				var comma='';
+					for ( i = 0; i < downSpeedLength; i++) {
+						chd2=chd2+comma+upSpeed[selecting.id][i];
+							if(upSpeed[selecting.id][i] > max){
+								max=upSpeed[selecting.id][i];
+							}
+						comma=',';
+					}
+				max=max==0?1:0;
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|';
+				$('thisspeed').src=src;
+			}
+			</script>
+			<?
 		}elseif($tab=='tab6'){
 			//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));

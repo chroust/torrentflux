@@ -119,8 +119,8 @@ $cfg["total_upload"] = $cfg["total_download"] = 0;
 			$endtime=$af->percent_done >= 100  ?  strval(filemtime($dirName.$alias)): 0;
 
 			$reutrn_add = array(
-				'down_speed'=>$af->down_speed,
-				'up_speed'=>$af->up_speed,
+				'down_speed'=>$af->down_speed+0,
+				'up_speed'=>$af->up_speed+0,
 				'percent'=>$af->percent_done,
   		     	'size'	=>formatBytesToKBMGGB($af->size),
 				'sharing'=>$sharing,
