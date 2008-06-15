@@ -21,10 +21,8 @@
  */
 
 include_once('db.php');
-include_once("settingsfunctions.php");
 include_once("functions.php");
 include_once("AliasFile.php");
-include_once("RunningTorrent.php");
 session_name("TorrentFlux");
 
 session_start();
@@ -32,20 +30,11 @@ session_start();
 // Create Connection.
 $db = getdb();
 loadSettings();
-
-///////////////// tmp
 $dirName=$cfg["torrent_file_path"];
-////////////////////////// tmp end
-
-
 $lastUser = "";
 $arList=$output=$arListTorrent=$arUserTorrent = array();
-$totalUpSpeed=$totalDownSpeed=0;
-$file_filter = getFileFilter($cfg["file_types_array"]);
-$cfg["total_upload"] = $cfg["total_download"] = 0;
-
-    $runningTorrents = getRunningTorrents();
-
+$totalUpSpeed=$totalDownSpeed=$total=$totacactive=$totalinactive=$totaldownloading=$totalinactive=0;
+$Requiredstatus=split(',',getRequestVar('status'),4);
     if (is_dir($dirName)){
         $handle = opendir($dirName);
     }else{
@@ -56,98 +45,80 @@ $cfg["total_upload"] = $cfg["total_download"] = 0;
     }
 	$sql = "SELECT t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id";
 	$result = $db->SelectLimit($sql, 50,0);
-	while(list($id, $file_name,$torrent,$hash, $owner_id) = $result->FetchRow()){
-
-// get torrent info
-	$show_run = true;
-	$torrentowner = $owner_id;
-	$kill_id = "";
-	$estTime = "&nbsp;";
-	$alias = getAliasName($torrent).".stat";
-	$af = new AliasFile($dirName.$alias, $torrentowner);
-	$timeStarted = "";
-	$torrentfilelink = "";
-		// find out if any screens are running and take their PID and make a KILL option
-		foreach ($runningTorrents as $key => $value){
-		    $rt = new RunningTorrent($value);
-			    if ($rt->statFile == $alias) {
-					$kill_id = ($kill_id == "")?$rt->processId:"|".$rt->processId;
-	    		}
-		}
-        // Check to see if we have a pid without a process.
-        if (is_file($cfg["torrent_file_path"].$alias.".pid") && empty($kill_id)){
- 			// died outside of tf and pid still exists.
-         @unlink($cfg["torrent_file_path"].$alias.".pid");
-     		    // The file is not running and the percent done needs to be changed
-				if(($af->percent_done < 100) && ($af->percent_done >= 0)){
-					$af->percent_done = ($af->percent_done+100)*-1;
-				}
-			$af->running = "0";
-			$af->time_left = "Torrent Died";
-			$af->up_speed = "";
-			$af->down_speed = "";
-			// write over the status file so that we can display a new status
-			$af->WriteFile();
-        }
-        
-	$haspid=GetPid(torrent2stat($torrent))=='-1'?0:1;
-	list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
-		
-	
-	//if($_GET['status'] == "0" OR ($_GET['status'] == "1" AND ($status == "2" OR $status == "3")) OR ($_GET['status'] == "2"  AND ($status == "4" OR $status == "5"))){
-		$in_filter=1;
-	//}
-	if($in_filter){
-	
-	$return = array(
-		'id'		=>$id,
-       	'title'	=>$file_name,
-       	'timeleft'	=>$af->time_left,
-       	'owner'	=>$torrentowner,
-       	'status'	=>$status_text
-	);
-    	if($tatus=="0"){
-			// it is new
-		}elseif($tatus=="1"){
-			//queue
-		}else{
-			$estTime = ($af->time_left != "" && $af->time_left != "0")? $af->time_left:'';
-			$estTime = $estTime=='Download Succeeded!'?'':$estTime;
-			$timeStarted =  (is_file($dirName.$alias.".pid"))?strval(filectime($dirName.$alias.".pid")):'';
-			$sql_search_time = "Select time from tf_log where action like '%Upload' and file like '".$entry."%' LIMIT 1";
-			$result_search_time = $db->Execute($sql_search_time);
-			list($uploaddate) = $result_search_time->FetchRow();
-			$endtime=$af->percent_done >= 100  ?  strval(filemtime($dirName.$alias)): 0;
-
-			$reutrn_add = array(
-				'down_speed'=>$af->down_speed+0,
-				'up_speed'=>$af->up_speed+0,
-				'percent'=>$af->percent_done,
-  		     	'size'	=>formatBytesToKBMGGB($af->size),
-				'sharing'=>$sharing,
-				'seeds'=>$af->seeds,
-				'peers'=>$af->peers,
-				'uploaddate'=>$uploaddate,
-				'timeStarted'=>$timeStarted,
-				'endtime'=>$endtime,
-				'estTime'=>$estTime,
-				'uptotal'=>$af->uptotal,
-				'downtotal'=>$af->downtotal,
-				'haspid'=>$haspid
-			);
-			//total upload& download speed
-		}
-		
-	$return = array_merge($reutrn_add, $return);
-	$output['torrents'][]=$return;
-	$totalUpSpeed=$totalUpSpeed+$af->up_speed;
-	$totalDownSpeed=$totalDownSpeed+$af->down_speed;
-}
-	$output['global']['totalUpSpeed']=$totalUpSpeed;
-	$output['global']['totalDownSpeed']=$totalDownSpeed;
-	
-}
-
+	while(list($id, $file_name,$torrent,$hash, $owner_id,$owner) = $result->FetchRow()){
+		// get torrent info
+		$alias = torrent2stat($torrent);
+		$af = new AliasFile($dirName.$alias, $owner_id);
+		$timeStarted = "";
+		$haspid=GetPid(torrent2stat($torrent))=='-1'?0:1;
+		list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
+		$totaldownloading+= ($status==2)?1:0;
+		$totalfinished+= ($status==4 || $status ==5)?1:0;
+		$totalactive+=($haspid==1)?1:0;
+		$total++;
+			if(in_array('0',$Requiredstatus)){
+				//if no specific status required
+				$in_filter=1;
+			}elseif($status==2 && in_array('1',$Requiredstatus)){
+				//if required status is "downloading"
+				$in_filter=1;
+			}elseif(($status==4 || $status ==5) && in_array('2',$Requiredstatus)){
+				//if required status is "finished"
+				$in_filter=1;
+			}elseif($haspid==1 && in_array('3',$Requiredstatus)){
+				//if required status is "active"
+				$in_filter=1;
+			}elseif($haspid==0 && in_array('4',$Requiredstatus)){
+				//if required status is "active"
+				$in_filter=1;
+			}
+			if($in_filter){
+				$return = array(
+					'id'		=>$id,
+					'title'	=>$file_name,
+					'owner'	=>$owner_id,
+					'status'	=>$status_text
+				);
+					if($tatus=="0"){
+						// it is new
+					}elseif($tatus=="1"){
+						//queue
+					}else{
+						$estTime = ($af->time_left != "" && $af->time_left != "0")? $af->time_left:'';
+						$estTime = $estTime=='Download Succeeded!'?'':$estTime;
+						$timeStarted =  ($haspid)?strval(filectime($dirName.$alias.".pid")):'';
+						$endtime=$af->percent_done >= 100  ?  strval(filemtime($dirName.$alias)): 0;
+						$reutrn_add = array(
+							'down_speed'=>$af->down_speed+0,
+							'up_speed'=>$af->up_speed+0,
+							'percent'=>$af->percent_done,
+  					     	'size'	=>formatBytesToKBMGGB($af->size),
+						//	'sharing'=>$sharing,
+							'seeds'=>$af->seeds,
+							'peers'=>$af->peers,
+						//	'uploaddate'=>$uploaddate,
+						//	'timeStarted'=>$timeStarted,
+						//	'endtime'=>$endtime,
+							'estTime'=>$estTime,
+						//	'uptotal'=>$af->uptotal,
+						//	'downtotal'=>$af->downtotal,
+						//	'haspid'=>$haspid
+						);
+					}
+				$return = array_merge($reutrn_add, $return);
+				$output['torrents'][]=$return;
+				$totalUpSpeed=$totalUpSpeed+$af->up_speed;
+				$totalDownSpeed=$totalDownSpeed+$af->down_speed;
+			}
+		$totalinactive=$total-$totalactive;
+		$output['global']=array(
+			'totalUpSpeed'=>$totalUpSpeed,
+			'totalDownSpeed'=>$totalDownSpeed,
+			'totaldownloading'=>$totaldownloading,
+			'totalfinished'=>$totalfinished,
+			'totalactive'=>$totalactive,
+			'totalinactive'=>$totalinactive,
+		);
+	}
 echo json_encode($output);
-
 ?>

@@ -1,7 +1,8 @@
 var MultipleSelect = new Class ({
 	initialize: function () {
 		var zIndex = 1000;
-		$$('select.multipleSelect').forEach ( function ( sel ) {
+		$$('select.multipleSelect').forEach (
+		function ( sel ) {
 			var top= sel.getPosition().y + 'px';
 			var left= sel.getPosition().x + 'px';
 			var width= sel.getSize().x+'px';
@@ -14,7 +15,7 @@ var MultipleSelect = new Class ({
 					'height':height,
 					'overflow':'auto'
 				}
-			} );
+			}).cloneEvents(sel);
 			var i = 0;
 			var thislength =sel.options.length;
 			for ( i = 0; i < thislength; i++){
@@ -32,11 +33,19 @@ var MultipleSelect = new Class ({
 						},
 						'mouseout':function(){
 							this.removeClass('MSover');
+						},
+						'mousedown':function(){
+							return false;
 						}
 					}
 				} );
-				item.set('html', option.innerHTML );
-				item.injectInside (container);
+				if($defined($(sel.id+'_'+i))){
+					item.set('html',$(sel.id+'_'+i).innerHTML).cloneEvents($(sel.id+'_'+i));
+					$(sel.id+'_'+i).setStyle('display','none');
+				}else{
+					item.set('html',option.innerHTML);
+				}
+				item.injectInside(container);
 			}
 			container.setStyles ( {
 				'top':top,
@@ -45,7 +54,7 @@ var MultipleSelect = new Class ({
 			});
 			container.inject(sel,'after');
 			sel.setStyle('display','none').getProperty('multiple','multiple');
+			sel.removeEvent();
 		} );
 	}
 });
-window.addEvent ( 'domready', function () { new MultipleSelect (); } );

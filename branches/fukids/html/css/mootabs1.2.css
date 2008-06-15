@@ -26,11 +26,13 @@
 	display: none;
 	background-color: #ddd;
 	position: relative;
-	width: 1000px;
+	width: 100%;
 	top: -1px;
 	clear: both;
 	overflow: auto;
 	height:100%;
+max-height: 200px !IMPORTANT;
+overflow:auto;
 }
 
 .mootabs_panel.active {

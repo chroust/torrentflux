@@ -93,7 +93,9 @@ if($action=='icon'){
 						comma=',';
 					}
 				max=max==0?1:max;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|0|'+uploadcount*UpdateInterval+'|3:||time(s)|';
+				basetime=reloadedcount*UpdateInterval;
+				lastesttime=basetime+uploadcount*UpdateInterval;
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|'+basetime+'|'+lastesttime+'|3:||time(s)|';
 				$('thisspeed').src=src;
 			}
 			</script>

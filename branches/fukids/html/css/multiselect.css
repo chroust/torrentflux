@@ -8,6 +8,9 @@
 	color:#fff
 }
 .MScontainer{
-	border:5px dotted #333;
+	border:2px solid #ddccdd;
 	padding:5px;
+}
+.invisible{
+	display:none;
 }

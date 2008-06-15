@@ -13,6 +13,7 @@ $Update_interval = 5;
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
 <script type="text/javascript" src="js/mootools-1.2-more.js"></script>
 <script type="text/javascript" src="js/sortableTable.js"></script>
@@ -21,14 +22,11 @@ $Update_interval = 5;
 <script type="text/javascript" src="js/uimenu.js"></script>			
 <script type="text/javascript" src="js/panel.js"></script>		
 <script type="text/javascript" src="js/multiselect.js"></script>		
-
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
 <![endif]-->
 <script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>
-
-
 
 <link href="css/mocha.css" rel="stylesheet" type="text/css" />
 <link href="css/sortableTable.css" rel="stylesheet" type="text/css" />
@@ -41,14 +39,20 @@ $Update_interval = 5;
 </head>
 <body>
 <script  type="text/javascript">
-
 function echo (a){
 	console.log(a);
 }
 	var get_data=function(){
 		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&tags='+selected_tags,onComplete:function(data){
+					if($type(data['torrents'])!='array'){
+						data['torrents']=new Array();
+					}
 				update_data(data['torrents']);
 				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
+				$('sdownloading').innerHTML=data['global']['totaldownloading'];
+				$('sfinished').innerHTML=data['global']['totalfinished'];
+				$('sactive').innerHTML=data['global']['totalactive'];
+				$('sinactive').innerHTML=data['global']['totalinactive'];
 				timer=setTimeout('get_data()', UpdateInterval*1000);
 			}}).get();
 	}
@@ -59,6 +63,12 @@ function echo (a){
 	}
 	update_data =function (Torrents){
 		var thisarray=new Array();
+		var needclear=0;
+		if(uploadcount>10){
+			uploadcount=0;
+			needclear=1
+			reloadedcount=1;
+		}
 		Torrents.each(function(torrent){
 		thisarray[torrent.id]=1
 			if($defined($(torrent.id))){
@@ -69,11 +79,15 @@ function echo (a){
 				downSpeed[torrent.id]=new Array();
 				MaxdownSpeed[torrent.id]=0;
 			}
+				if(needclear){
+					upSpeed[torrent.id]=new Array();
+					downSpeed[torrent.id]=new Array();
+				}
 			upSpeed[torrent.id][uploadcount]=parseFloat(torrent.up_speed);
 			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);
 			MaxdownSpeed[torrent.id]=(downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id])?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
-		
 		});
+		//check if any displayed torrent need to be destory
 		$$('#tbody div.rows').each(function(item){
 			if(thisarray[item.id] !==1){
 				$(item.id).destroy();
@@ -84,7 +98,7 @@ function echo (a){
 		uploadcount++;
 	}
 	NewTorrent=function(torrent){
-		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody'));
+		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody')).addEvent ('mousedown', $break);
 		new Element('div',{'class':'tl_name'}).set('html',torrent.title).injectInside(tr);
 		new Element('div',{'class':'tl_percent'}).set('html',torrent.percent).injectInside(tr);
 		new Element('div',{'class':'tl_filesize'}).set('html',torrent.size).injectInside(tr);
@@ -131,12 +145,10 @@ function echo (a){
 	}
 	torrentControl=function(action,id){
 		echo ('controlling torrent: action: '+action+' torrent id : '+id);
-		new Request.HTML({
-			complete:function(){
-			
-			}
+		new Request.HTML({onComplete:function(data){
+			forceUpdate();
+		}
 		}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
-		forceUpdate();
 	}
 	OpenWindow=function(id,title){
 				new MochaUI.Window({
@@ -195,11 +207,9 @@ window.addEvent('domready', function() {
 	window.addEvent('keydown', function(e){
 		e = new Event(e); 
 			if(e.key=='esc'){
-				console.log($('torrent_multiselect1').getSelected());			
 				MochaUI.closeAll();
 			}
 	});
-	
 	// right click menu
 	uiMenu_listTorrent  = new UI.Menu( 'torrent_list_div', { event : 'rightClick' } );
 	uiMenu_listTorrent.addItems([
@@ -209,17 +219,27 @@ window.addEvent('domready', function() {
 		,   {separator : true}
 		,   {label :'_Add_Feed', icon : 'menu/add.png' }
 		]);
-
-	//uiMenu_listTorrent.updateItemOnclick( 'button11', function() { if ( uiMenu_listTorrent.getSeparator(0) ) uiMenu_listTorrent.removeSeparator(0); else alert('already removed !'); } );
-
+	//multiselect
+	$('torrent_multiselect1').addEvent('click',function(){
+		var output='';
+		var comma='';
+		$('torrent_multiselect1').getSelected().each( function(option){
+			output+=comma+option.value;
+			comma=',';
+		})
+		selected_status=output?output:0;
+		forceUpdate();
+	});
+	new MultipleSelect ();
 	get_data();
 });
 var selecting;
+var reloadedcount=0;
 var uploadcount=0;
 var down_selecting_tab;
-var selected_feeds =0;
-var selected_status =0;
-var selected_tags =0;
+var selected_feeds ='0';
+var selected_status='0';
+var selected_tags ='0';
 var upSpeed=new Array();
 var downSpeed=new Array();
 var MaxdownSpeed=new Array();
@@ -276,34 +296,28 @@ var UpdateInterval=<?php echo $Update_interval?>;
 </div>
 
 <div id="down_left">
-<select size="5" id="torrent_multiselect1" class="multipleSelect" multiple="multiple" >
-<option VALUE="0">_all</option>
-<option VALUE="1">_downloading</option>
-<option VALUE="2">_finished</option>
-<option VALUE="3">_active</option>
-<option VALUE="4">_inactive</option>
+<select size="5" id="torrent_multiselect1" class="multipleSelect" multiple="multiple">
+	<option VALUE="1"></option>
+	<option VALUE="2"></option>
+	<option VALUE="3"></option>
+	<option VALUE="4"></option>
 </select>
+<div id="torrent_multiselect1_0" class="invisible">_downloading (<span id="sdownloading"></span>)</div>
+<div id="torrent_multiselect1_1" class="invisible">_finished (<span id="sfinished"></span>)</div>
+<div id="torrent_multiselect1_2" class="invisible">_active (<span id="sactive"></span>)</div>
+<div id="torrent_multiselect1_3" class="invisible">_inactive (<span id="sinactive"></span>)</div>
+
 <select size="2" id="torrent_multiselect2" class="multipleSelect">
-<option >user......</option>
-<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
+	<option >user......</option>
+	<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
 </select>
 <select size="2" id="torrent_multiselect3" class="multipleSelect">
-<option >user......</option>
-<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
+	<option >user......</option>
+	<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
 </select>
 </div>
-</div>
-</div>
 
-<div class="ddmenu def" id="ddmenu_torrentList" style="display:none">
-<ul>
-<li class="item" id="Upload_Torrent"><a href="#"><?php echo _Upload_Torrent ?></a></li>
-<li class="item" id="Url_Torrent"><a href="#"><?php echo _Url_Torrent ?></a></li>
-<li class="item" id="Creat_Torrent"><a href="#"><?php echo _Creat_Torrent ?></a></li>
-<li class="sepline"></li>
-<li class="item" id="New_Feed"><a href="#"><?php echo _New_Feed ?></a></li>
-</ul>
 </div>
-
+</div>
 </body>
 </html>

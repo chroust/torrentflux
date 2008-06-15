@@ -30,6 +30,8 @@
         [/javascript]
 */
 	var UI={};
+	var uumenu=0;
+
 UI.Menu = new Class ( {
 
     Implements : [ Options ],
@@ -41,7 +43,6 @@ UI.Menu = new Class ( {
         ,   clsPrefix       :   'ui-'
         ,   position        :   'mouse'             // mouse || [ xPos( 'right' || 'left' ) , yPos( 'top' || 'bottom' ) ]
         ,   blankImg        :   'images/rightmenu/s.gif'
-        ,   autoHideDelay   :   2000
         ,   subMenu         :   false
         ,   parentMenu      :   false
     },
@@ -82,13 +83,8 @@ UI.Menu = new Class ( {
                                                     }.bind(this)
                                 } );
         };
-        if ( this.options.autoHideDelay ) {
-                this.menu.addEvents( {  'mouseleave' : function() { this.timeOut = this.hideMenu.delay( this.options.autoHideDelay, this ); }.bind(this)
-                                    ,   'mouseenter' : function() { $clear( this.timeOut ); }.bind(this) } );
-        };
 		this.trigger.addEvent( 'mouseup', function(event) {
 			this.trigger.addEvent ('contextmenu', $break);
-			return false;
 		}.bind(this));
 		this.trigger.addEvent( 'mousedown', function(event) {
 			this.trigger.addEvent ('contextmenu', $break);
@@ -494,6 +490,7 @@ UI.Menu = new Class ( {
 
     showMenu: function ( event )
     {
+		if(uumenu==1)return false;
         this.hideMenu();
 
         if ( $type( this.options.position ) == 'string' && this.options.position == 'mouse' ) {
@@ -520,10 +517,12 @@ UI.Menu = new Class ( {
         };
 
         this.menu.addClass( this.options.clsPrefix + 'menu-visible' ).setStyles( $merge( styleX, styleY ) );
+		uumenu=1;
     },
 
     hideMenu: function ()
     {
+	uumenu=0;
         this.hideSubMenus();
         this.menu.removeClass( this.options.clsPrefix + 'menu-visible' ).setStyle( 'left', '-600px' );
     },

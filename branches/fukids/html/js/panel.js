@@ -1,4 +1,5 @@
-Element.extend({disableSelection: function () { if (window.ActiveXObject) this.onselectstart = function() {return false}; this.style.MozUserSelect = "none"; return this; } }); 
+
+
 var currheight;
 var tabstatues;
 window.addEvent('domready', function(){
@@ -38,7 +39,7 @@ var OpenTabTable=function(){
 	$('torrent_info').setStyle('display','inline');
 }
 var CloseTabTable=function(){
-	$('torrent_list_div').setStyle('height',windowheight-50);
+	$('torrent_list_div').setStyle('height',windowheight-60);
 	$('torrent_info').setStyle('display','none');
 
 }
