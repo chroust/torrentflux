@@ -1,3 +1,6 @@
+// added javascript function: 
+// window.TabReady : called when a tab is ready
+// window.TabExit : called when a tab is removed
 var mootabs = new Class({
 	initialize: function(element, options) {
 		this.options = Object.extend({
@@ -45,10 +48,11 @@ var mootabs = new Class({
 			}.bind(this));
 		}.bind(this));
 	},
-	
-	activate: function(tab, skipAnim){
+	activate: function(tab, skipAnim){	
 		if(!$defined(selecting))
 				return false;
+		window.fireEvent('TabExit');
+		window.removeEvents('TabExit').removeEvents('TabReady');	
 		if(! $defined(skipAnim))
 		{
 			skipAnim = false;
@@ -69,10 +73,15 @@ var mootabs = new Class({
 			this.titles.removeClass('active');
 			tab.addClass('active');
 			this.activeTitle = tab;
-			new Request.HTML({evalScripts:true,update:this.activePanel}).get('ajax.php?action=tabs&tab=' + this.activeTitle.getProperty('title')+'&torrentId='+selecting.id);
+			new Request.HTML({
+				evalScripts:true,
+				update:this.activePanel,
+				onComplete:function(data){
+					window.fireEvent('TabReady');
+				}
+			}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting.id);
 		}
 	},
-	
 
 	
 	addTab: function(title, label, content){
@@ -112,7 +121,6 @@ var mootabs = new Class({
 		this.panels.include(newPanel);
 		this.el.adopt(newPanel);
 	},
-	
 	removeTab: function(title){
 		if(this.activeTitle.title == title)
 		{
@@ -121,21 +129,5 @@ var mootabs = new Class({
 		$$('#' + this.elid + ' ul li').filterByAttribute('title', '=', title)[0].remove();
 		
 		$$('#' + this.elid + ' .mootabs_panel').filterById(title)[0].remove();
-	},
-	
-	next: function(){
-		var nextTab = this.activeTitle.getNext();
-		if(!nextTab) {
-			nextTab = this.titles[0];
-		}
-		this.activate(nextTab);
-	},
-	
-	previous: function(){
-		var previousTab = this.activeTitle.getPrevious();
-		if(!previousTab) {
-			previousTab = this.titles[this.titles.length - 1];
-		}
-		this.activate(previousTab);
 	}
 });
