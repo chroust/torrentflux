@@ -65,6 +65,7 @@ height:100%;
 
 #list_torrent {
 	width: 100%;
+	height:100%;
 }
 
 .th div{
@@ -91,7 +92,6 @@ div.rows{
 	all tr
 	**/
 	width: auto !important;
-	float:left;
 	overflow: hidden;
 	height: 1.2em;
 }

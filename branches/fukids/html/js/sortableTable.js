@@ -28,7 +28,6 @@ tableSoort = new Class({
 				}.bind(this),
 				onStart: function(ele){
 					rowslength=$$('#'+this.options.table+' .tbody div').length;
-					echo('ok');
 				}.bind(this),
 				onDrag: function(ele){
 					this.reesize(ele.getProperty('column'),rowslength,cell.getStyle('width'));

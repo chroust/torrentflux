@@ -8,10 +8,8 @@ $db = getdb();
 loadSettings();
 $Update_interval = 5;
 $maxsaveTime=1000;
-?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
@@ -74,7 +72,6 @@ function echo (a){
 			}}).get();
 	}
 	forceUpdate=function(){
-		echo('forceing update torrent list');
 		clearTimeout(timer);
 		get_data();
 	}
@@ -176,7 +173,6 @@ function echo (a){
 	}
 	torrentControl=function(action,id){
 		Mainloading.show();
-		echo ('controlling torrent: action: '+action+' torrent id : '+id);
 		new Request.HTML({onComplete:function(data){
 			forceUpdate();
 		}
@@ -212,9 +208,10 @@ function echo (a){
 			});
 	}
 window.addEvent('domready', function() {
-	sorted1 = new tableSoort('list_torrent')
-	myTabs1 = new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
-	Mainloading=new loading();
+	sorted1		=	new tableSoort('list_torrent')
+	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
+	Mainloading	=	new loading();
+	new MultipleSelect();
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
 			OpenWindow(item.id,item.title);
@@ -253,7 +250,7 @@ window.addEvent('domready', function() {
 		,   {label :'_Add_Feed', icon : 'menu/add.png' }
 		]);
 	//multiselect
-	$('torrent_multiselect1').addEvent('click',function(){
+	$('ms_torrent_multiselect1').addEvent('click',function(){
 		var output='';
 		var comma='';
 		$('torrent_multiselect1').getSelected().each( function(option){
@@ -263,7 +260,7 @@ window.addEvent('domready', function() {
 		selected_status=output?output:0;
 		forceUpdate();
 	});
-	$('torrent_multiselect2').addEvent('click',function(){
+	$('ms_torrent_multiselect2').addEvent('click',function(){
 		var output='';
 		var comma='';
 		$('torrent_multiselect2').getSelected().each( function(option){
@@ -273,7 +270,7 @@ window.addEvent('domready', function() {
 		selected_user=output?output:0;
 		forceUpdate();
 	});
-	new MultipleSelect();
+	
 	get_data();
 	
 });
@@ -308,16 +305,16 @@ var UpdateInterval=<?php echo $Update_interval?>;
 	<div id="torrent_list_div">
 		<div id="list_torrent" >
 			<div class="rows th">
-				<div axis="string" class="tl_name"><?php echo _NAME?></div>
-				<div axis="number" class="tl_percent">%</div>
-				<div axis="string" class="tl_filesize"><?php echo _FILESIZE?></div>
-				<div axis="string" class="tl_status"><?php echo _STATUS?></div>
-				<div axis="number" class="tl_seeds"><?php echo _SEEDS?></div>
-				<div axis="number" class="tl_peers"><?php echo _PEERS?></div>
-				<div axis="string" class="tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
-				<div axis="string" class="tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
-				<div axis="string" class="tl_estime"><?php echo _ESTIMATEDTIME?></div>
-				<div axis="string" class="tl_totalupload">Total Upload</div>
+				<div class="tl_name"><?php echo _NAME?></div>
+				<div class="tl_percent">%</div>
+				<div class="tl_filesize"><?php echo _FILESIZE?></div>
+				<div class="tl_status"><?php echo _STATUS?></div>
+				<div class="tl_seeds"><?php echo _SEEDS?></div>
+				<div class="tl_peers"><?php echo _PEERS?></div>
+				<div class="tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
+				<div class="tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
+				<div class="tl_estime"><?php echo _ESTIMATEDTIME?></div>
+				<div class="tl_totalupload">Total Upload</div>
 			</div>
 			<div class="tbody" id="tbody">
 			</div>
@@ -343,10 +340,10 @@ var UpdateInterval=<?php echo $Update_interval?>;
 
 <div id="down_left">
 <select size="5" id="torrent_multiselect1" class="multipleSelect" multiple="multiple">
-	<option VALUE="1"></option>
-	<option VALUE="2"></option>
-	<option VALUE="3"></option>
-	<option VALUE="4"></option>
+	<option value="1">1</option>
+	<option value="2">1</option>
+	<option value="3">1</option>
+	<option value="4">1</option>
 </select>
 <div id="torrent_multiselect1_0" class="invisible">_downloading (<span id="sdownloading">0</span>)</div>
 <div id="torrent_multiselect1_1" class="invisible">_finished (<span id="sfinished">0</span>)</div>
@@ -359,7 +356,7 @@ var UpdateInterval=<?php echo $Update_interval?>;
 <select size="5" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
 <?php 
 	foreach($userlist as $user){
-		?><option value="<?=$user['uid']?>"></option>
+		?><option value="<?=$user['uid']?>">1</option>
 		<?
 	}
 ?>

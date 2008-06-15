@@ -159,7 +159,8 @@ if($action=='icon'){
 				basetime=reloadedcount*UpdateInterval;
 				lastesttime=basetime+uploadcount*UpdateInterval;
 				middletime=(lastesttime-basetime)/2;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting]+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
+				var MaxdownSpeedselecting=MaxdownSpeed[selecting]>250?MaxdownSpeed[selecting]:250;
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeedselecting+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
 				$('thisspeed').src=src;
 				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
 			}

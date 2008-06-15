@@ -8,22 +8,22 @@ var MultipleSelect = new Class ({
 			var width= sel.getSize().x+'px';
 			var height=sel.getSize().y+ 'px';
 			var container = new Element ( 'div', {
-				class: 'MScontainer',
-				id: 'ms_' + sel.id,
-				styles: {
-					'width': width+'px',
+				'class': 'MScontainer',
+				'id': 'ms_' + sel.id,
+				'styles': {
+					'width': width,
 					'height':height,
 					'overflow':'auto'
 				}
-			}).cloneEvents(sel);
+			});
 			var i = 0;
 			var thislength =sel.options.length;
 			for ( i = 0; i < thislength; i++){
 				var option = sel.options[i];
 				var item = new Element('div',{
-					class: 'MSitem',
-						id: 'ms_' + sel.id + '_' + i,
-					events: {
+					'class': 'MSitem',
+						'id': 'ms_' + sel.id + '_' + i,
+					'events': {
 						'click': function (aa) {
 							sel.options[this.index].selected = $('ms_' + sel.id + '_' + this.index).hasClass ( 'MSselected' )?false:true;
 							$('ms_' + sel.id + '_' + this.index).toggleClass('MSselected');
@@ -39,8 +39,9 @@ var MultipleSelect = new Class ({
 						}
 					}
 				} );
+				
 				if($defined($(sel.id+'_'+i))){
-					item.set('html',$(sel.id+'_'+i).innerHTML).cloneEvents($(sel.id+'_'+i));
+					item.set('html',$(sel.id+'_'+i).innerHTML);
 					$(sel.id+'_'+i).setStyle('display','none');
 				}else{
 					item.set('html',option.innerHTML);
