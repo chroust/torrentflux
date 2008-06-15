@@ -134,24 +134,24 @@ if($action=='icon'){
 			<script type="text/javascript">
 			var speed_updateIntervals = 5;
 			var updateGraph=function(){
-			if($defined(downSpeed[selecting.id])){
-				downSpeedLength=downSpeed[selecting.id].length;
+			if($defined(downSpeed[selecting])){
+				downSpeedLength=downSpeed[selecting].length;
 				var chd1='';
 				var max=0;
 				var comma='';
 					for ( i = 0; i < downSpeedLength; i++) {
-						chd1=chd1+comma+downSpeed[selecting.id][i];
-							if(downSpeed[selecting.id][i] > max){
-								max=downSpeed[selecting.id][i];
+						chd1=chd1+comma+downSpeed[selecting][i];
+							if(downSpeed[selecting][i] > max){
+								max=downSpeed[selecting][i];
 							}
 						comma=',';
 					}
 				var chd2='';
 				var comma='';
 					for ( i = 0; i < downSpeedLength; i++) {
-						chd2=chd2+comma+upSpeed[selecting.id][i];
-							if(upSpeed[selecting.id][i] > max){
-								max=upSpeed[selecting.id][i];
+						chd2=chd2+comma+upSpeed[selecting][i];
+							if(upSpeed[selecting][i] > max){
+								max=upSpeed[selecting][i];
 							}
 						comma=',';
 					}
@@ -159,7 +159,7 @@ if($action=='icon'){
 				basetime=reloadedcount*UpdateInterval;
 				lastesttime=basetime+uploadcount*UpdateInterval;
 				middletime=(lastesttime-basetime)/2;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting]+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
 				$('thisspeed').src=src;
 				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
 			}

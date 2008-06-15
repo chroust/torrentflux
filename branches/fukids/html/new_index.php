@@ -22,7 +22,8 @@ $maxsaveTime=1000;
 <script type="text/javascript" src="js/uimenu.js"></script>			
 <script type="text/javascript" src="js/panel.js"></script>		
 <script type="text/javascript" src="js/multiselect.js"></script>	
-<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>			
+<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>	
+<script type="text/javascript" src="js/loading.js"></script>			
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
@@ -45,14 +46,17 @@ function echo (a){
 	console.log(a);
 }
 	//function for grabing torrent list
-	var get_data=function(){
+	get_data=function(){
+		Mainloading.show();
 		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&users='+selected_user,onComplete:function(data){
-					//update leftmenu 1
+					
 					if($type(data['torrents'])!='array'){
 						data['torrents']=new Array();
 					}
 				update_data(data['torrents']);
+				//update title
 				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
+				//update leftmenu 1
 				$('sdownloading').innerHTML=data['global']['totaldownloading'];
 				$('sfinished').innerHTML=data['global']['totalfinished'];
 				$('sactive').innerHTML=data['global']['totalactive'];
@@ -64,9 +68,9 @@ function echo (a){
 							b=e.split(':',2);
 							$('susering_'+b[0]).innerHTML=b[1];
 						});
-							
 					}
 				timer=setTimeout('get_data()', UpdateInterval*1000);
+				Mainloading.hide();
 			}}).get();
 	}
 	forceUpdate=function(){
@@ -103,9 +107,15 @@ function echo (a){
 		//check if any displayed torrent need to be destory
 		$$('#tbody div.rows').each(function(item){
 			if(thisarray[item.id] !==1){
+				//destroy it
+					if(selecting==item.id){
+						$(selecting).removeClass('torrent_list_clicked');
+						selecting=$empty();
+					}
 				$(item.id).destroy();
 				downSpeed[item.id]=new Array();
 				upSpeed[item.id]=new Array();
+
 			}
 		});
 		uploadcount++;
@@ -126,13 +136,13 @@ function echo (a){
 		new Element('div',{'class':'tl_totalupload'}).set('html',torrent.totalUpload).injectInside(tr);
 		tr.addEvents({
 			'mouseup': function() {
-					if(selecting)selecting.removeClass('torrent_list_clicked');
+					if(selecting)$(selecting).removeClass('torrent_list_clicked');
 				tr.addClass('torrent_list_clicked');
-				selecting=tr;
+				selecting=torrent.id;
 				myTabs1.activate(down_selecting_tab);
 			}
 		});
-			if($defined(selecting) && selecting.id==torrent.id){
+			if($defined($(selecting)) && selecting==torrent.id){
 				tr.addClass('torrent_list_clicked');
 			}
 			
@@ -165,6 +175,7 @@ function echo (a){
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
 	torrentControl=function(action,id){
+		Mainloading.show();
 		echo ('controlling torrent: action: '+action+' torrent id : '+id);
 		new Request.HTML({onComplete:function(data){
 			forceUpdate();
@@ -203,6 +214,7 @@ function echo (a){
 window.addEvent('domready', function() {
 	sorted1 = new tableSoort('list_torrent')
 	myTabs1 = new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
+	Mainloading=new loading();
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
 			OpenWindow(item.id,item.title);
@@ -215,8 +227,8 @@ window.addEvent('domready', function() {
 	});
 	$$('div.icon_control').each(function(item){
 		item.addEvent('click',function(){
-			if(selecting){
-				torrentControl(item.title,selecting.id);
+			if($(selecting)){
+				torrentControl(item.title,selecting);
 			}
 		});
 		item.addEvent('mouseover',function(){
@@ -263,6 +275,7 @@ window.addEvent('domready', function() {
 	});
 	new MultipleSelect();
 	get_data();
+	
 });
 var progressbar=new Array();
 var selecting;
@@ -276,6 +289,7 @@ var upSpeed=new Array();
 var downSpeed=new Array();
 var MaxdownSpeed=new Array();
 var UpdateInterval=<?php echo $Update_interval?>;
+
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">

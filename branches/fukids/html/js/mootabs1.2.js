@@ -79,7 +79,7 @@ var mootabs = new Class({
 				onComplete:function(data){
 					window.fireEvent('TabReady');
 				}
-			}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting.id);
+			}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
 		}
 	},
 

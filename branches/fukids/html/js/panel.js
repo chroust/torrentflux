@@ -19,7 +19,7 @@ var goresize=function(){
 		}
 		if(windowheight < 600){
 			CloseTabTable();
-		}else{echo (windowheight);
+		}else{
 			OpenTabTable();
 		}
 }

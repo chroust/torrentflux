@@ -101,7 +101,7 @@ Class BtControl {
 		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.'.stat', $this->owner);
 			if($af->percent_done < 100){
 				// The torrent is being stopped but is not completed dowloading
-				$af->percent_done = ($af->percent_done+100)*-1;
+				//$af->percent_done = ($af->percent_done+100)*-1;
 				$af->running = "0";
 				$af->time_left = "Torrent Stopped";
 			}else{
