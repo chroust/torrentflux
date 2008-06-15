@@ -90,7 +90,8 @@ $cfg["total_upload"] = $cfg["total_download"] = 0;
 			$af->WriteFile();
         }
         
-		list($status,$status_text)=grabbingStatus($af->running,$af->percent_done);
+	$haspid=GetPid(torrent2stat($torrent))=='-1'?0:1;
+	list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
 		
 	
 	//if($_GET['status'] == "0" OR ($_GET['status'] == "1" AND ($status == "2" OR $status == "3")) OR ($_GET['status'] == "2"  AND ($status == "4" OR $status == "5"))){
@@ -132,6 +133,7 @@ $cfg["total_upload"] = $cfg["total_download"] = 0;
 				'estTime'=>$estTime,
 				'uptotal'=>$af->uptotal,
 				'downtotal'=>$af->downtotal,
+				'haspid'=>$haspid
 			);
 			//total upload& download speed
 		}

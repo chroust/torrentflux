@@ -18,38 +18,32 @@ $Update_interval = 5;
 <script type="text/javascript" src="js/sortableTable.js"></script>
 <script type="text/javascript" src="js/mootabs1.2.js"></script>
 <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
-<script type="text/javascript" src="js/uimenu.js"></script>		
+<script type="text/javascript" src="js/uimenu.js"></script>			
+<script type="text/javascript" src="js/panel.js"></script>		
+<script type="text/javascript" src="js/multiselect.js"></script>		
+
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
 <![endif]-->
 <script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>
+
+
+
 <link href="css/mocha.css" rel="stylesheet" type="text/css" />
 <link href="css/sortableTable.css" rel="stylesheet" type="text/css" />
 <link href="css/mootabs1.2.css" rel="stylesheet" type="text/css" />
 <link href="css/menu.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="css/multiselect.css" rel="stylesheet" type="text/css" media="screen" />
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 <![endif]-->
 </head>
 <body>
 <script  type="text/javascript">
+
 function echo (a){
 	console.log(a);
-}
-function getSelText(){
-	var txt = '';
-	if (window.getSelection){
-		txt = window.getSelection();
-	}else if (document.getSelection){
-		txt = document.getSelection();
-	}else if (document.selection){
-		txt = document.selection.createRange().text;
-	}else return;
-}
-document.onselectstart=new Function ("return false");
-if (window.sidebar){
-	document.onmousedown=$break;
 }
 	var get_data=function(){
 		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&tags='+selected_tags,onComplete:function(data){
@@ -59,6 +53,7 @@ if (window.sidebar){
 			}}).get();
 	}
 	forceUpdate=function(){
+		echo('forceing update torrent list');
 		clearTimeout(timer);
 		get_data();
 	}
@@ -110,9 +105,9 @@ if (window.sidebar){
 		});
 		torrent_RightMenu  = new UI.Menu( torrent.id, { event : 'rightClick' } );
 		torrent_RightMenu.addItems( [
-		{ label :'_Start', onclick : function() {}},
-		{ label :'_Kill', onclick : function() {}},
-		{ label :'_Del', onclick : function() {}},
+		{ label :'_Start', onclick : function() {torrentControl('Start',torrent.id);}},
+		{ label :'_Kill', onclick : function() {torrentControl('Kill',torrent.id);}},
+		{ label :'_Del', onclick : function() {torrentControl('Del',torrent.id);}},
 		{ label :'_DelAnd',id:torrent.id+'_DelAnd'}
 		]);
 		demoMenu3 = torrent_RightMenu.addSubMenu( torrent.id+'_DelAnd');
@@ -135,7 +130,12 @@ if (window.sidebar){
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
 	torrentControl=function(action,id){
-		new Request.HTML({complete:function(){echo('213123');}}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
+		echo ('controlling torrent: action: '+action+' torrent id : '+id);
+		new Request.HTML({
+			complete:function(){
+			
+			}
+		}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
 		forceUpdate();
 	}
 	OpenWindow=function(id,title){
@@ -167,7 +167,6 @@ if (window.sidebar){
 				}
 			});
 	}
-
 window.addEvent('domready', function() {
 	sorted1 = new tableSoort('list_torrent')
 	myTabs1 = new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
@@ -184,7 +183,7 @@ window.addEvent('domready', function() {
 	$$('div.icon_control').each(function(item){
 		item.addEvent('click',function(){
 			if(selecting){
-				var myHTMLRequest = new Request.HTML({}).post("action.php?action="+item.title+"&usejs=1&torrentid="+selecting.id);
+				torrentControl(item.title,selecting.id);
 			}
 		});
 		item.addEvent('mouseover',function(){
@@ -277,16 +276,20 @@ var UpdateInterval=<?php echo $Update_interval?>;
 </div>
 
 <div id="down_left">
-<select size="5" id="torrent_multiselect1">
-<option VALUE="0">all</option>
- <option VALUE="1">downloading</option>
- <option VALUE="2">finished</option>
+<select size="5" id="torrent_multiselect1" class="multipleSelect" multiple="multiple" >
+<option VALUE="0">_all</option>
+<option VALUE="1">_downloading</option>
+<option VALUE="2">_finished</option>
+<option VALUE="3">_active</option>
+<option VALUE="4">_inactive</option>
 </select>
-<select size="2" id="torrent_multiselect2">
+<select size="2" id="torrent_multiselect2" class="multipleSelect">
 <option >user......</option>
+<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
 </select>
-<select id="torrent_multiselect3" size="20">
-<option VALUE="0">all feed</option>
+<select size="2" id="torrent_multiselect3" class="multipleSelect">
+<option >user......</option>
+<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
 </select>
 </div>
 </div>

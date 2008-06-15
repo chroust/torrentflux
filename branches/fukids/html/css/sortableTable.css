@@ -119,11 +119,6 @@ div.tbody{
 #torrent_list_div{
 	overflow:auto;
 	width: 100%;
-	height:auto;
-	min-height:18em; 
-}
-* html #torrent_list_div {
-height: 18em;
 }
 
 

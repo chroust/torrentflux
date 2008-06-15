@@ -2918,18 +2918,10 @@ function RANDOM(){
 // ***************************************************************************
 //function for grabbing status and status_text
 
-function grabbingStatus($running,$percent_done){
-	if($running=="2"){
-		//new
-		$status=0;
-		$status_text=_show_status_New;
-	}elseif($running=="3"){
-		// waiting ,queue
-		$status=1;
-		$status_text=_show_status_Queue;
-	}elseif($running=="1"){
+function grabbingStatus($running,$percent_done,$haspid){
+	if($haspid){
 			if($percent_done >=100){
-				//seeding
+			//seeding
 				$status=4;
 				$status_text=_show_status_Seeding;
 			}else{
@@ -2938,14 +2930,24 @@ function grabbingStatus($running,$percent_done){
 				$status_text=_show_status_Downloading;
 			}
 	}else{
-			if($percent_done >=100){
-				//all finished
-				$status=5;
-				$status_text=_show_status_Finished;
+			if($running=="2"){
+				//new
+				$status=0;
+				$status_text=_show_status_New;
+			}elseif($running=="3"){
+				// waiting ,queue
+				$status=1;
+				$status_text=_show_status_Queue;
 			}else{
-				//stoped
-				$status=3;
-				$status_text=_show_status_Stopped;
+					if($percent_done >=100){
+						//all finished
+						$status=5;
+						$status_text=_show_status_Finished;
+					}else{
+						//stoped
+						$status=3;
+						$status_text=_show_status_Stopped;
+					}
 			}
 	}
 	return array($status,$status_text);

@@ -1,0 +1,13 @@
+.MSitem{
+}
+.MSover{
+	cursor:pointer;
+}
+.MSselected{
+	background-color:#333333;
+	color:#fff
+}
+.MScontainer{
+	border:5px dotted #333;
+	padding:5px;
+}

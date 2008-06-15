@@ -70,6 +70,7 @@ if($action=='icon'){
 			<img src="" alt="" id="thisspeed">
 			<script type="text/javascript">
 			echo('speed loaded');
+
 			if($defined(downSpeed[selecting.id])){
 				downSpeedLength=downSpeed[selecting.id].length;
 				var chd1='';
@@ -92,7 +93,7 @@ if($action=='icon'){
 						comma=',';
 					}
 				max=max==0?1:max;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x200&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|0|'+uploadcount*UpdateInterval+'|3:||time(s)|';
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|0|'+uploadcount*UpdateInterval+'|3:||time(s)|';
 				$('thisspeed').src=src;
 			}
 			</script>
@@ -101,10 +102,15 @@ if($action=='icon'){
 			//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));
 			$fh = fopen($logfile, 'r');
-			$log = fread($fh, filesize($logfile));
-			fclose($fh);
-			echo $log;
-
+				if ($fh) {
+					while (!feof($fh)){
+						$buffer = fgets($fh, 4096); // Read a line.
+						echo $buffer.'<br />';
+					}
+					fclose($fh);
+				}else{
+					echo _Current_No_Log;
+				}
 		}
 }
 ?>
