@@ -2960,4 +2960,11 @@ function TorrentIDtoTorrent($id){
 	$return=$recordset->FetchRow();
 	return $return['torrent'];
 }
+function GetUserList(){
+	global $db;
+	$sql='select * From `tf_users`';
+	$recordset = $db->Execute($sql);
+	return $recordset->GetRows();
+
+}
 ?>

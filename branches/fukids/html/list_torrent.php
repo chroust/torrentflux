@@ -32,7 +32,15 @@ $db = getdb();
 loadSettings();
 $dirName=$cfg["torrent_file_path"];
 $lastUser = "";
-$arList=$output=$arListTorrent=$arUserTorrent = array();
+$arList=$arListTorrent=$arUserTorrent =$tmp_usertotal= array();
+		$output['global']=array(
+			'totalUpSpeed'=>0,
+			'totalDownSpeed'=>0,
+			'totaldownloading'=>0,
+			'totalfinished'=>0,
+			'totalactive'=>0,
+			'totalinactive'=>0,
+		);
 $totalUpSpeed=$totalDownSpeed=$total=$totacactive=$totalinactive=$totaldownloading=$totalinactive=0;
 $Requiredstatus=split(',',getRequestVar('status'),4);
     if (is_dir($dirName)){
@@ -43,8 +51,10 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
 		"<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
         return;
     }
-	$sql = "SELECT t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id";
-	$result = $db->SelectLimit($sql, 50,0);
+$Requiredusers=split(',',getRequestVar('users'));
+
+$sql = "SELECT t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id ";
+$result = $db->SelectLimit($sql, 50,0);
 	while(list($id, $file_name,$torrent,$hash, $owner_id,$owner) = $result->FetchRow()){
 		// get torrent info
 		$alias = torrent2stat($torrent);
@@ -56,6 +66,11 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
 		$totalfinished+= ($status==4 || $status ==5)?1:0;
 		$totalactive+=($haspid==1)?1:0;
 		$total++;
+		//check requred user
+		if(!in_array('0',$Requiredusers) AND !in_array($owner_id,$Requiredusers)){
+			$in_filter=0;
+		}else{
+		//check required status
 			if(in_array('0',$Requiredstatus)){
 				//if no specific status required
 				$in_filter=1;
@@ -72,7 +87,8 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
 				//if required status is "active"
 				$in_filter=1;
 			}
-			if($in_filter){
+		}
+			if($in_filter==1){
 				$return = array(
 					'id'		=>$id,
 					'title'	=>$file_name,
@@ -109,8 +125,15 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
 				$output['torrents'][]=$return;
 				$totalUpSpeed=$totalUpSpeed+$af->up_speed;
 				$totalDownSpeed=$totalDownSpeed+$af->down_speed;
+				$tmp_usertotal[$owner_id]=$tmp_usertotal[$owner_id]?$tmp_usertotal[$owner_id]+1:1;
 			}
 		$totalinactive=$total-$totalactive;
+		
+		$comma='';
+		foreach ($tmp_usertotal as $userid => $value){
+			$usrtotal_str=$comma.$userid.':'.$value;
+			$comma=',';
+		}
 		$output['global']=array(
 			'totalUpSpeed'=>$totalUpSpeed,
 			'totalDownSpeed'=>$totalDownSpeed,
@@ -118,6 +141,7 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
 			'totalfinished'=>$totalfinished,
 			'totalactive'=>$totalactive,
 			'totalinactive'=>$totalinactive,
+			'usrtotal_str'=>$usrtotal_str,
 		);
 	}
 echo json_encode($output);

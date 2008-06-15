@@ -42,8 +42,10 @@ $Update_interval = 5;
 function echo (a){
 	console.log(a);
 }
+	//function for grabing torrent list
 	var get_data=function(){
-		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&tags='+selected_tags,onComplete:function(data){
+		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&users='+selected_user,onComplete:function(data){
+					//update leftmenu 1
 					if($type(data['torrents'])!='array'){
 						data['torrents']=new Array();
 					}
@@ -53,6 +55,15 @@ function echo (a){
 				$('sfinished').innerHTML=data['global']['totalfinished'];
 				$('sactive').innerHTML=data['global']['totalactive'];
 				$('sinactive').innerHTML=data['global']['totalinactive'];
+					// update leftmenu 2
+					if($type(data['global']['usrtotal_str'])=='string'){
+						tmparray=data['global']['usrtotal_str'].split(',');
+						tmparray.forEach(function(e,i,a){
+							b=e.split(':',2);
+							$('susering_'+b[0]).innerHTML=b[1];
+						});
+							
+					}
 				timer=setTimeout('get_data()', UpdateInterval*1000);
 			}}).get();
 	}
@@ -230,7 +241,18 @@ window.addEvent('domready', function() {
 		selected_status=output?output:0;
 		forceUpdate();
 	});
-	new MultipleSelect ();
+	$('torrent_multiselect2').addEvent('click',function(){
+		var output='';
+		var comma='';
+		$('torrent_multiselect2').getSelected().each( function(option){
+			output+=comma+option.value;
+			comma=',';
+			echo (option);
+		})
+		selected_user=output?output:0;
+		forceUpdate();
+	});
+	new MultipleSelect();
 	get_data();
 });
 var selecting;
@@ -239,7 +261,7 @@ var uploadcount=0;
 var down_selecting_tab;
 var selected_feeds ='0';
 var selected_status='0';
-var selected_tags ='0';
+var selected_user ='0';
 var upSpeed=new Array();
 var downSpeed=new Array();
 var MaxdownSpeed=new Array();
@@ -302,19 +324,27 @@ var UpdateInterval=<?php echo $Update_interval?>;
 	<option VALUE="3"></option>
 	<option VALUE="4"></option>
 </select>
-<div id="torrent_multiselect1_0" class="invisible">_downloading (<span id="sdownloading"></span>)</div>
-<div id="torrent_multiselect1_1" class="invisible">_finished (<span id="sfinished"></span>)</div>
-<div id="torrent_multiselect1_2" class="invisible">_active (<span id="sactive"></span>)</div>
-<div id="torrent_multiselect1_3" class="invisible">_inactive (<span id="sinactive"></span>)</div>
+<div id="torrent_multiselect1_0" class="invisible">_downloading (<span id="sdownloading">0</span>)</div>
+<div id="torrent_multiselect1_1" class="invisible">_finished (<span id="sfinished">0</span>)</div>
+<div id="torrent_multiselect1_2" class="invisible">_active (<span id="sactive">0</span>)</div>
+<div id="torrent_multiselect1_3" class="invisible">_inactive (<span id="sinactive">0</span>)</div>
 
-<select size="2" id="torrent_multiselect2" class="multipleSelect">
-	<option >user......</option>
-	<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
+<?php
+	$userlist=GetUserList();
+?>
+<select size="5" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
+<?php 
+	foreach($userlist as $user){
+		?><option value="<?=$user['uid']?>"></option>
+		<?
+	}
+?>
 </select>
-<select size="2" id="torrent_multiselect3" class="multipleSelect">
-	<option >user......</option>
-	<option> <img src="http://www.google.com/logos/Logo_25blk.gif">123</option>
-</select>
+<?php 
+	foreach($userlist as $index =>$user){
+		?><div id="torrent_multiselect2_<?=$index?>" class="invisible"><?=$user['user_id']?>(<span id="susering_<?=$user['uid']?>">0</span>)</div><?
+	}
+?>
 </div>
 
 </div>
