@@ -20,9 +20,9 @@ Fx.ProgressBar = new Class({
 	},
 
 	initialize: function(element, options) {
-		this.element = $(element);
+		this.element = $type(element)=='element'?element:$$(element);
 		this.parent(options);
-		this.text = $(this.options.text);
+		this.text = $$(this.options.text);
 		this.set(0);
 	},
 
@@ -31,6 +31,7 @@ Fx.ProgressBar = new Class({
 	},
 
 	set: function(to) {
+		echo('seted to '+to);
 		this.now = to;
 		this.element.setStyle('backgroundPosition', (100 - to) + '% 0px');
 		if (this.text) this.text.set('text', Math.round(to) + '%');

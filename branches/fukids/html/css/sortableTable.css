@@ -93,7 +93,7 @@ div.rows{
 	width: auto !important;
 	float:left;
 	overflow: hidden;
-	height: 1.1em;
+	height: 1.2em;
 }
 div.rows div{
 	/**
@@ -135,12 +135,23 @@ div.tbody{
 
 /*************************************************************/
 
-.tl_name{
+.tl_percent,.tl_name{
 	width:200px;
 }
-.tl_percent,.tl_peers,.tl_status,.tl_totalupload{
+.tl_peers,.tl_status,.tl_totalupload{
 	width:50px;
 }
 .tl_filesize,.tl_seeds,.tl_downloadspeed,.tl_uploadspeed,.tl_estime{
 	width:100px;
+}
+.progressbar{
+background-position: -120px 0pt;
+background:white url(../images/percentImage_back1.png) no-repeat scroll 1px 0pt;
+margin:5px 0pt 0pt;
+padding:0pt;
+background-position:-120px 0pt;
+}
+.progressbar_text{
+	left:-60px;
+	
 }

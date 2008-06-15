@@ -1,5 +1,3 @@
-
-
 var currheight;
 var tabstatues;
 window.addEvent('domready', function(){
@@ -11,7 +9,6 @@ window.addEvent('domready', function(){
 	});
 	setTimeout("goresize()",1000);
 });
-
 var goresize=function(){
 	windowwidth=window.getSize().x;
 	windowheight=window.getSize().y;
@@ -35,11 +32,12 @@ var CloseSideBar=function(){
 	$('down_right').setStyle('width','100%');
 }
 var OpenTabTable=function(){
-	$('torrent_list_div').setStyle('height',windowheight-300);
+	var thisheight=windowheight-300;
+	$('torrent_list_div').setStyle('height',thisheight+'px');
 	$('torrent_info').setStyle('display','inline');
 }
 var CloseTabTable=function(){
-	$('torrent_list_div').setStyle('height',windowheight-60);
+	var thisheight=windowheight-60;
+	$('torrent_list_div').setStyle('height',thisheight+'px');
 	$('torrent_info').setStyle('display','none');
-
 }

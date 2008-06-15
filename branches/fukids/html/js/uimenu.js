@@ -30,7 +30,6 @@
         [/javascript]
 */
 	var UI={};
-	var uumenu=0;
 
 UI.Menu = new Class ( {
 
@@ -54,6 +53,7 @@ UI.Menu = new Class ( {
         this.separators = [];
         this.submenus   = [];
         this.trigger    = $( trigger );
+		this.checklayer = this.checklayer.bindWithEvent(this);
         //this.container  = $pick( this.options.container, document.body );
 			if(!$defined($(this.options.clsPrefix+'menucontainer'))){
 				this.container	=new Element( 'div', { id : this.options.clsPrefix+'menucontainer'} ).setStyle('width','1px').inject( document.body , 'inside' );
@@ -69,7 +69,8 @@ UI.Menu = new Class ( {
         if ( !this.options.subMenu ) {
             document.addEvent( 'mousedown', function( ev ) {
                 ev  = new Event(ev);
-                if (ev.target.id != this.id && !ev.target.getParents().contains( this.menu ) ) this.hideMenu();
+                //if (ev.target.id != this.id && !ev.target.getParents().contains( this.menu ) ) this.hideMenu();
+				if (ev.target.id != this.id) this.hideMenu();
             }.bind( this ) );
         };
 
@@ -86,11 +87,8 @@ UI.Menu = new Class ( {
 		this.trigger.addEvent( 'mouseup', function(event) {
 			this.trigger.addEvent ('contextmenu', $break);
 		}.bind(this));
-		this.trigger.addEvent( 'mousedown', function(event) {
-			this.trigger.addEvent ('contextmenu', $break);
-		}.bind(this));
-		document.addEvent ('contextmenu', $break);
 
+		document.addEvent ('contextmenu', $break);
         if ( [ 'rightClick', 'leftClick' ].contains( this.options.event ) ) {
             this.trigger.addEvent( 'mouseup', function(event) {
                 if ( ( this.options.event == 'rightClick' && event.rightClick ) || ( this.options.event == 'leftClick' && !event.rightClick ) ) this.showMenu( event );
@@ -487,12 +485,12 @@ UI.Menu = new Class ( {
         this.submenus[ id ].obj = new UI.Menu( this.items[ id ].element, $merge( { position : ['top', 'right'], subMenu : true, parentMenu : this.id, event : 'mouseOver' }, options ) );
         return this.submenus[ id ].obj;
     },
-
+	checklayer: function(event){
+		this.hideMenu();
+	},
     showMenu: function ( event )
-    {
-		if(uumenu==1)return false;
+	{
         this.hideMenu();
-
         if ( $type( this.options.position ) == 'string' && this.options.position == 'mouse' ) {
             var styleX = window.getWidth() - event.client.x < this.menu.getSize().x ? { 'left' : event.client.x - this.menu.getSize().x } : { 'left' : event.client.x };
             var styleY = window.getHeight() - event.client.y < this.menu.getSize().y ? { 'top'  : event.client.y - this.menu.getSize().y } : { 'top' : event.client.y };
@@ -515,14 +513,13 @@ UI.Menu = new Class ( {
             };
 
         };
-
-        this.menu.addClass( this.options.clsPrefix + 'menu-visible' ).setStyles( $merge( styleX, styleY ) );
-		uumenu=1;
+		
+        this.menu.addClass( this.options.clsPrefix + 'menu-visible' ).setStyles( $merge( styleX, styleY )).addEvent('mouseup',this.checklayer);
+		 document.addEvent ('mousedown', this.checklayer);
     },
 
     hideMenu: function ()
     {
-	uumenu=0;
         this.hideSubMenus();
         this.menu.removeClass( this.options.clsPrefix + 'menu-visible' ).setStyle( 'left', '-600px' );
     },
@@ -541,4 +538,5 @@ UI.Menu = new Class ( {
     }
 
 } );
-$break = function () {return false;}
+$break = function () {
+return false;}

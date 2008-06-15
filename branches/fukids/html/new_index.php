@@ -13,7 +13,6 @@ $Update_interval = 5;
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
 <script type="text/javascript" src="js/mootools-1.2-more.js"></script>
 <script type="text/javascript" src="js/sortableTable.js"></script>
@@ -21,7 +20,8 @@ $Update_interval = 5;
 <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
 <script type="text/javascript" src="js/uimenu.js"></script>			
 <script type="text/javascript" src="js/panel.js"></script>		
-<script type="text/javascript" src="js/multiselect.js"></script>		
+<script type="text/javascript" src="js/multiselect.js"></script>	
+<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>		
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
@@ -111,7 +111,9 @@ function echo (a){
 	NewTorrent=function(torrent){
 		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody')).addEvent ('mousedown', $break);
 		new Element('div',{'class':'tl_name'}).set('html',torrent.title).injectInside(tr);
-		new Element('div',{'class':'tl_percent'}).set('html',torrent.percent).injectInside(tr);
+		var percent=new Element('div',{'class':'tl_percent'}).injectInside(tr);
+		new Element('img',{'class':'progressbar'}).setProperty('src', 'images/percentImage.png').injectInside(percent);
+		new Element('span',{'class':'progressbar_text'}).injectInside(percent);
 		new Element('div',{'class':'tl_filesize'}).set('html',torrent.size).injectInside(tr);
 		new Element('div',{'class':'tl_status'}).set('html',torrent.status).injectInside(tr);
 		new Element('div',{'class':'tl_seeds'}).set('html',torrent.seeds).injectInside(tr);
@@ -128,6 +130,10 @@ function echo (a){
 				myTabs1.activate(down_selecting_tab);
 			}
 		});
+			if($defined(selecting) && selecting.id==torrent.id){
+				tr.addClass('torrent_list_clicked');
+			}
+			
 		torrent_RightMenu  = new UI.Menu( torrent.id, { event : 'rightClick' } );
 		torrent_RightMenu.addItems( [
 		{ label :'_Start', onclick : function() {torrentControl('Start',torrent.id);}},
@@ -141,10 +147,12 @@ function echo (a){
 		{label : '_RemoveTorrent'},
 		{label : '_RemoveFile'},
 		]);
+		progressbar[torrent.id]=new Fx.ProgressBar('div#tbody div#'+torrent.id+' .tl_percent img',{text:'div#tbody div#'+torrent.id+' .tl_percent span'}).start(torrent.percent,100);
 	}
 	ChangeTorrent=function(torrent){
 		$$('div#tbody div#'+torrent.id+' .tl_name').set('html',torrent.title);
-		$$('div#tbody div#'+torrent.id+' .tl_percent').set('html',torrent.percent);
+		//$$('div#tbody div#'+torrent.id+' .tl_percent').set('html',torrent.percent);
+		progressbar[torrent.id].set(torrent.percent);
 		$$('div#tbody div#'+torrent.id+' .tl_filesize').set('html',torrent.size);
 		$$('div#tbody div#'+torrent.id+' .tl_status').set('html',torrent.status);
 		$$('div#tbody div#'+torrent.id+' .tl_seeds').set('html',torrent.seeds);
@@ -222,7 +230,7 @@ window.addEvent('domready', function() {
 			}
 	});
 	// right click menu
-	uiMenu_listTorrent  = new UI.Menu( 'torrent_list_div', { event : 'rightClick' } );
+	uiMenu_listTorrent  = new UI.Menu( 'list_torrent', { event : 'rightClick' } );
 	uiMenu_listTorrent.addItems([
 			{label :'_Upload_Torrent', onclick : function(){}}
 		,   {label :'_Url_Torrent',  onclick : function(){} }
@@ -247,7 +255,6 @@ window.addEvent('domready', function() {
 		$('torrent_multiselect2').getSelected().each( function(option){
 			output+=comma+option.value;
 			comma=',';
-			echo (option);
 		})
 		selected_user=output?output:0;
 		forceUpdate();
@@ -255,6 +262,7 @@ window.addEvent('domready', function() {
 	new MultipleSelect();
 	get_data();
 });
+var progressbar=new Array();
 var selecting;
 var reloadedcount=0;
 var uploadcount=0;
