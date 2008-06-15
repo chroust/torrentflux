@@ -31,7 +31,6 @@ Fx.ProgressBar = new Class({
 	},
 
 	set: function(to) {
-		echo('seted to '+to);
 		this.now = to;
 		this.element.setStyle('backgroundPosition', (100 - to) + '% 0px');
 		if (this.text) this.text.set('text', Math.round(to) + '%');

@@ -42,9 +42,27 @@ if($action=='icon'){
 		}
 		if($tab=='tab1'){
 			//normal
-			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
+			$torrentfile=TorrentIDtoTorrent($torrentId);
+			$info=GrabTorrentInfo($torrentfile);
 			$info['info']['pieces']='';
-			echo "<pre>".var_dump($info).'</pre>';
+			$torrent_size = $info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
+			
+			?>
+			<table>
+			<tr><td>Torrent File:</td><td> <?=$torrentfile?> </td></tr>
+			<tr><td>Directory Name:</td><td> <?=htmlentities($info['info']['name'], ENT_QUOTES)?></td></tr>
+			<?
+			if(array_key_exists('comment',$info)){
+               ?><tr><td>Comment:</td><td> ".htmlentities($info['comment'], ENT_QUOTES)?></td></tr><?
+            }
+			echo "<tr><td>Created:</td><td>".date("F j, Y, g:i a",$info['creation date'])."</td></tr>";
+            echo "<tr><td>Torrent Size:</td><td>".$torrent_size." (".formatBytesToKBMGGB($torrent_size).")</td></tr>";
+            echo "<tr><td>Chunk size:</td><td>".$info['info']['piece length']." (".formatBytesToKBMGGB($info['info']['piece length']).")</td></tr>";
+    
+			?>
+			</table>
+			<?
+		//	echo "<pre>".var_dump($info).'</pre>';
 		}elseif($tab=='tab2'){
 			//Tracker
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
@@ -55,6 +73,7 @@ if($action=='icon'){
 			//user
 		}elseif($tab=='tab4'){
 			//file
+			/*
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
 				if(is_array($info['info']['files'])){
 					//if this is a list of file
@@ -64,13 +83,57 @@ if($action=='icon'){
 				}else{
 					echo $info['info']['name.utf-8'];
 				}
+			*/
+			$torrentfile=TorrentIDtoTorrent($torrentId);
+			$btmeta=GrabTorrentInfo($torrentfile);
+			include_once('include/dir.class.php');
+            $dirnum =  (array_key_exists('files',$btmeta['info']))?count($btmeta['info']['files']):0;
+            if ( is_readable($prioFileName)){
+                $prio = split(',',file_get_contents($prioFileName));
+                $prio = array_splice($prio,1);
+            }else{
+                $prio = array();
+                for($i=0;$i<$dirnum;$i++)
+                {
+                    $prio[$i] = -1;
+                }
+            }
+            $tree = new dir("/",$dirnum,isset($prio[$dirnum])?$prio[$dirnum]:-1);
+    
+            if (array_key_exists('files',$btmeta['info'])){
+                foreach( $btmeta['info']['files'] as $filenum => $file){
+                    $depth = count($file['path.utf-8']);
+                    $branch =& $tree;
+                    for($i=0; $i < $depth; $i++){
+                        if ($i != $depth-1){
+                            $d =& $branch->findDir($file['path.utf-8'][$i]);
+    
+                            if($d){
+                                $branch =& $d;
+                            }else{
+                                $dirnum++;
+                                $d =& $branch->addDir(new dir($file['path.utf-8'][$i], $dirnum, (isset($prio[$dirnum])?$prio[$dirnum]:-1)));
+                                $branch =& $d;
+                            }
+                        }else{
+                            $branch->addFile(new file($file['path.utf-8'][$i]." (".$file['length'].")",$filenum,$file['length'],$prio[$filenum]));
+                        }
+    
+                    }
+                }
+            }
+			
+            if (array_key_exists('files',$btmeta['info'])){
+				echo $tree->draw(-1);
+
+			}
 		}elseif($tab=='tab5'){
 			//speed
 			?>
 			<img src="" alt="" id="thisspeed">
 			<script type="text/javascript">
-			echo('speed loaded');
-
+			var speed_updateIntervals = 5;
+			var updateGraph=function(){
 			if($defined(downSpeed[selecting.id])){
 				downSpeedLength=downSpeed[selecting.id].length;
 				var chd1='';
@@ -95,9 +158,20 @@ if($action=='icon'){
 				max=max==0?1:max;
 				basetime=reloadedcount*UpdateInterval;
 				lastesttime=basetime+uploadcount*UpdateInterval;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|'+basetime+'|'+lastesttime+'|3:||time(s)|';
+				middletime=(lastesttime-basetime)/2;
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeed[selecting.id]+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
 				$('thisspeed').src=src;
+				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
 			}
+				
+			}
+			window.addEvent('TabReady', function() {
+			updateGraph();
+			}).addEvent('TabExit', function() {
+				graphtimer=$empty;
+				updateGraph=$empty;
+			});
+
 			</script>
 			<?
 		}elseif($tab=='tab6'){

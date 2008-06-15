@@ -1,0 +1,26 @@
+div.mui-tree ul, div.mui-tree ul ul{
+	border-left:1px dotted #000;
+	list-style-type:none;
+	padding:0;margin:0;
+	margin-left:1.5em;
+	display:block;
+	font-size:0.9em;
+}
+div.mui-tree ul li{
+	padding-left:3px;
+	margin:2px 0;
+	line-height:1.5em;
+	vertical-align:top;
+}
+div.mui-treetitle{
+	cursor: default;
+}
+
+div.mui-treetitle:before{
+	content: '|__'
+}
+
+div.mui-treetitle:hover{
+	display:inline;
+	clear:both;
+}

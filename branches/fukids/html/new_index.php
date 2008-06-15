@@ -7,6 +7,7 @@ session_start();
 $db = getdb();
 loadSettings();
 $Update_interval = 5;
+$maxsaveTime=1000;
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -21,7 +22,7 @@ $Update_interval = 5;
 <script type="text/javascript" src="js/uimenu.js"></script>			
 <script type="text/javascript" src="js/panel.js"></script>		
 <script type="text/javascript" src="js/multiselect.js"></script>	
-<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>		
+<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>			
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
@@ -33,6 +34,7 @@ $Update_interval = 5;
 <link href="css/mootabs1.2.css" rel="stylesheet" type="text/css" />
 <link href="css/menu.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="css/multiselect.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="css/tree.css" rel="stylesheet" type="text/css" media="screen" />
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 <![endif]-->
@@ -75,7 +77,7 @@ function echo (a){
 	update_data =function (Torrents){
 		var thisarray=new Array();
 		var needclear=0;
-		if(uploadcount>10){
+		if(uploadcount><?=$maxsaveTime?>){
 			uploadcount=0;
 			needclear=1
 			reloadedcount=1;
