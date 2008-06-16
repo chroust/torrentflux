@@ -1,96 +1,114 @@
 
-html, body {
-    height :                    100%;
-}
+   div.ddmenu {
+   	position: absolute;
+   	top: 0;
+   	left: 0;
+   	font-family: verdana;
+   }
 
-/*
-    Menu
-*/
-.ui-menu {
-    list-style :                none;
-    padding :                   1px;
-    margin :                    0px;
-    position :                  absolute;
-    z-index :                   99999999;
-    visibility :                hidden;
-}
+   div.ddmenu a {
+   	display: block;
+   	text-decoration: none;
+   	cursor: default;
+   	outline: none;
+   	font-size: 11px;
+      zoom: 1;   	
+   }
+   
+   .ddmenu * {	margin: 0; padding: 0; }
+   
+   .ddmenu li { list-style-image:none; list-style-position:outside; list-style-type:none; }  
+   .ddmenu li:focus { outline-color:invert; outline-style:none; outline-width:0pt; } 
+   
+   .ddmenu li.title {
+   	font-size: 12px;
+   }   
+   
+   .ddmenu li.sepline {
+   	height: 1px;
+   	padding: 0;
+   	overflow: hidden;
+   	display: block;
+   	font-size: 1px;
+   }
 
-.ui-menu.ui-menu-visible {
-    visibility :                visible;
-	/* make it on top*/
-    z-index :                   9999;
-}
 
-.ui-menu li {
-    cursor :                    pointer;
-	padding:0px;
-	border:1px solid transparent;
-    font-size :                 11px;
-	width:auto !important;
-	width:1px ;
-	overflow:visable;
-    line-height :               100%;
-}
+   
+      /* defstyle */
 
-.ui-menu li {
-    white-space :               nowrap;
-}
+      .ddmenu.def {
+         width: 14em;
+         background-color: #f9ffff;
+         border: 1px solid #888;
+         border-right: 2px solid #444;
+         border-bottom: 2px solid #444;         
+         padding: 1px 1px 1px 1px;      
+      }
+      
+      *+html .ddmenu.def { border: 2px outset #fff; }
+      
+      .ddmenu.def a {
+      	color: #111;
+      	padding: 2px 27px 4px 17px;
+      	margin: 0;
+      	border: 1px solid #f9f8f7;
+      	font-size:11px;
+      }
+      
+      .ddmenu.def a:visited  { color: #333; } 
+      
+      .ddmenu.def a.disabled {
+      	opacity: 0.25;
+      	filter: alpha(opacity=25);
+      } 
+      
+      .ddmenu.def li.sepline {
+         min-width: 14em;
+      	border-bottom: 1px solid #eed;
+      	background: #aaa;
+      	margin: 1px 1px 0 1px;
+      	line-height: 1px !important;
+      }      
+   
 
-.ui-menu li.ui-menu-sep {
-    height :                    2px;
-    line-height :               2px;
-    cursor :                    default;
-}
+      .ddmenu.def li.title {
+         margin: 3px 1px 0 1px;
+         padding: 3px 25px 3px 17px;
+         color:grey;
+         text-align:left;
+         cursor:default;
+         font-weight:bold;
+         border-bottom:1px solid #eb4;
+      	font-size:11px;  
+         color:black; 
+      }      
+      
 
-.ui-menu li.ui-menu-item img {
-    vertical-align :            top;
-    margin :                    0px 12px 0px 0px;
-    width :                     16px;
-    height :                    16px;
-}
+         /*icons*/
 
-.ui-menu li.ui-menu-item span.ui-menu-label {
-    margin-right :              5px;
-    padding :                   3px 16px 3px 3px;
-    display :                   block;
-    height :                    16px;
-    line-height :               16px;
-}
+         .ddmenu.def a.objects {
+            padding-left: 24px;
+            background: url(../images/objects-16x16x32b.png) 4px 50% no-repeat;
+         }
 
-.ui-menu li.ui-menu-sep span {
-    display :                   block;
-}
-
-/*
-    Menu
-*/
-.ui-menu {
-    width:auto;
-	overflow:visible;
-    border :                    1px solid #868686;
-    background :                #FAFAFA url('../images/rightmenu/bg.gif') repeat-y left;
-}
-
-.ui-menu li.ui-menu-sep span {
-    height :                    1px;
-    line-height :               1px;
-    background :                transparent url('../images/rightmenu/sep.gif') no-repeat 30px 0px;
-}
-
-.ui-menu li.ui-menu-item.over {
-	padding:0px;
-    border :                    1px solid #DBCE99;
-    background :                url('../images/rightmenu/over.gif') repeat-x left;
-}
-
-.ui-menu li.ui-menu-item span.ui-menu-label.arrow {
-    background :                transparent url('../images/rightmenu/arrow_r.png') no-repeat right;
-}
-
-.ui-menu li.ui-menu-item.disable {
-    color : #A1A7AD;
-}
-.disabled {
-	opacity: 0.25;
-	filter: alpha(opacity=25);
-} 
+         
+         .ddmenu.def a.letter {
+            padding-left: 24px;
+            background: url(../images/text-16x16x32b.png) 4px 50% no-repeat;
+         }         
+         
+         .ddmenu.def a.umbrella {
+            padding-left: 24px;
+            background: url(../images/umbrella-16x16x32b.png) 4px 50% no-repeat;
+         }
+         
+         
+      
+      .ddmenu.def a:hover {
+         background-color: orange;
+         color: #fff;
+      }
+      
+      
+      
+      

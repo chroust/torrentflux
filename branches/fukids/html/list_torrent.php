@@ -60,12 +60,13 @@ $result = $db->SelectLimit($sql, 50,0);
 		$alias = torrent2stat($torrent);
 		$af = new AliasFile($dirName.$alias, $owner_id);
 		$timeStarted = "";
-		$haspid=GetPid(torrent2stat($torrent))=='-1'?0:1;
+		$haspid=GetPid(torrent2stat($torrent))=='-1'?false:true;
 		list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
 		$totaldownloading+= ($status==2)?1:0;
 		$totalfinished+= ($status==4 || $status ==5)?1:0;
-		$totalactive+=($haspid==1)?1:0;
+		$totalactive+=($haspid==true)?1:0;
 		$total++;
+		$tmp_usertotal[$owner_id]=$tmp_usertotal[$owner_id]?$tmp_usertotal[$owner_id]+1:1;
 		//check requred user
 		if(!in_array('0',$Requiredusers) AND !in_array($owner_id,$Requiredusers)){
 			$in_filter=0;
@@ -76,24 +77,25 @@ $result = $db->SelectLimit($sql, 50,0);
 				$in_filter=1;
 			}elseif($status==2 && in_array('1',$Requiredstatus)){
 				//if required status is "downloading"
-				$in_filter=1;
+				$in_filter=2;
 			}elseif(($status==4 || $status ==5) && in_array('2',$Requiredstatus)){
 				//if required status is "finished"
-				$in_filter=1;
-			}elseif($haspid==1 && in_array('3',$Requiredstatus)){
+				$in_filter=3;
+			}elseif($haspid==true && in_array('3',$Requiredstatus)){
 				//if required status is "active"
-				$in_filter=1;
-			}elseif($haspid==0 && in_array('4',$Requiredstatus)){
-				//if required status is "active"
-				$in_filter=1;
+				$in_filter=4;
+			}elseif($haspid==false && in_array('4',$Requiredstatus)){
+				//if required status is "inactive"
+				$in_filter=5;
 			}
 		}
-			if($in_filter==1){
+			if($in_filter){
 				$return = array(
 					'id'		=>$id,
 					'title'	=>$file_name,
 					'owner'	=>$owner_id,
-					'status'	=>$status_text
+					'status'	=>$status_text,
+					'haspid'=>$haspid
 				);
 					if($tatus=="0"){
 						// it is new
@@ -125,7 +127,6 @@ $result = $db->SelectLimit($sql, 50,0);
 				$output['torrents'][]=$return;
 				$totalUpSpeed=$totalUpSpeed+$af->up_speed;
 				$totalDownSpeed=$totalDownSpeed+$af->down_speed;
-				$tmp_usertotal[$owner_id]=$tmp_usertotal[$owner_id]?$tmp_usertotal[$owner_id]+1:1;
 			}
 		$totalinactive=$total-$totalactive;
 		

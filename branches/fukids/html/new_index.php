@@ -17,7 +17,7 @@ $maxsaveTime=1000;
 <script type="text/javascript" src="js/sortableTable.js"></script>
 <script type="text/javascript" src="js/mootabs1.2.js"></script>
 <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
-<script type="text/javascript" src="js/uimenu.js"></script>			
+<script type="text/javascript" src="js/ddmenu.js"></script>			
 <script type="text/javascript" src="js/panel.js"></script>		
 <script type="text/javascript" src="js/multiselect.js"></script>	
 <script type="text/javascript" src="js/Fx.ProgressBar.js"></script>	
@@ -47,7 +47,6 @@ function echo (a){
 	get_data=function(){
 		Mainloading.show();
 		var request = new Request.JSON({url:'list_torrent.php?feeds='+selected_feeds+'&status='+selected_status+'&users='+selected_user,onComplete:function(data){
-					
 					if($type(data['torrents'])!='array'){
 						data['torrents']=new Array();
 					}
@@ -142,20 +141,11 @@ function echo (a){
 			if($defined($(selecting)) && selecting==torrent.id){
 				tr.addClass('torrent_list_clicked');
 			}
-			
-		torrent_RightMenu  = new UI.Menu( torrent.id, { event : 'rightClick' } );
-		torrent_RightMenu.addItems( [
-		{ label :'_Start', onclick : function() {torrentControl('Start',torrent.id);}},
-		{ label :'_Kill', onclick : function() {torrentControl('Kill',torrent.id);}},
-		{ label :'_Del', onclick : function() {torrentControl('Del',torrent.id);}},
-		{ label :'_DelAnd',id:torrent.id+'_DelAnd'}
-		]);
-		demoMenu3 = torrent_RightMenu.addSubMenu( torrent.id+'_DelAnd');
-		demoMenu3.addItems([
-		{label : '_RemoveTorrentAndFile'},
-		{label : '_RemoveTorrent'},
-		{label : '_RemoveFile'},
-		]);
+    pagemenu = new DDMenu ('torrentclick', torrent.id, {
+        onItemSelect: function (act_id, act_el, menu_bindon) {
+			torrentControl(act_id,menu_bindon.id);
+        }
+    });
 		progressbar[torrent.id]=new Fx.ProgressBar('div#tbody div#'+torrent.id+' .tl_percent img',{text:'div#tbody div#'+torrent.id+' .tl_percent span'}).start(torrent.percent,100);
 	}
 	ChangeTorrent=function(torrent){
@@ -210,8 +200,6 @@ function echo (a){
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
-	Mainloading	=	new loading();
-	new MultipleSelect();
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
 			OpenWindow(item.id,item.title);
@@ -237,18 +225,16 @@ window.addEvent('domready', function() {
 	window.addEvent('keydown', function(e){
 		e = new Event(e); 
 			if(e.key=='esc'){
-				MochaUI.closeAll();
+				window.MochaUI.closeAll();
 			}
 	});
 	// right click menu
-	uiMenu_listTorrent  = new UI.Menu( 'list_torrent', { event : 'rightClick' } );
-	uiMenu_listTorrent.addItems([
-			{label :'_Upload_Torrent', onclick : function(){}}
-		,   {label :'_Url_Torrent',  onclick : function(){} }
-		,   {label :'_Creat_Torrent',  onclick : function(){} }
-		,   {separator : true}
-		,   {label :'_Add_Feed', icon : 'menu/add.png' }
-		]);
+    pagemenu = new DDMenu ('ListLeftClick', 'list_torrent', {
+        onItemSelect: function (act_id, act_el, menu_bindon) {
+		OpenWindow(act_id,act_id);
+        }
+    });
+
 	//multiselect
 	$('ms_torrent_multiselect1').addEvent('click',function(){
 		var output='';
@@ -270,7 +256,7 @@ window.addEvent('domready', function() {
 		selected_user=output?output:0;
 		forceUpdate();
 	});
-	
+
 	get_data();
 	
 });
@@ -370,5 +356,25 @@ var UpdateInterval=<?php echo $Update_interval?>;
 
 </div>
 </div>
+<div class="ddmenu def" id="ListLeftClick" style="display:none">
+<ul>
+<li class="item" id="Upload_Torrent"><a href="#">_Upload_Torrent</a></li>
+<li class="item" id="Url_Torrent"><a href="#">_Url_Torrent</a></li>
+<li class="item" id="Creat_Torrent"><a href="#">_Creat_Torrent</a></li>
+<li class="sepline"></li>
+<li class="item" id="_Add_Feed"><a href="#">_Add_Feed</a></li>
+</ul>
+</div>
+<div class="ddmenu def" id="torrentclick" style="display:none">
+<ul>
+<li class="item" id="Start"><a href="#">_Start</a></li>
+<li class="item" id="Kill"><a href="#">_Kill</a></li>
+<li class="item" id="Del"><a href="#">_Del</a></li>
+</ul>
+</div>
+
+
+
+
 </body>
 </html>

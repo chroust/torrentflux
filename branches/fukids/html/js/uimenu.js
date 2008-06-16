@@ -30,7 +30,6 @@
         [/javascript]
 */
 	var UI={};
-
 UI.Menu = new Class ( {
 
     Implements : [ Options ],
@@ -93,6 +92,8 @@ UI.Menu = new Class ( {
             this.trigger.addEvent( 'mouseup', function(event) {
                 if ( ( this.options.event == 'rightClick' && event.rightClick ) || ( this.options.event == 'leftClick' && !event.rightClick ) ) this.showMenu( event );
             }.bind( this ).bind( this.trigger ) );
+			this.trigger.addEvent('mousedown',function(){
+			});
         };
 
         if ( this.options.event == 'mouseOver' ) {

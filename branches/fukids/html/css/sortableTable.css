@@ -28,6 +28,7 @@ MozUserSelect:none
 float:left;
 width:14%;
 overflow:hidden;
+display:none;
 }
 
 select{

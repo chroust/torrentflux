@@ -7,6 +7,9 @@ $torrentid=getRequestVar('torrentid');
 	if((in_array($action,array('Kill','Del','Start')) && !$torrentid)){
 		showmessage('no Variable: $torrent',1);
 	}
+	if(!intval($torrentid)){
+		showmessage('no torrent id',1);
+	}
 include_once("include/BtControl_Tornado.class.php");
 	if($action=='Kill'){
 		$Bt= new BtControl($torrentid);

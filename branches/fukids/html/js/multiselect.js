@@ -2,11 +2,11 @@ var MultipleSelect = new Class ({
 	initialize: function () {
 		var zIndex = 1000;
 		$$('select.multipleSelect').forEach (
-		function ( sel ) {
+		function (sel) {
 			var top= sel.getPosition().y + 'px';
 			var left= sel.getPosition().x + 'px';
-			var width= sel.getSize().x+'px';
-			var height=sel.getSize().y+ 'px';
+			var width = '80%';
+			var height=sel.getProperty('size')+'em';
 			var container = new Element ( 'div', {
 				'class': 'MScontainer',
 				'id': 'ms_' + sel.id,
@@ -58,4 +58,7 @@ var MultipleSelect = new Class ({
 			sel.removeEvent();
 		} );
 	}
+});
+window.addEvent('domready', function() {
+	new MultipleSelect();
 });

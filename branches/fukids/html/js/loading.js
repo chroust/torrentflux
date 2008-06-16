@@ -34,4 +34,6 @@ loading = new Class({
 		this.msgbox.setStyle('display','none');
 	}
 });
-
+window.addEvent('domready', function() {
+	Mainloading	=	new loading();
+});

@@ -7,7 +7,7 @@ window.addEvent('domready', function(){
 		}
 	currheight = window.getSize().x;
 	});
-	setTimeout("goresize()",1000);
+	goresize();
 });
 var goresize=function(){
 	windowwidth=window.getSize().x;

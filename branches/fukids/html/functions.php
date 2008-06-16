@@ -2887,7 +2887,7 @@ function showmessage($msg,$closewindow=0){
 	global $usejs;
 		if($closewindow){
 				if($usejs){
-					echo '<script>alert(\''.addslashes($msg).'\');MochaUI.closeAll();</script>'; 
+					echo '<script>alert(\''.addslashes($msg).'\');window.MochaUI.closeAll();</script>'; 
 				}
 					exit($msg);
 		}else{
