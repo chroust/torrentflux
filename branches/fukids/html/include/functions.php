@@ -2701,7 +2701,7 @@ function CheckRunning($alias=''){
 // ***************************************************************************
 // ***************************************************************************
 //Upload a Torrent
-function NewTorrent($file,$name){
+function NewTorrent($file,$name,$options=''){
 	global $cfg;
 		if(!is_file($file)){
 			return $file.'not found';
@@ -2715,13 +2715,13 @@ function NewTorrent($file,$name){
 		}while(is_file($cfg["torrent_file_path"].$file_name));
 	rename($file,$file_name);
 	chmod ($file_name, 0644);
-	return NewTorrentInjectDATA($file_name);
+	return NewTorrentInjectDATA($file_name,$options);
 }
 
 // ***************************************************************************
 // ***************************************************************************
 //Upload a Torrent form Url
-function UrlTorrent($url){
+function UrlTorrent($url,$options=''){
 	global $cfg;
 		if(!function_exists('curl_init')){
 			showmessage('please install php curl first',1);
@@ -2745,7 +2745,7 @@ function UrlTorrent($url){
 	$fp = fopen($file_name, 'w');
 	fwrite($fp, $return);
 	fclose($fp);
-	$return = NewTorrentInjectDATA($file_name);
+	$return = NewTorrentInjectDATA($file_name,$options);
 	AuditAction($cfg["constants"]["url_upload"], $file_name);
 	return $return;
 }
@@ -2788,7 +2788,7 @@ function GrabTorrentInfo($basename){
 // ***************************************************************************
 // ***************************************************************************
 //function for injecting SQL while creating a torrent job
-function NewTorrentInjectDATA($filename){
+function NewTorrentInjectDATA($filename,$options=''){
 	global $db,$cfg;
 	$basename=basename($filename);
 	
@@ -2801,6 +2801,8 @@ function NewTorrentInjectDATA($filename){
 			showmessage('WRONG TORRENT FORMAT');
 			return;
 		}
+	//grab the options to variables
+	extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
 	//check if the torrent exist already
 	$sql = "SELECT `id` FROM `tf_torrents` WHERE `hash`=".$db->qstr($hash);
 	$recordset = $db->Execute($sql);
@@ -2810,7 +2812,13 @@ function NewTorrentInjectDATA($filename){
 		}
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
 	CreatNewStat($basename,$filesize);
-	$sql = 'INSERT INTO `tf_torrents` (`file_name`,`torrent` ,`hash` ,`owner_id`) VALUES (\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\');';
+	$sql = 'INSERT INTO `tf_torrents` 
+	(`file_name`,`torrent` ,`hash` ,`owner_id`,
+	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`maxport`,`rerequest`,`sharekill`) VALUES 
+	(\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\'
+	, \''.$rate.'\', \''.$drate.'\', \''.$superseeder.'\'
+	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\'
+	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\');';
 	$recordset = $db->Execute($sql);
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
@@ -2891,12 +2899,14 @@ function showmessage($msg,$closewindow=0){
 	global $usejs;
 		if($closewindow){
 				if($usejs){
-					echo '<script>alert(\''.addslashes($msg).'\');window.MochaUI.closeAll();</script>'; 
+					echo '<script type="text/javascript">alert(\''.addslashes($msg).'\');window.MochaUI.closeAll();</script>'; 
+				}else{
+					echo $msg;
 				}
-					exit($msg);
+					exit();
 		}else{
 				if($usejs){
-					echo '<script>alert(\''.addslashes($msg).'\');</script>'; 
+					echo '<script type="text/javascript">alert(\''.addslashes($msg).'\');</script>'; 
 				}else{
 					echo $msg;
 				}
@@ -2978,10 +2988,14 @@ function template($file){
 	global $lang;
 	$objfile = ENGINE_ROOT . '/cache/templates/' .$lang.'_'.$file .'.tpl.php';
 	$tmpfile = ENGINE_ROOT.'/template/'.$file.'.htm';
-	if(filectime($tmpfile)>filectime($objfile)){
-		include ENGINE_ROOT.'/include/template_rebuild.func.php';
-		parse_template($file);
-	}
+		if(!is_file($tmpfile)){
+			showmessage('template file not found');
+			return;
+		}
+		if(!is_file($objfile) || filectime($tmpfile)>filectime($objfile)){
+			include ENGINE_ROOT.'/include/template_rebuild.func.php';
+			parse_template($file);
+		}
 	return $objfile;
 }
 

@@ -1,4 +1,6 @@
 <?php
+
+// this is a class for controlling bittorrent process
 include_once("config.php");
 include_once("functions.php");
 // class for writing .stat
@@ -9,29 +11,37 @@ Class BtControl {
 	function BtControl($torrentid,$options=''){
 		GLOBAL $cfg,$db;
 		$this->torrentid=intval($torrentid);
-		$sql='SELECT torrent FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
-		$result=$db->GetOne($sql);
+		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		$recordset = $db->Execute($sql);
+		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
+		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
+		$this->rerequest,$this->sharekill
+		) = $recordset->FetchRow();
 		showError($db,$sql);
-		$this->torrent = $result;
-		$torrent=$result;
+		$torrent=$this->torrent;
 		$this->CheckTorrent($torrent);
 		//grab the options to variables
 		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
 		//use default if no options are set
-		$this->rate = empty($rate)?$cfg["max_upload_rate"]:$rate;
-		$this->drate = empty($drate)?$cfg["max_download_rate"]:$drate;
+		$this->rate = empty($rate)?$this->rate:intval($rate);
+		$this->drate = empty($drate)?$this->drate:intval($drate);
 		$this->superseeder = "0";
-		$this->runtime = empty($runtime)?$cfg["torrent_dies_when_done"]:$runtime;
-		$this->maxuploads = empty($maxuploads)?$cfg["max_uploads"]:$maxuploads;
-		$this->minport = empty($minport)?$cfg["minport"]:$minport;
-		$this->maxport = empty($maxport)?$cfg["maxport"]:$maxport;
-		$this->rerequest = empty($rerequest)?$cfg["rerequest_interval"]:$rerequest;
-		$this->sharekill= ($this->runtime == "True")? "-1": $cfg["sharekill"];
+		$this->runtime = empty($runtime)?$this->runtime:intval($runtime);
+		$this->maxuploads = empty($maxuploads)?$this->maxuploads:intval($maxuploads);
+		$this->minport = empty($minport)?$this->minport:intval($minport);
+		$this->maxport = empty($maxport)?$this->maxport:intval($maxport);
+		$this->rerequest = empty($rerequest)?$this->rerequest:intval($rerequest);
+		$this->sharekill= ($this->runtime == "True")? "-1": intval($cfg["sharekill"]);
 		$this->alias = getAliasName($torrent);
 		$this->owner = getOwner($torrent);
 		$this->queue= (IsAdmin() AND $queue == 'on')?"1":"0";
+		$sql = 'UPDATE `tf_torrents`  SET `rate`=\''.$this->rate.'\',`drate`=\''.$this->drate.'\',`superseeder`=\''.$this->superseeder.'\',
+		`runtime`=\''.$this->runtime.'\',`maxuploads`=\''.$this->maxuploads.'\',`minport`=\''.$this->minport.'\',
+		`maxport`=\''.$this->maxport.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
+			$recordset = $db->Execute($sql);
+				showError($db,$sql);
+
 	}
-	
 	function Start(){
 		GLOBAL $cfg;
 		// check if home dir exist, if not, creat it 
@@ -58,12 +68,14 @@ Class BtControl {
 					}else{
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
+				//change to download DIR
 				$command.= "cd " . $cfg["path"].$owner . ";";
 				$command.= " HOME=".$cfg["path"].";";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
 				$command.= escapeshellarg($this->runtime)." ".escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->alias.".stat' ".$this->owner;
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
+				//update stat interval
 				$command.= " --display_interval 1 ";
 				$command.= " --max_download_rate ". escapeshellarg($this->drate) ;
 				$command.= " --max_upload_rate ".escapeshellarg($this->rate);
@@ -72,7 +84,7 @@ Class BtControl {
 				$command.= " --maxport ".escapeshellarg($this->maxport);
 				$command.= " --rerequest_interval ".escapeshellarg($this->rerequest);
 				$command.= " --super_seeder ".escapeshellarg($this->superseeder);
-					if(file_exists($cfg["torrent_file_path"].$this->alias.".prio")) {
+					if(file_exists($cfg["torrent_file_path"].$this->alias.".prio")){
 						$priolist = explode(',',file_get_contents($cfg["torrent_file_path"].$this->alias.".prio"));
 						$priolist = implode(',',array_slice($priolist,1,$priolist[0]));
 						$command .= " --priority ".escapeshellarg($priolist);
@@ -146,7 +158,7 @@ Class BtControl {
 	function CheckTorrent($torrent){
 		Global $cfg;
 			if(!is_file($cfg["torrent_file_path"].$this->torrent)){
-				showmessage($torrent.' not exist');
+				showmessage('torrent: '.$this->torrent.' not exist');
 			}
 	}
 }

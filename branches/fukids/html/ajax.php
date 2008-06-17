@@ -1,4 +1,6 @@
 <?php
+
+// this file is for returning html and javascript when ever there is a ajax call
 include_once("include/functions.php");
 
 $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'));
@@ -6,29 +8,43 @@ $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'
 if($action=='listtorrent'){
 	include('include/ajax.list_torrent.php');
 }elseif($action=='icon'){
-	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed'));
+	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed','Edit_Torrent'));
 		if($id=='Upload_Torrent'){
-			?>
-			<form method="POST" id="UploadTorrentForm" action="action.php?action=Upload"  enctype="multipart/form-data" >
-				<input type="file" name="torrents[]" /><br />
-				<input type="checkbox" value="1" name="autostart" id="autostart" />
-				<label for="autostart"><?php echo _CLICK_TO_AUTOSTART ?></label>
-				<input type="submit">
-			</form>
-			<?
+			$Default_max_upload_rate=$cfg['max_upload_rate'];
+			$Default_max_download_rate=$cfg['max_download_rate'];
+			$Default_max_uploads=$cfg['max_uploads'];
+			$Default_maxport=$cfg['maxport'];
+			$Default_minport=$cfg['minport'];
+			$Default_rerequest_interval=$cfg['rerequest_interval'];
+			include template('ajax_Upload_Torrent');
 		}elseif($id=='Url_Torrent'){
-			?>
-			<form method="POST" action="action.php?action=UrlUpload">
-				Url: <input type="text" name="torrent">
-				<input type="checkbox" value="1" name="autostart" id="autostart" />
-				<label for="autostart"><?php echo _CLICK_TO_AUTOSTART ?></label>
-				<input type="submit">
-			</form>
-			<?
+			$Default_max_upload_rate=$cfg['max_upload_rate'];
+			$Default_max_download_rate=$cfg['max_download_rate'];
+			$Default_max_uploads=$cfg['max_uploads'];
+			$Default_maxport=$cfg['maxport'];
+			$Default_minport=$cfg['minport'];
+			$Default_rerequest_interval=$cfg['rerequest_interval'];
+			include template('ajax_Url_Torrent');
 		}elseif($id=='Creat_Torrent'){
 			die('building.....');
 		}elseif($id=='New_Feed'){
-		
+			die('building.....');
+		}elseif($id=='Edit_Torrent'){
+			$torrentid=intval(getRequestVar('torrentid'));
+				if(!$torrentid){
+					showmessage('torrent is not a intval',1);
+				}
+			include_once("include/BtControl_Tornado.class.php");
+			$Bt= new BtControl($torrentid);
+			$file_name=$Bt->file_name;
+			$Default_max_upload_rate=$Bt->rate;
+			$Default_max_download_rate=$Bt->drate;
+			$Default_max_uploads=$Bt->maxuploads;
+			$Default_maxport=$Bt->maxport;
+			$Default_minport=$Bt->minport;
+			$Default_rerequest_interval=$Bt->rerequest;
+			$Default_sharekill=$Bt->sharekill;
+			include template('ajax_Edit_Torrent');
 		}
 }elseif($action=='tabs'){
 	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5','tab6'));

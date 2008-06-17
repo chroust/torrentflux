@@ -114,11 +114,11 @@ function echo (a){
 		});
 		uploadcount++;
 	}
+	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
 		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody')).addEvent ('mousedown', $break);
 		var namediv=new Element('div',{'class':'tl_name'}).injectInside(tr);
 		new Element('span',{'class':'tl_name_span'}).injectInside(namediv).set('html',torrent.title);
-
 		new Element('img',{'class':'statusimg'}).setProperty('src', 'images/icon/status/'+torrent.statusid+'.png').inject(namediv,'top');
 		var percent=new Element('div',{'class':'tl_percent'}).injectInside(tr);
 		new Element('img',{'class':'progressbar'}).setProperty('src', 'images/percentImage.png').injectInside(percent);
@@ -144,7 +144,11 @@ function echo (a){
 			}
     pagemenu = new DDMenu ('torrentclick', torrent.id, {
         onItemSelect: function (act_id, act_el, menu_bindon) {
-			torrentControl(act_id,menu_bindon.id);
+			if(act_id=='Edit_Torrent'){
+				OpenWindow('Edit_Torrent','{_Edit_Torrent}','&torrentid='+menu_bindon.id);
+			}else{
+				torrentControl(act_id,menu_bindon.id);
+			}
         }
     });
 		progressbar[torrent.id]=new Fx.ProgressBar('div#tbody div#'+torrent.id+' .tl_percent img',{text:'div#tbody div#'+torrent.id+' .tl_percent span'}).start(torrent.percent,100);
@@ -163,6 +167,8 @@ function echo (a){
 		$$('div#tbody div#'+torrent.id+' .tl_estime').set('html',torrent.estTime);
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
+
+
 	torrentControl=function(action,id){
 		Mainloading.show();
 		new Request.HTML({onComplete:function(data){
@@ -170,18 +176,19 @@ function echo (a){
 		}
 		}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
 	}
-	OpenWindow=function(id,title){
+	OpenWindow=function(id,title,extraurl){
+	extraurl=$defined(extraurl)?extraurl:'';
 				new MochaUI.Window({
 				id: 'window_',
 				title: title,
 				evalScripts:1,
 				resizable:0,
 				loadMethod: 'xhr',
-				contentURL: 'ajax.php?action=icon&usejs=1&id='+id,
+				contentURL: 'ajax.php?action=icon&usejs=1&id='+id+extraurl,
 				width: 500,
-				height: 350,
+				height: 400,
 				onContentLoaded:function(e){
-				$$('form').each(function(thisform){
+				$$('#window_ form').each(function(thisform){
 					if(thisform.enctype){
 						thisform.action+='&usejs=1';
 						thisform.addEvent('submit',function(){
@@ -195,7 +202,15 @@ function echo (a){
 								return false;
 							});
 					}
-				})
+				});
+				$$('#window_ input.num').each(function(thisform){
+					thisform.addEvent('keypress',function(event){
+						event = new Event(event);
+						var validChars = '0123456789';
+							if ( event.key.length == 1 && !validChars.contains(event.key) )
+								event.stop();
+							});
+					})
 				}
 			});
 	}
@@ -291,15 +306,15 @@ var UpdateInterval={$Update_interval};
 	<input type="Submit" value="{_SEARCH}">
 	 </form>
 </div>
-<div class="icon icon_window" id="Upload_Torrent" title="Upload Torrent"><img src="images/icon/Upload_Torrent.PNG" alt="upload_torrent" /></div>
-<div class="icon icon_window" id="Url_Torrent" title="Url Torrent"><img src="images/icon/Url_Torrent.PNG" alt="uplaod torrent from url" /></div>
-<div class="icon icon_window" id="Creat_Torrent"><img src="images/icon/Creat_Torrent.PNG" alt="creat torrent" /></div>
+<div class="icon icon_window" id="Upload_Torrent" title="{_Upload_Torrent}"><img src="images/icon/Upload_Torrent.PNG" alt="upload_torrent" /></div>
+<div class="icon icon_window" id="Url_Torrent" 	title="{_Url_Torrent}"><img src="images/icon/Url_Torrent.PNG" alt="uplaod torrent from url" /></div>
+<div class="icon icon_window" id="Creat_Torrent" title="{_Creat_Torrent}"><img src="images/icon/Creat_Torrent.PNG" alt="creat torrent" /></div>
 <div class="icon-seperator"></div>
 <div class="icon icon_control" id="Start" title="Start"><img src="images/icon/Start.PNG" alt="start" /></div>
 <div class="icon icon_control" id="Stop" title="Kill"><img src="images/icon/Stop.PNG" alt="stop"/></div>
 <div class="icon icon_control" id="Del" title="Del"><img src="images/icon/Del.PNG" alt="del"/></div>
 <div class="icon-seperator"></div>
-<div class="icon icon_window" id="New_Feed"><img src="images/icon/New_Feed.PNG" alt="new Feed"/></div>
+<div class="icon icon_window" id="New_Feed" {_New_Feed}><img src="images/icon/New_Feed.PNG" alt="new Feed"/></div>
 
 </div>
 <div id="down">
@@ -348,7 +363,7 @@ var UpdateInterval={$Update_interval};
 	<option value="4">1</option>
 </select>
 <div id="torrent_multiselect1_0" class="invisible"><img src="images/icon/status/2.png" alt="d">_downloading (<span id="sdownloading">0</span>)</div>
-<div id="torrent_multiselect1_1" class="invisible"><img src="images/icon/status/3.png" alt="d">_finished (<span id="sfinished">0</span>)</div>
+<div id="torrent_multiselect1_1" class="invisible"><img src="images/icon/status/4.png" alt="d">_finished (<span id="sfinished">0</span>)</div>
 <div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">_active (<span id="sactive">0</span>)</div>
 <div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">_inactive (<span id="sinactive">0</span>)</div>
 
@@ -369,18 +384,20 @@ var UpdateInterval={$Update_interval};
 </div>
 <div class="ddmenu def" id="ListLeftClick" style="display:none">
 <ul>
-<li class="item" id="Upload_Torrent"><a href="#">_Upload_Torrent</a></li>
-<li class="item" id="Url_Torrent"><a href="#">_Url_Torrent</a></li>
-<li class="item" id="Creat_Torrent"><a href="#">_Creat_Torrent</a></li>
+<li class="item" id="Upload_Torrent"><a href="#">{_Upload_Torrent}</a></li>
+<li class="item" id="Url_Torrent"><a href="#">{_Url_Torrent}</a></li>
+<li class="item" id="Creat_Torrent"><a href="#">{_Creat_Torrent}</a></li>
 <li class="sepline"></li>
-<li class="item" id="_Add_Feed"><a href="#">_Add_Feed</a></li>
+<li class="item" id="_Add_Feed"><a href="#">{_Add_Feed}</a></li>
 </ul>
 </div>
 <div class="ddmenu def" id="torrentclick" style="display:none">
 <ul>
-<li class="item" id="Start"><a href="#">_Start</a></li>
-<li class="item" id="Kill"><a href="#">_Kill</a></li>
-<li class="item" id="Del"><a href="#">_Del</a></li>
+<li class="item" id="Start"><a href="#">{_Start}</a></li>
+<li class="item" id="Kill"><a href="#">{_Kill}</a></li>
+<li class="item" id="Del"><a href="#">{_Del}</a></li>
+<li class="sepline"></li>
+<li class="item" id="Edit_Torrent"><a href="#">{_Edit_Torrent}</a></li>
 </ul>
 </div>
 </body>
