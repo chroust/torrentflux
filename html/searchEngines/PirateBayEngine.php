@@ -272,9 +272,9 @@ class SearchEngine extends SearchEngineBase
 
 		} else {
 
-			while (is_integer(strpos($thing,"searchRresults")))
+			while (is_integer(strpos($thing,"results")))
 			{
-				$thing = substr($thing,strpos($thing,"searchRresults"));
+				$thing = substr($thing,strpos($thing,"results"));
 				$thing = substr($thing,strpos($thing,"</thead>"));
 				$thing = substr($thing,strpos($thing,"<tr>"));
 
