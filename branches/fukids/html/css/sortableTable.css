@@ -53,9 +53,20 @@ overflow:hidden;
 	float: left;
 	margin: 0px 10px 0px 0px;
 }
+#searchdiv{
+	float:right;
+}
 
 #torrent_info{
 height:100%;
+}
+.statusicon{
+height:16px;
+width:16px;
+padding:0px;
+margin:0px;
+background-attachment:fixed;
+background: url(../images/icon/status/tstatus.bmp) no-repeat 0px 0px
 }
 /**************************************************************
 

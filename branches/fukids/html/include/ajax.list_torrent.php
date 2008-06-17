@@ -20,16 +20,9 @@
  *  MA 02110-1301, USA.
  */
 
-include_once('db.php');
-include_once("functions.php");
 include_once("AliasFile.php");
-session_name("TorrentFlux");
-
-session_start();
 
 // Create Connection.
-$db = getdb();
-loadSettings();
 $dirName=$cfg["torrent_file_path"];
 $lastUser = "";
 $arList=$arListTorrent=$arUserTorrent =$tmp_usertotal= array();
@@ -53,10 +46,12 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
     }
 $Requiredusers=split(',',getRequestVar('users'));
 
-$sql = "SELECT t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id ";
+$sql = "SELECT w.hide_offline,w.last_visit,t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id ";
 $result = $db->SelectLimit($sql, 50,0);
-	while(list($id, $file_name,$torrent,$hash, $owner_id,$owner) = $result->FetchRow()){
+	while(list($hide_offline,$list_visit,$id, $file_name,$torrent,$hash, $owner_id,$owner) = $result->FetchRow()){
 		// get torrent info
+		$status='';
+		$in_filter=0;
 		$alias = torrent2stat($torrent);
 		$af = new AliasFile($dirName.$alias, $owner_id);
 		$timeStarted = "";
@@ -66,11 +61,13 @@ $result = $db->SelectLimit($sql, 50,0);
 		$totalfinished+= ($status==4 || $status ==5)?1:0;
 		$totalactive+=($haspid==true)?1:0;
 		$total++;
+		$tmp_useronline[$owner_id]=($hide_offline || $timestamp-$list_visit>300)?0:1;
 		$tmp_usertotal[$owner_id]=$tmp_usertotal[$owner_id]?$tmp_usertotal[$owner_id]+1:1;
 		//check requred user
 		if(!in_array('0',$Requiredusers) AND !in_array($owner_id,$Requiredusers)){
 			$in_filter=0;
 		}else{
+			
 		//check required status
 			if(in_array('0',$Requiredstatus)){
 				//if no specific status required
@@ -89,13 +86,14 @@ $result = $db->SelectLimit($sql, 50,0);
 				$in_filter=5;
 			}
 		}
-			if($in_filter){
+			if($in_filter>0){
 				$return = array(
 					'id'		=>$id,
 					'title'	=>$file_name,
 					'owner'	=>$owner_id,
 					'status'	=>$status_text,
-					'haspid'=>$haspid
+					'in_filter'=>$in_filter,
+					'statusid'=>$status,
 				);
 					if($tatus=="0"){
 						// it is new
@@ -135,6 +133,11 @@ $result = $db->SelectLimit($sql, 50,0);
 			$usrtotal_str=$comma.$userid.':'.$value;
 			$comma=',';
 		}
+		$comma='';
+		foreach ($tmp_useronline as $userid => $value){
+			$usronline_str=$comma.$userid.':'.$value;
+			$comma=',';
+		}		
 		$output['global']=array(
 			'totalUpSpeed'=>$totalUpSpeed,
 			'totalDownSpeed'=>$totalDownSpeed,
@@ -143,6 +146,7 @@ $result = $db->SelectLimit($sql, 50,0);
 			'totalactive'=>$totalactive,
 			'totalinactive'=>$totalinactive,
 			'usrtotal_str'=>$usrtotal_str,
+			'useronline'=>$usronline_str,
 		);
 	}
 echo json_encode($output);

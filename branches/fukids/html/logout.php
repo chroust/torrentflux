@@ -31,7 +31,7 @@ session_start();
 $cfg["user"] = strtolower($_SESSION['user']);
 
 // 2004-12-09 PFM
-include_once('db.php');
+include_once('include/db.class.php');
 
 // Create Connection.
 $db = getdb();

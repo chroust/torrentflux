@@ -1,5 +1,4 @@
 ﻿<?php
-
 /**************************************************************************/
 /* TorrentFlux - PHP Torrent Client
 /* ============================================
@@ -24,7 +23,6 @@
 /* DATE: 31st Dec 2004
 /* Contact: ycl6@users.sourceforge.net
 /**************************************************************************/
-
 define("_CHARSET","big5");  // if you don't know... then leave this as is.
 define("_SELECTFILE","請選擇一個要上傳的 Torrent 檔案");
 define("_URLFILE","Torrent 檔案的網址");

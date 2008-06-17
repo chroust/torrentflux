@@ -23,13 +23,13 @@
 */
 
 // Start Session and grab user
-
+define('ENGINE_ROOT', substr(dirname(__FILE__), 0, -7));
+include_once(ENGINE_ROOT.'include/db.class.php');
 session_name("TorrentFlux");
 session_start();
 header("Content-Type: text/html; charset=utf-8"); 
 $cfg["user"] = isset($_SESSION['user'])?strtolower($_SESSION['user']):'';
-include_once('db.php');
-include_once("settingsfunctions.php");
+include_once(ENGINE_ROOT.'include/settings.functions.php');
 $usejs=getRequestVar('usejs');
 // Create Connection.
 $db = getdb();
@@ -42,10 +42,12 @@ $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 // also, not the '.' to make this a hidden directory
 $cfg["torrent_file_path"] = $cfg["path"].".torrents/";
 
+if($_SERVER['SCRIPT_FILENAME']!==ENGINE_ROOT.'login.php'){
 Authenticate();
-
 include_once("language/".$cfg['language_file']);
 include_once("themes/".$cfg['theme']."/index.php");
+}
+
 AuditAction($cfg["constants"]["hit"], $_SERVER['PHP_SELF']);
 PruneDB();
 
@@ -2743,7 +2745,9 @@ function UrlTorrent($url){
 	$fp = fopen($file_name, 'w');
 	fwrite($fp, $return);
 	fclose($fp);
-	return NewTorrentInjectDATA($file_name);
+	$return = NewTorrentInjectDATA($file_name);
+	AuditAction($cfg["constants"]["url_upload"], $file_name);
+	return $return;
 }
 // ***************************************************************************
 // ***************************************************************************
@@ -2964,7 +2968,21 @@ function GetUserList(){
 	global $db;
 	$sql='select * From `tf_users`';
 	$recordset = $db->Execute($sql);
-	return $recordset->GetRows();
-
+	$array=$recordset->GetRows();
+		foreach($array as $index =>$user){
+			$array[$index]['online']=($user['hide_offline'] || time()-$user['last_visit']>300)?0:1;
+		}
+	return $array;
 }
+function template($file){
+	global $lang;
+	$objfile = ENGINE_ROOT . '/cache/templates/' .$lang.'_'.$file .'.tpl.php';
+	$tmpfile = ENGINE_ROOT.'/template/'.$file.'.htm';
+	if(filectime($tmpfile)>filectime($objfile)){
+		include ENGINE_ROOT.'/include/template_rebuild.func.php';
+		parse_template($file);
+	}
+	return $objfile;
+}
+
 ?>

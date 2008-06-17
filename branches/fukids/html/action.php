@@ -1,14 +1,10 @@
 <?
-include_once("config.php");
-include_once("functions.php");
+include_once("include/functions.php");
 
 $action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload'));
 $torrentid=getRequestVar('torrentid');
-	if((in_array($action,array('Kill','Del','Start')) && !$torrentid)){
-		showmessage('no Variable: $torrent',1);
-	}
-	if(!intval($torrentid)){
-		showmessage('no torrent id',1);
+	if((in_array($action,array('Kill','Del','Start')) && !is_numeric($torrentid))){
+		showmessage('no Variable: $torrent OR $torrent is not a intval',1);
 	}
 include_once("include/BtControl_Tornado.class.php");
 	if($action=='Kill'){

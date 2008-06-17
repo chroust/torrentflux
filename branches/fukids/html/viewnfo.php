@@ -24,8 +24,7 @@
 
 // contributed by NovaKing -- thanks duder!
 
-include_once("config.php");
-include_once("functions.php");
+include_once("include/functions.php");
 
 DisplayHead("View NFO");
 

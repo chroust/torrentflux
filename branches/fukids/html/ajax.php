@@ -1,15 +1,11 @@
 <?php
-include_once('db.php');
-include_once("settingsfunctions.php");
-include_once("functions.php");
-session_name("TorrentFlux");
-session_start();
-$db = getdb();
-loadSettings();
+include_once("include/functions.php");
 
-$action = getRequestVar('action',Array('icon','jsonTorrent','tabs'));
+$action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'));
 
-if($action=='icon'){
+if($action=='listtorrent'){
+	include('include/ajax.list_torrent.php');
+}elseif($action=='icon'){
 	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed'));
 		if($id=='Upload_Torrent'){
 			?>
