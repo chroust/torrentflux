@@ -6,6 +6,7 @@ Change Log
 
 TorrentFlux v2.4
 ------------------
+* Powered by BitTornado 0.3.18 to support encryption
 * Removed TorrentSpy search plugin
 * Cryptography functionality & enabled by default (by imrook)
 * Added checks to prevent normal users from seeing sensitive information (by deadeyes)
