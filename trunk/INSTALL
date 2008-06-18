@@ -4,8 +4,6 @@ TorrentFlux is a PHP based Torrent client that runs on a
 web server. Manage all of your Torrent downloads through a 
 convenient web interface from anywhere.
 =================================================================
-TorrentFlux was written by Qrome 
-(http://www.torrentflux.com/contact.php)
 
 For support visit the forums:
 (http://www.torrentflux.com/forum/)
@@ -152,7 +150,7 @@ TF_BitTornado from your previous version of TorrentFlux.
 -----------------------------------------------------------------
 Known Issues
 -----------------------------------------------------------------
-Please check the forums at: http://www.torrentflux.com
+Please check the forums at: http://www.torrentflux.com/forum
 
 
 -----------------------------------------------------------------
