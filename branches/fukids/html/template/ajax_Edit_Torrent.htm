@@ -9,12 +9,14 @@
 	</table>
 	</fieldset>
 	{template ajax_Torrent_Config}
+	<fieldset>
 	<legend accesskey="d">{_File_Setting}</legend>
-		{foreach $filearray $index $file}
-		<div class="fileline"><input type="checkbox" id="files_{$index}" name="files[{$index}]" />
-		<label for="files_{$index}">{$file['path']}</label></div>
-		{/foreach}
+	<table style="width:100%;border:1">
+	{foreach $filearray $index $file}
+	<tr><td style="width:100%"><input type="checkbox" id="files_{$index}" name="files[]" value="{$index}" {if $priolist[$index]>=1}checked="checked"{/if} />
+	<label for="files_{$index}">{$file['path']}</label></td></tr>
+	{/foreach}
+	</table>
 	</fieldset>
 	<input type="submit" value="{_START}">
-
 </form>

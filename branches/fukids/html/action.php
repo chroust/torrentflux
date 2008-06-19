@@ -25,8 +25,19 @@ include_once("include/BtControl_Tornado.class.php");
 		$rerequest=intval(getRequestVar('rerequest'));
 		$sharekill=intval(getRequestVar('sharekill'));
 		$runtime=intval(getRequestVar('runtime'));
-		
-		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime");
+		$files=getRequestVar('files');
+		$a=GrabTorrentInfo(torrentid2torrentname($torrentid));
+		$maxi=sizeof($a['info']['files'])-1;
+		$prio=$comma='';
+		$narray=array();
+			foreach($files as $value){
+				$narray[$value]=1;
+			}
+			for($i=0;$i<=$maxi;$i++){
+				$prio.=$comma.($narray[$i]?$narray[$i]:'-1');
+				$comma=',';
+			}
+		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime;prio:$prio");
 		$Bt->Kill();
 		$Bt->Start();
 		echo('Edited');

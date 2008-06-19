@@ -1293,6 +1293,15 @@ function listPM(){
 	return $resulta;
 }
 
+
+function torrentid2torrentname($id){
+	global $db;
+	$id=intval($id);
+	$sql = "select `torrent` from `tf_torrents` where `id`='".$id."' ";
+	$name = $db->GetOne($sql);
+	showError($db,$sql);
+	return $name;
+}
 // ***************************************************************************
 // ***************************************************************************
 // Removes HTML from Messages
@@ -2801,8 +2810,7 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 			$info['info']['files'][0]['pieces'][0]=$info['info']['pieces'];
 		}
 	$info['creation date_text']=date("m/d/Y H:i:s",$info['creation date'] );
-	echo $GrabTorrentInfo;
-			if($smartremove_padding){
+			if($smartremove_padding==1){
 				foreach($info['info']['files'] as $index =>$file){
 						if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
 							unset($info['info']['files'][$index]);
@@ -2840,7 +2848,7 @@ function NewTorrentInjectDATA($filename,$options=''){
 	// creat the .stat file for displaying
 	CreatNewStat($basename,$filesize);
 	//creat prio string
-	$prio=buildprio(formatTorrentInfoFilesList($info['info']['files']),NULL,1);
+	$prio=buildprio(formatTorrentInfoFilesList($info['info']['files']),NULL,1,1);
 	
 	//grab the options to variables
 	extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
@@ -3041,7 +3049,7 @@ function template($file){
 		}
 	return $objfile;
 }
-function buildprio($FileList,$prioList=array(),$smartremove=1){
+function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
 // this function build the var for prio
 // the file list should look like this:
 //  $filelist[0]['path']='xxxxxxx';
@@ -3052,19 +3060,20 @@ function buildprio($FileList,$prioList=array(),$smartremove=1){
 //  $priolist[1]=1;
 // 1= download, 0=not download
 	$comma='';
+	$default==1?1:-1;
 		if (is_array($FileList) && count($FileList) > 0){
             foreach($FileList as $index => $file){
-					if(array_key_exists($index,$prioList) AND $prioList[$index]>0){
-						// if key in priolist is found in filelist
-							if($smartremove AND (in_array('txt',get_file_extension($file['path'])) OR in_array('url',get_file_extension($file['path'])))){
+					if($smartremove AND (get_file_extension($file['path'])=='txt' OR get_file_extension($file['path'])=='url') ){
 							//if autoremove .txt and .url
-								$result.=$comma.'-1';
-							}else{
-								$result.=$comma.'1';
-							}
-					}else{
-						// if  key in priolist is NOT found in filelist
 						$result.=$comma.'-1';
+					}else{
+						if(array_key_exists($index,$prioList) AND $prioList[$index]>0){
+						// if key in priolist is found in filelist
+								$result.=$comma.'2';
+						}else{
+						// if  key in priolist is NOT found in filelist
+							$result.=$comma.$default;
+						}
 					}
 				$comma=',';
             }
@@ -3076,7 +3085,7 @@ function buildprio($FileList,$prioList=array(),$smartremove=1){
 function getFile($var){
 	return ($var < 65535)? true:false;
 }
-function formatTorrentInfoFilesList($meta_info){
+function formatTorrentInfoFilesList($meta_info,$FindPadding=9){
 		if(is_array($meta_info)){
 			//if this is a list of file
 			foreach($meta_info as $fileindex=> $file){
@@ -3084,6 +3093,11 @@ function formatTorrentInfoFilesList($meta_info){
 			}
 		}else{
 			$filearray[0]['path']=$file['path.utf-8']['0'];
+		}
+		if($FindPadding){
+			foreach($filearray as $index =>$file){
+					$file['padd']=(strpos($file['path'],'_padding_file'))?1:0;
+			}
 		}
 	return $filearray;
 }

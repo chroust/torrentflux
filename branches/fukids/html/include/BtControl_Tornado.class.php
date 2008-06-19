@@ -32,13 +32,13 @@ Class BtControl {
 		$this->maxport = empty($maxport)?$this->maxport:intval($maxport);
 		$this->rerequest = empty($rerequest)?$this->rerequest:intval($rerequest);
 		$this->sharekill= (empty($sharekill) OR $sharekill == o) ? $this->sharekill: intval($sharekill);
-		$this->prio=empty($prio)?$this->prio:$prio;
+		$this->prio=empty($prio)?$this->prio:str_replace('\'','',$prio);
 		$this->alias = getAliasName($torrent);
 		$this->queue= (IsAdmin() AND $queue == 'on')?"1":"0";
 		// update the torrent config to the database
 		$sql = 'UPDATE `tf_torrents`  SET `rate`=\''.$this->rate.'\',`drate`=\''.$this->drate.'\',`superseeder`=\''.$this->superseeder.'\',
 		`runtime`=\''.$this->runtime.'\',`maxuploads`=\''.$this->maxuploads.'\',`minport`=\''.$this->minport.'\',
-		`maxport`=\''.$this->maxport.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
+		`maxport`=\''.$this->maxport.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\',`sharekill`=\''.$this->sharekill.'\',`prio`=\''.$this->prio.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
 		$recordset = $db->Execute($sql);
 		showError($db,$sql);
 		$this->pid=torrent2pid($this->torrent);
@@ -88,11 +88,7 @@ Class BtControl {
 				$command.= " --maxport ".escapeshellarg($this->maxport);
 				$command.= " --rerequest_interval ".escapeshellarg($this->rerequest);
 				$command.= " --super_seeder ".escapeshellarg($this->superseeder);
-					if(file_exists($cfg["torrent_file_path"].$this->alias.".prio")){
-						$priolist = explode(',',file_get_contents($cfg["torrent_file_path"].$this->alias.".prio"));
-						$priolist = implode(',',array_slice($priolist,1,$priolist[0]));
-						$command .= " --priority ".escapeshellarg($priolist);
-					}
+				$command .= " --priority ".escapeshellarg($this->prio);
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
 				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
 				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;

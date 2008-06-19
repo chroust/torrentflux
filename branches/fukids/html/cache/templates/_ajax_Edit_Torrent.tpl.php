@@ -57,12 +57,18 @@
 <td><input type="text" name="rerequest" class="num" size="5" value="<?=$Default_rerequest_interval?>" />s</td>
 </tr>
 </table>
-</fieldset><legend accesskey="d"><?=_File_Setting?></legend>
+</fieldset><fieldset>
+<legend accesskey="d"><?=_File_Setting?></legend>
+<table style="width:100%;border:1">
 <? if(isset($filearray) && is_array($filearray)) { foreach($filearray as $index => $file) { ?>
-<div class="fileline"><input type="checkbox" id="files_<?=$index?>" name="files[<?=$index?>]" />
-<label for="files_<?=$index?>"><?=$file['path']?></label></div>
+<tr><td style="width:100%"><input type="checkbox" id="files_<?=$index?>" name="files[]" value="<?=$index?>" 
+<? if($priolist[$index]>=1) { ?>
+checked="checked"
+<? } ?>
+ />
+<label for="files_<?=$index?>"><?=$file['path']?></label></td></tr>
 <? } } ?>
+</table>
 </fieldset>
 <input type="submit" value="<?=_START?>">
-
 </form>

@@ -79,19 +79,11 @@ if($action=='listtorrent'){
 			$Default_minport=$Bt->minport;
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
-			// grab files config
-			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),1);
-			$filearray=array();
-				if(is_array($info['info']['files'])){
-					//if this is a list of file
-					foreach($info['info']['files'] as $fileindex=> $file){
-						$filearray[$fileindex]['path']=$file['path.utf-8']['0'];
-						$filearray[$fileindex]['proi']='1';
-					}
-				}else{
-					$filearray[0]['path']=$file['path.utf-8']['0'];
-					$filearray[0]['proi']='1';
-				}
+			// grub the file details
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid));
+			$filearray=formatTorrentInfoFilesList($info['info']['files']);
+			//grab the prio details
+			$priolist=explode(',',$Bt->prio);
 			include template('ajax_Edit_Torrent');
 		}
 }elseif($action=='tabs'){

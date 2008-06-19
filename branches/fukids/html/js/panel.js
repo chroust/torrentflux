@@ -34,12 +34,10 @@ var CloseSideBar=function(){
 var OpenTabTable=function(){
 	var thisheight=windowheight-300;
 	$('torrent_list_div').setStyle('height',thisheight+'px');
-	$('list_torrent').setStyle('height',thisheight+'px');
 	$('torrent_info').setStyle('display','inline');
 }
 var CloseTabTable=function(){
 	var thisheight=windowheight-60;
 	$('torrent_list_div').setStyle('height',thisheight+'px');
-	$('list_torrent').setStyle('height',thisheight+'px');
 	$('torrent_info').setStyle('display','none');
 }
