@@ -25,6 +25,7 @@ include_once("include/BtControl_Tornado.class.php");
 		$rerequest=intval(getRequestVar('rerequest'));
 		$sharekill=intval(getRequestVar('sharekill'));
 		$runtime=intval(getRequestVar('runtime'));
+		
 		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime");
 		$Bt->Kill();
 		$Bt->Start();

@@ -22,9 +22,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-function getFile($var){
-	return ($var < 65535)? true:false;
-}
 
 //*********************************************************
 // setPriority()

@@ -2779,8 +2779,11 @@ function RemoveExtension($strName){
 		}
 return $strName;
 }
+function get_file_extension($file_name){  
+	return substr(strrchr($file_name,'.'),1);  
+}  
 // function for grabbing torrent infocarion
-function GrabTorrentInfo($basename){
+function GrabTorrentInfo($basename,$smartremove_padding=0){
 	require_once './include/BEncode.php';
 	require_once 'include/TorrentFile.class.php';
 	$basename=basename($basename);
@@ -2790,14 +2793,22 @@ function GrabTorrentInfo($basename){
 		if(!is_array($info['announce-list'])){
 			$info['announce-list']=$info['announce'];
 		}
-		if(!is_array($info['info']['files'])){
-			$info['info']['files'][0]=$info['info'];
+		if(!array_key_exists('files',$info['info'])){
+			$info['info']['files'][0]['length'][0]=$info['info']['length'];
+			$info['info']['files'][0]['path'][0]=$info['info']['name'];
+			$info['info']['files'][0]['path.utf-8'][0]=$info['info']['name.utf-8'];
+			$info['info']['files'][0]['piece length'][0]=$info['info']['piece length'];
+			$info['info']['files'][0]['pieces'][0]=$info['info']['pieces'];
 		}
-		foreach($info['info']['files'] as $index =>$file){
-				if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
-					unset($info['info']['files'][$index]);
+	$info['creation date_text']=date("m/d/Y H:i:s",$info['creation date'] );
+	echo $GrabTorrentInfo;
+			if($smartremove_padding){
+				foreach($info['info']['files'] as $index =>$file){
+						if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
+							unset($info['info']['files'][$index]);
+						}
 				}
-		}
+			}
 	return $info;
 }
 // ***************************************************************************
@@ -2828,6 +2839,9 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
 	// creat the .stat file for displaying
 	CreatNewStat($basename,$filesize);
+	//creat prio string
+	$prio=buildprio(formatTorrentInfoFilesList($info['info']['files']),NULL,1);
+	
 	//grab the options to variables
 	extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
 	//use default if variables is not seted
@@ -2843,11 +2857,11 @@ function NewTorrentInjectDATA($filename,$options=''){
 	//injecting sql
 	$sql = 'INSERT INTO `tf_torrents` 
 	(`file_name`,`torrent` ,`hash` ,`owner_id`,
-	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`maxport`,`rerequest`,`sharekill`) VALUES 
+	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`maxport`,`rerequest`,`sharekill`,`prio`) VALUES 
 	(\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\'
 	, \''.$rate.'\', \''.$drate.'\', \''.$superseeder.'\'
 	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\'
-	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\');';
+	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\', \''.$prio.'\');';
 	$recordset = $db->Execute($sql);
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
@@ -3027,5 +3041,50 @@ function template($file){
 		}
 	return $objfile;
 }
-
+function buildprio($FileList,$prioList=array(),$smartremove=1){
+// this function build the var for prio
+// the file list should look like this:
+//  $filelist[0]['path']='xxxxxxx';
+//  $filelist[1]['path']='xxxxxxx';
+//
+//the priolist should look like this:
+//  $priolist[0]=1;
+//  $priolist[1]=1;
+// 1= download, 0=not download
+	$comma='';
+		if (is_array($FileList) && count($FileList) > 0){
+            foreach($FileList as $index => $file){
+					if(array_key_exists($index,$prioList) AND $prioList[$index]>0){
+						// if key in priolist is found in filelist
+							if($smartremove AND (in_array('txt',get_file_extension($file['path'])) OR in_array('url',get_file_extension($file['path'])))){
+							//if autoremove .txt and .url
+								$result.=$comma.'-1';
+							}else{
+								$result.=$comma.'1';
+							}
+					}else{
+						// if  key in priolist is NOT found in filelist
+						$result.=$comma.'-1';
+					}
+				$comma=',';
+            }
+        }else{
+			showmessage('Filelist is not an array or shorter than 1');
+		}
+	return $result;
+}
+function getFile($var){
+	return ($var < 65535)? true:false;
+}
+function formatTorrentInfoFilesList($meta_info){
+		if(is_array($meta_info)){
+			//if this is a list of file
+			foreach($meta_info as $fileindex=> $file){
+				$filearray[$fileindex]['path']=$file['path.utf-8']['0'];
+			}
+		}else{
+			$filearray[0]['path']=$file['path.utf-8']['0'];
+		}
+	return $filearray;
+}
 ?>

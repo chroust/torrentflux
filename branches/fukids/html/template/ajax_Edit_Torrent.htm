@@ -11,7 +11,8 @@
 	{template ajax_Torrent_Config}
 	<legend accesskey="d">{_File_Setting}</legend>
 		{foreach $filearray $index $file}
-		<div class="fileline"><input type="checkbox" name="files[{$file['fileindex']}]" />{$file['path']}</div>
+		<div class="fileline"><input type="checkbox" id="files_{$index}" name="files[{$index}]" />
+		<label for="files_{$index}">{$file['path']}</label></div>
 		{/foreach}
 	</fieldset>
 	<input type="submit" value="{_START}">

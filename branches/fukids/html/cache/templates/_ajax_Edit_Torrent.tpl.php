@@ -59,7 +59,8 @@
 </table>
 </fieldset><legend accesskey="d"><?=_File_Setting?></legend>
 <? if(isset($filearray) && is_array($filearray)) { foreach($filearray as $index => $file) { ?>
-<div class="fileline"><input type="checkbox" name="files[<?=$file['fileindex']?>]" /><?=$file['path']?></div>
+<div class="fileline"><input type="checkbox" id="files_<?=$index?>" name="files[<?=$index?>]" />
+<label for="files_<?=$index?>"><?=$file['path']?></label></div>
 <? } } ?>
 </fieldset>
 <input type="submit" value="<?=_START?>">

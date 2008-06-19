@@ -11,17 +11,17 @@ Class BtControl {
 		GLOBAL $cfg,$db;
 		$this->torrentid=intval($torrentid);
 		// grab torrent config from database
-		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
 		$recordset = $db->Execute($sql);
 		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
 		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
-		$this->rerequest,$this->sharekill,$this->owner
+		$this->rerequest,$this->sharekill,$this->owner,$this->prio
 		) = $recordset->FetchRow();
 		showError($db,$sql);
 		//check if torrent is ok or not
 		$this->CheckTorrent($this->torrent);
 		//grab the options to variables
-		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
+		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue','prio')),  EXTR_OVERWRITE);
 		//use default in database if no options are set
 		$this->rate = empty($rate)?$this->rate:intval($rate);
 		$this->drate = empty($drate)?$this->drate:intval($drate);
@@ -32,6 +32,7 @@ Class BtControl {
 		$this->maxport = empty($maxport)?$this->maxport:intval($maxport);
 		$this->rerequest = empty($rerequest)?$this->rerequest:intval($rerequest);
 		$this->sharekill= (empty($sharekill) OR $sharekill == o) ? $this->sharekill: intval($sharekill);
+		$this->prio=empty($prio)?$this->prio:$prio;
 		$this->alias = getAliasName($torrent);
 		$this->queue= (IsAdmin() AND $queue == 'on')?"1":"0";
 		// update the torrent config to the database

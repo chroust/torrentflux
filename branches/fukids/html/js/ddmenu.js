@@ -146,8 +146,7 @@ var DDMenu = new Class ({
     
     //while opened
     
-    menuEvent: function (event) { 
-        event.preventDefault();
+    menuEvent: function (event) {
         
         var item = $(event.target);
 

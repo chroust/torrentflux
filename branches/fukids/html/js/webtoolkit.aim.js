@@ -94,11 +94,13 @@ AIM = {
 
 	submit : function(f, c) {
 		AIM.form(f, AIM.frame(c));
+		f.submit();
 		if (c && typeof(c.onStart) == 'function') {
 			return c.onStart();
 		} else {
 			return true;
 		}
+		
 	},
 
 	loaded : function(id) {

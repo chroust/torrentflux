@@ -80,7 +80,7 @@ if($action=='listtorrent'){
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
 			// grab files config
-			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid));
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),1);
 			$filearray=array();
 				if(is_array($info['info']['files'])){
 					//if this is a list of file
@@ -105,23 +105,7 @@ if($action=='listtorrent'){
 			//normal
 			$torrentfile=TorrentIDtoTorrent($torrentId);
 			$info=GrabTorrentInfo($torrentfile);
-			$info['info']['pieces']='';
-			$torrent_size = $info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
-			?>
-			<table>
-			<tr><td>Torrent File:</td><td> <?=$torrentfile?> </td></tr>
-			<tr><td>Directory Name:</td><td> <?=htmlentities($info['info']['name.utf-8'], ENT_QUOTES)?></td></tr>
-			<?
-			if(array_key_exists('comment',$info)){
-               ?><tr><td>Comment:</td><td> ".htmlentities($info['comment'], ENT_QUOTES)?></td></tr><?
-            }
-			echo "<tr><td>Created:</td><td>".date("F j, Y, g:i a",$info['creation date'])."</td></tr>";
-            echo "<tr><td>Torrent Size:</td><td>".$torrent_size." (".formatBytesToKBMGGB($torrent_size).")</td></tr>";
-            echo "<tr><td>Chunk size:</td><td>".$info['info']['piece length']." (".formatBytesToKBMGGB($info['info']['piece length']).")</td></tr>";
-			?>
-			</table>
-			<?
-		//	echo "<pre>".var_dump($info).'</pre>';
+			include template('ajax_tab_tab1');
 		}elseif($tab=='tab2'){
 			//Tracker
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
@@ -132,59 +116,9 @@ if($action=='listtorrent'){
 			//user
 		}elseif($tab=='tab4'){
 			//file
-			/*
-			$torrentfile=TorrentIDtoTorrent($torrentId);
-			$info=GrabTorrentInfo($torrentfile);
-			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
-				if(is_array($info['info']['files'])){
-					//if this is a list of file
-					foreach($info['info']['files'] as $file){
-						echo $file['path.utf-8']['0'].'<br />';
-					}
-				}else{
-					echo $info['info']['name.utf-8'];
-				}
-			*/
-			$torrentfile=TorrentIDtoTorrent($torrentId);
-			$info=GrabTorrentInfo($torrentfile);
-			if(array_key_exists('files',$info['info'])){
-			include_once('include/dir.class.php');
-            $dirnum =  (array_key_exists('files',$info['info']))?count($info['info']['files']):0;
-            if (is_readable($prioFileName)){
-                $prio = split(',',file_get_contents($prioFileName));
-                $prio = array_splice($prio,1);
-            }else{
-                $prio = array();
-                for($i=0;$i<$dirnum;$i++){
-                    $prio[$i] = -1;
-                }
-            }
-            $tree = new dir("/",$dirnum,isset($prio[$dirnum])?$prio[$dirnum]:-1);
-            if (array_key_exists('files',$info['info'])){
-                foreach( $info['info']['files'] as $filenum => $file){
-                    $depth = count($file['path.utf-8']);
-                    $branch =& $tree;
-                    for($i=0; $i < $depth; $i++){
-                        if ($i != $depth-1){
-                            $d =& $branch->findDir($file['path.utf-8'][$i]);
-                            if($d){
-                                $branch =& $d;
-                            }else{
-                                $dirnum++;
-                                $d =& $branch->addDir(new dir($file['path.utf-8'][$i], $dirnum, (isset($prio[$dirnum])?$prio[$dirnum]:-1)));
-                                $branch =& $d;
-                            }
-                        }else{
-                            $branch->addFile(new file($file['path.utf-8'][$i]." (".$file['length'].")",$filenum,$file['length'],$prio[$filenum]));
-                        }
-                    }
-                }
-            }
-			}else{
-				echo $info['info']['name.utf-8'];
-			}
-            if (array_key_exists('files',$info['info'])){
-				echo $tree->draw(-1);
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId),1);
+				foreach($info['info']['files'] as $file){
+					echo $file['path.utf-8']['0'].'<br />';
 			}
 		}elseif($tab=='tab5'){
 			//speed
