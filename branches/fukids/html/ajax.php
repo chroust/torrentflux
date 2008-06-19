@@ -80,7 +80,7 @@ if($action=='listtorrent'){
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
 			// grub the file details
-			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid));
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),'remove padding');
 			$filearray=formatTorrentInfoFilesList($info['info']['files']);
 			//grab the prio details
 			$priolist=explode(',',$Bt->prio);

@@ -183,6 +183,7 @@ function echo (a){
 				var extraurl=$defined(extraurl)?'&'+extraurl:'';
 				var wwidth=width?width:500;
 				var wheight=height?height:400;
+				wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
 				new MochaUI.Window({
 				id: 'window_'+title,
 				title: title,

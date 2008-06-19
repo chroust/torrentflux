@@ -2810,7 +2810,7 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 			$info['info']['files'][0]['pieces'][0]=$info['info']['pieces'];
 		}
 	$info['creation date_text']=date("m/d/Y H:i:s",$info['creation date'] );
-			if($smartremove_padding==1){
+			if($smartremove_padding){
 				foreach($info['info']['files'] as $index =>$file){
 						if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
 							unset($info['info']['files'][$index]);

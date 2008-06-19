@@ -13,9 +13,9 @@ var goresize=function(){
 	windowwidth=window.getSize().x;
 	windowheight=window.getSize().y;
 		if(windowwidth > 1000){
-			OpenSideBar();
+			MaxWidth();
 		}else{
-			CloseSideBar();
+			MinWidth();
 		}
 		if(windowheight < 600){
 			CloseTabTable();
@@ -23,13 +23,15 @@ var goresize=function(){
 			OpenTabTable();
 		}
 }
-var OpenSideBar=function(){
+var MaxWidth=function(){
 	$('down_right').setStyle('width','85%');
 	$('down_left').setStyle('display','inline');
+	$('searchdiv').setStyle('display','inline');
 }
-var CloseSideBar=function(){
+var MinWidth=function(){
 	$('down_left').setStyle('display','none');
 	$('down_right').setStyle('width','100%');
+	$('searchdiv').setStyle('display','none');
 }
 var OpenTabTable=function(){
 	var thisheight=windowheight-300;
