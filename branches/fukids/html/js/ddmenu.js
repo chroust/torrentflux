@@ -74,7 +74,7 @@ var DDMenu = new Class ({
         this.close = this.close.bind(this);
         this.preOpenEvent = this.preOpenEvent.bind(this)
         this.menuEvent = this.menuEvent.bindWithEvent(this);
-        
+        document.addEvent ('contextmenu', $break);
         this.clickedElement = $empty;
         this.eBindon.addEvents ({
             'mousedown': function () { this.eBindon.addEvent ('contextmenu', $break) }.bind(this),
