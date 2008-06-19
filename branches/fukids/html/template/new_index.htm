@@ -120,7 +120,7 @@ function echo (a){
 	}
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
-		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody')).addEvent ('mousedown', $break);
+		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody'));
 		var namediv=new Element('div',{'class':'tl_name'}).injectInside(tr);
 		new Element('span',{'class':'tl_name_span'}).injectInside(namediv).set('html',torrent.title);
 		new Element('img',{'class':'statusimg'}).setProperty('src', 'images/icon/status/'+torrent.statusid+'.png').inject(namediv,'top');
@@ -223,6 +223,7 @@ function echo (a){
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
+	//icon bar control
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
 			if(item.id=='Upload_Torrent'){
@@ -240,6 +241,7 @@ window.addEvent('domready', function() {
 			item.setStyle('border','1px solid #fff');
 		});
 	});
+	// icon control javascript
 	$$('div.icon_control').each(function(item){
 		item.addEvent('click',function(){
 			if($(selecting)){
@@ -252,6 +254,7 @@ window.addEvent('domready', function() {
 			item.setStyle('border','1px solid #fff');
 		});
 	});
+	//search bar javascript
 	$('searchterm').addEvent('focus',function(){
 		this.value='';
 	}).addEvent('blur',function(){
@@ -264,7 +267,7 @@ window.addEvent('domready', function() {
 			}
 	});
 	// right click menu
-	pagemenu = new DDMenu ('ListLeftClick', 'tbody', {
+	new DDMenu ('ListLeftClick', 'tbody', {
 		onItemSelect: function(act_id, act_el, menu_bindon){
 				if(act_id=='Upload_Torrent'){
 					OpenWindow(act_id,act_id,'icon','',300,100);
@@ -273,6 +276,8 @@ window.addEvent('domready', function() {
 				}
 		}
 	});
+
+	
 	//multiselect
 	$('ms_torrent_multiselect1').addEvent('click',function(){
 		var output='';
@@ -294,11 +299,35 @@ window.addEvent('domready', function() {
 		selected_user=output?output:0;
 		forceUpdate();
 	});
+	
+	//update data
 	get_data();
-{foreach $userlist $index $user}
-Ajaxtips('ms_torrent_multiselect2_{$index}','ajax.php?action=tips&id=user_profile&uid={$user['uid']}');
-{/foreach}
-
+	
+	new DDMenu ('torrent_multiselect2RightClick', 'ms_torrent_multiselect2', {
+		onItemSelect: function(act_id, act_el, menu_bindon){
+			OpenWindow(act_id,act_id,'rightclick');
+		}
+	});
+	{foreach $userlist $index $user}
+	// Add onmouse ajax tips on every user
+	Ajaxtips('ms_torrent_multiselect2_{$index}','ajax.php?action=tips&id=user_profile&uid={$user['uid']}');
+	// add right click menu on every user
+	new DDMenu ('torrent_multiselect2_innerRightClick', 'ms_torrent_multiselect2_{$index}', {
+		onOpen: function(){
+			{if $myuid==$user['uid']}
+				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDITUSER']);
+				this.hideItems(['_VIEW_PM'],false);
+			{else}
+				this.hideItems(['_VIEW_PM','_ADMIN_EDITUSER']);
+				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER'],false);
+			{/if}
+			this.setTitle('{$user['user_id']}');
+		},
+		onItemSelect: function(act_id, act_el, menu_bindon){
+			OpenWindow(act_id,act_id,'rightclick','uid={$user['uid']}');
+		}
+	});
+	{/foreach}
 });
 var progressbar=new Array();
 var selecting;
@@ -385,8 +414,7 @@ var myusername='{$cfg['user']}';
 <div id="torrent_multiselect1_1" class="invisible"><img src="images/icon/status/4.png" alt="d">_finished (<span id="sfinished">0</span>)</div>
 <div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">_active (<span id="sactive">0</span>)</div>
 <div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">_inactive (<span id="sinactive">0</span>)</div>
-
-<!--{ this is the DIV for displaying right click menu on  left menu (user) }-->
+<!--{ this is the DIV for displaying  left menu (user) right click menu }-->
 <select size="5" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
 {foreach $userlist $index $user}
 <option value="{$user['uid']}">1</option>
@@ -396,9 +424,10 @@ var myusername='{$cfg['user']}';
 <div id="torrent_multiselect2_{$index}" class="invisible"><img src="images/user_{$user['online']}.gif" id="useronline_{$user['uid']}">{$user['user_id']}(<span id="susering_{$user['uid']}">0</span>)</div>
 {/foreach}
 </div>
+</div>
+</div>
 
-</div>
-</div>
+<!--{ this is the DIV for displaying torrent_list   right click menu }-->
 <div class="ddmenu def" id="ListLeftClick" style="display:none">
 <ul>
 <li class="item" id="Upload_Torrent"><a href="#">{_Upload_Torrent}</a></li>
@@ -408,6 +437,7 @@ var myusername='{$cfg['user']}';
 <li class="item" id="_Add_Feed"><a href="#">{_Add_Feed}</a></li>
 </ul>
 </div>
+<!--{ this is the DIV for displaying torrent  right click menu }-->
 <div class="ddmenu def" id="torrentclick" style="display:none">
 <ul>
 <li class="item" id="Start"><a href="#">{_Start}</a></li>
@@ -417,6 +447,7 @@ var myusername='{$cfg['user']}';
 <li class="item" id="Edit_Torrent"><a href="#">{_Edit_Torrent}</a></li>
 </ul>
 </div>
+<!--{ this is the DIV for displaying user list right click menu }-->
 {if $isadmin>0}
 <div class="ddmenu def" id="torrent_multiselect2RightClick" style="display:none">
 <ul>

@@ -76,7 +76,6 @@ var DDMenu = new Class ({
         this.menuEvent = this.menuEvent.bindWithEvent(this);
         
         this.clickedElement = $empty;
-        
         this.eBindon.addEvents ({
             'mousedown': function () { this.eBindon.addEvent ('contextmenu', $break) }.bind(this),
             'mouseup': this.preOpenEvent
@@ -97,7 +96,6 @@ var DDMenu = new Class ({
             this.eBindon.removeEvent ('contextmenu', $break);
             return true; 
         }
-        
         event.preventDefault();
         if (this.eMenu.style.display == 'block') this.close(event);
         
@@ -121,21 +119,9 @@ var DDMenu = new Class ({
         
         this.eMenu.setStyles ({opacity: 0, display: 'block', 'z-index':99999, top:event.page.y + this.options.cursory, left:event.page.x + this.options.cursorx});
         
-        var coords = {};
-        this.eMenu.getPosition().y-$$('body').getScroll().y+this.eMenu.getSize().y < $$('body').getSize().y ?
-            coords.y = event.page.y + this.options.cursory :
-            coords.y = event.page.y - this.eMenu.getSize().y + this.options.cursory;
-        if (coords.y<$$('body').getScroll().y+1) coords.y = $$('body').getScroll().y+1;
-        
-        this.eMenu.getPosition().x-$$('body').getScroll().x+this.eMenu.getSize().x < $$('body').getSize().x ?
-            coords.x = event.page.x + this.options.cursorx :
-            coords.x = event.page.x - this.eMenu.getSize().x + this.options.cursorx;
-
-        if (coords.x<$$('body').getScroll().x+1) coords.x = $$('body').getScroll().x+1;
-        
-        if (event.shift) coords.x = event.page.x - this.eMenu.getSize().x - this.options.cursorx;
-
-        this.eMenu.setStyles({ top: coords.y, left: coords.x });
+       var styleX = window.getWidth() - event.client.x < this.eMenu.getSize().x ? { 'left' : event.client.x - this.eMenu.getSize().x } : { 'left' : event.client.x };
+        var styleY = window.getHeight() - event.client.y < this.eMenu.getSize().y ? { 'top'  : event.client.y - this.eMenu.getSize().y } : { 'top' : event.client.y};
+        this.eMenu.setStyles( $merge( styleX, styleY ) );
         
         if (this.options.fade_in) {
             var op = this.options.opacity;
@@ -146,7 +132,7 @@ var DDMenu = new Class ({
 
 
         window.addEvent ('blur', function () { if (!Browser.Engine.trident) this.close() }.bind(this)); //ie throws currious blur events
-        document.addEvent ('mousedown', this.menuEvent);
+        document.body.addEvent ('mousedown', this.menuEvent);
         
         this.eMenu.addEvents({
             'contextmenu': function () {return false},
@@ -161,7 +147,6 @@ var DDMenu = new Class ({
     //while opened
     
     menuEvent: function (event) { 
-        
         event.preventDefault();
         
         var item = $(event.target);
@@ -169,7 +154,6 @@ var DDMenu = new Class ({
         if (item == this.eMenu || item == this.eMenu.getElement('ul')) return false; 
         
         item = this.ascendTo(item, ['item','sepline','title']); 
-        
         if (item === false) {
             this.close(event); //outer event
         }
@@ -259,8 +243,20 @@ var DDMenu = new Class ({
                 this.eMenu.getElement('li#'+item+' a').removeClass('disabled') :
                 this.eMenu.getElement('li#'+item+' a').addClass('disabled');
         }.bind(this));
+    },
+	setTitle: function(name){
+		this.eMenu.getElement('li.title').set('html',name);
+	},
+    hideItems: function (items, enable) {
+        if (!$chk(items) && items!=false) items = true;
+        if (!$chk(enable) && enable!=false) enable = true;
+        if ($type(items) == 'string') items = [items];
+        items.each (function (item) {
+            enable == true ? 
+                this.eMenu.getElement('li#'+item+' a').setStyle('display','none') :
+                this.eMenu.getElement('li#'+item+' a').setStyle('display','block');
+        }.bind(this));
     }
-    
 });
 
 

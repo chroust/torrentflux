@@ -186,6 +186,7 @@ function Authenticate(){
 	$result = $db->Execute($sql);
 	showError($db,$sql);
 	$GLOBALS['isadmin']=IsAdmin();
+	$GLOBALS['myuid']=$uid;
 }
 
 

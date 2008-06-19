@@ -16,6 +16,7 @@ var MultipleSelect = new Class ({
 					'overflow':'auto'
 				}
 			});
+
 			var i = 0;
 			var thislength =sel.options.length;
 			for ( i = 0; i < thislength; i++){
@@ -35,11 +36,9 @@ var MultipleSelect = new Class ({
 							this.removeClass('MSover');
 						},
 						'mousedown':function(){
-							return false;
 						}
 					}
 				} );
-				
 				if($defined($(sel.id+'_'+i))){
 					item.set('html',$(sel.id+'_'+i).innerHTML);
 					$(sel.id+'_'+i).setStyle('display','none');
