@@ -1,7 +1,6 @@
 <?php
 
 // this is a class for controlling bittorrent process
-include_once("config.php");
 include_once("functions.php");
 // class for writing .stat
 include_once("AliasFile.php");
@@ -11,18 +10,19 @@ Class BtControl {
 	function BtControl($torrentid,$options=''){
 		GLOBAL $cfg,$db;
 		$this->torrentid=intval($torrentid);
-		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		// grab torrent config from database
+		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
 		$recordset = $db->Execute($sql);
 		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
 		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
-		$this->rerequest,$this->sharekill
+		$this->rerequest,$this->sharekill,$this->owner
 		) = $recordset->FetchRow();
 		showError($db,$sql);
-		$torrent=$this->torrent;
-		$this->CheckTorrent($torrent);
+		//check if torrent is ok or not
+		$this->CheckTorrent($this->torrent);
 		//grab the options to variables
 		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
-		//use default if no options are set
+		//use default in database if no options are set
 		$this->rate = empty($rate)?$this->rate:intval($rate);
 		$this->drate = empty($drate)?$this->drate:intval($drate);
 		$this->superseeder = "0";
@@ -31,16 +31,18 @@ Class BtControl {
 		$this->minport = empty($minport)?$this->minport:intval($minport);
 		$this->maxport = empty($maxport)?$this->maxport:intval($maxport);
 		$this->rerequest = empty($rerequest)?$this->rerequest:intval($rerequest);
-		$this->sharekill= ($this->runtime == "True")? "-1": intval($cfg["sharekill"]);
+		$this->sharekill= (empty($sharekill) OR $sharekill == o) ? $this->sharekill: intval($sharekill);
 		$this->alias = getAliasName($torrent);
-		$this->owner = getOwner($torrent);
 		$this->queue= (IsAdmin() AND $queue == 'on')?"1":"0";
+		// update the torrent config to the database
 		$sql = 'UPDATE `tf_torrents`  SET `rate`=\''.$this->rate.'\',`drate`=\''.$this->drate.'\',`superseeder`=\''.$this->superseeder.'\',
 		`runtime`=\''.$this->runtime.'\',`maxuploads`=\''.$this->maxuploads.'\',`minport`=\''.$this->minport.'\',
 		`maxport`=\''.$this->maxport.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
-			$recordset = $db->Execute($sql);
-				showError($db,$sql);
-
+		$recordset = $db->Execute($sql);
+		showError($db,$sql);
+		$this->pid=torrent2pid($this->torrent);
+		$this->stat=torrent2stat($this->torrent);
+		$this->log=torrent2log($this->torrent);
 	}
 	function Start(){
 		GLOBAL $cfg;
@@ -48,12 +50,11 @@ Class BtControl {
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
 		//creat .stat file
-		CheckHung($this->alias);
-			if(CheckRunning($this->alias)!==0){
-				echo 'already running'.$this->alias;
-				exit();
+		CheckHung($this->torrent);
+			if(CheckRunning($this->pid)!==0){
+				showmessage($this->torrent.'is already running',1);
 			}
-		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.".stat", $this->owner);
+		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($this->torrent), $this->owner);
 			if ($cfg["AllowQueing"] AND $queue == "1"){
 				$af->QueueTorrentFile();  // this only writes out the stat file (does not start torrent)
 			}else{
@@ -62,6 +63,8 @@ Class BtControl {
 			if ($cfg["AllowQueing"] && $this->queue == "1"){
 				//  This file is being queued.
 			}else{
+					@unlink($cfg["torrent_file_path"].$this->log);
+
 		// build the command
 					if (!$cfg["debugTorrents"]){
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]) . " -OO";
@@ -73,10 +76,10 @@ Class BtControl {
 				$command.= " HOME=".$cfg["path"].";";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
-				$command.= escapeshellarg($this->runtime)." ".escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->alias.".stat' ".$this->owner;
+				$command.= escapeshellarg($this->runtime).' '.escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->stat.'\'' .' '.$this->owner;
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
 				//update stat interval
-				$command.= " --display_interval 1 ";
+				$command.= " --display_interval 2 ";
 				$command.= " --max_download_rate ". escapeshellarg($this->drate) ;
 				$command.= " --max_upload_rate ".escapeshellarg($this->rate);
 				$command.= " --max_uploads ".escapeshellarg($this->maxuploads);
@@ -90,9 +93,9 @@ Class BtControl {
 						$command .= " --priority ".escapeshellarg($priolist);
 					}
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
-				$command .= " 1>> ".$cfg["torrent_file_path"].$this->alias.".log";
-				$command .= " 2>> ".$cfg["torrent_file_path"].$this->alias.".log";
-				$command .=" &"; 
+				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
+				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;
+				$command .=" &";
 					// insert setting if it is not set yet
 					if (! array_key_exists("pythonCmd", $cfg)){
 						insertSetting("pythonCmd","/usr/bin/python");
@@ -100,20 +103,18 @@ Class BtControl {
 					if (! array_key_exists("debugTorrents", $cfg)){
 						insertSetting("debugTorrents", "0");
 					}
-					
 				passthru($command);
-				sleep(1);
 			}
+		sleep(1);
 	}
 	
 	// function for Killing the process, but not the file 
 	function Kill(){
 		global $cfg;
 		// write the new state to .state
-		$af = new AliasFile($cfg["torrent_file_path"].$this->alias.'.stat', $this->owner);
+		$af = new AliasFile($cfg["torrent_file_path"].$this->stat, $this->owner);
 			if($af->percent_done < 100){
 				// The torrent is being stopped but is not completed dowloading
-				//$af->percent_done = ($af->percent_done+100)*-1;
 				$af->running = "0";
 				$af->time_left = "Torrent Stopped";
 			}else{
@@ -124,12 +125,13 @@ Class BtControl {
 			}
 		$af->WriteFile();
 		// see if the torrent process is hung.
-		CheckHung($this->alias);
+		CheckHung($this->torrent);
+        passthru("kill ".$this->pid);
 		sleep(1);
-        passthru("kill ".GetPid($this->alias));
         // try to remove the pid file
-        @unlink($cfg["torrent_file_path"].$this->alias.".pid");
+        @unlink($cfg["torrent_file_path"].$this->pid);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
+
 	}
 
 	function Delete($delTorrent=1,$delFile=0){
@@ -139,20 +141,23 @@ Class BtControl {
 		}
 		//kill the process first
 		$this->Kill();
+		sleep(1);
 		DelTorrentSQL($this->torrentid);
-		@unlink($cfg["torrent_file_path"].$this->alias.'.stat');
-		@unlink($cfg["torrent_file_path"].$this->alias.'.log');
+		@unlink($cfg["torrent_file_path"].$this->stat);
+		@unlink($cfg["torrent_file_path"].$this->log);
+		// try to remove the QInfo if in case it was queued.
+		@unlink($cfg["torrent_file_path"]."queue/".$alias_file.".Qinfo");
+		// try to remove the pid file
+		@unlink($cfg["torrent_file_path"].$this->pid);
+		@unlink($cfg["torrent_file_path"].$this->alias.".prio");
+		$delTorrent=1;
 			if($delTorrent){
 				@unlink($cfg["torrent_file_path"].$this->torrent);
 			}
 			if($delFile){
-				// try to remove the QInfo if in case it was queued.
-				@unlink($cfg["torrent_file_path"]."queue/".$alias_file.".Qinfo");
-				// try to remove the pid file
-				@unlink($cfg["torrent_file_path"].$this->alias.".pid");
-				@unlink($cfg["torrent_file_path"].$this->alias.".prio");
 			}
 		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
+		sleep(1);
 	}
 	
 	function CheckTorrent($torrent){

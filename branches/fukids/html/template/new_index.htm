@@ -2,8 +2,11 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
 <script type="text/javascript" src="js/mootools-1.2-core.js"></script>
 <script type="text/javascript" src="js/mootools-1.2-more.js"></script>
+<script type="text/javascript" src="js/ajaxtips.js"></script>
 <script type="text/javascript" src="js/sortableTable.js"></script>
 <script type="text/javascript" src="js/mootabs1.2.js"></script>
 <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
@@ -24,6 +27,7 @@
 <link href="css/menu.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="css/multiselect.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="css/tree.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="css/pmlist.css" rel="stylesheet" type="text/css" />
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 <![endif]-->
@@ -75,7 +79,7 @@ function echo (a){
 	update_data =function (Torrents){
 		var thisarray=new Array();
 		var needclear=0;
-		if(uploadcount><?=$maxsaveTime?>){
+		if(uploadcount>{$maxsaveTime}){
 			uploadcount=0;
 			needclear=1
 			reloadedcount=1;
@@ -142,15 +146,15 @@ function echo (a){
 			if($defined($(selecting)) && selecting==torrent.id){
 				tr.addClass('torrent_list_clicked');
 			}
-    pagemenu = new DDMenu ('torrentclick', torrent.id, {
-        onItemSelect: function (act_id, act_el, menu_bindon) {
+	pagemenu = new DDMenu ('torrentclick', torrent.id, {
+		onItemSelect: function (act_id, act_el, menu_bindon) {
 			if(act_id=='Edit_Torrent'){
-				OpenWindow('Edit_Torrent','{_Edit_Torrent}','&torrentid='+menu_bindon.id);
+				OpenWindow('Edit_Torrent','{_Edit_Torrent}','icon','torrentid='+menu_bindon.id);
 			}else{
 				torrentControl(act_id,menu_bindon.id);
 			}
-        }
-    });
+		}
+	});
 		progressbar[torrent.id]=new Fx.ProgressBar('div#tbody div#'+torrent.id+' .tl_percent img',{text:'div#tbody div#'+torrent.id+' .tl_percent span'}).start(torrent.percent,100);
 	}
 	ChangeTorrent=function(torrent){
@@ -168,37 +172,34 @@ function echo (a){
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
 
-
 	torrentControl=function(action,id){
 		Mainloading.show();
 		new Request.HTML({onComplete:function(data){
 			forceUpdate();
 		}
-		}).post('action.php?action='+action+'&usejs=1&torrentid='+id);
+		}).post('action.php?id=torrent&action='+action+'&usejs=1&torrentid='+id);
 	}
-	OpenWindow=function(id,title,extraurl){
-	extraurl=$defined(extraurl)?extraurl:'';
+	OpenWindow=function(id,title,action,extraurl,width,height){
+				var extraurl=$defined(extraurl)?'&'+extraurl:'';
+				var wwidth=width?width:500;
+				var wheight=height?height:400;
 				new MochaUI.Window({
-				id: 'window_',
+				id: 'window_'+title,
 				title: title,
 				evalScripts:1,
 				resizable:0,
 				loadMethod: 'xhr',
-				contentURL: 'ajax.php?action=icon&usejs=1&id='+id+extraurl,
-				width: 500,
-				height: 400,
+				contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
+				width: wwidth,
+				height: wheight,
 				onContentLoaded:function(e){
-				$$('#window_ form').each(function(thisform){
+				$$('#window_'+title+' form').each(function(thisform){
 					if(thisform.enctype){
 						thisform.action+='&usejs=1';
-						thisform.addEvent('submit',function(){
-							AIM.submit(this, {'onStart' : function(){console.log('start torrent upload')}, 'onComplete' : function(e){ console.log(e)
-							evalscript(e);
-							}})
-						});
 					}else{
 							thisform.addEvent('submit',function(){
-								thisform.set('send', {evalResponse: 1,url:thisform.action+'&usejs=1'}).send();
+								thisform.set('send', {url:thisform.action+'&usejs=1',
+									onSuccess:function(e){eval(e);}}).send();
 								return false;
 							});
 					}
@@ -214,12 +215,24 @@ function echo (a){
 				}
 			});
 	}
+	LeftMenuRightClick = function(id,act,bind){
+		// uid:   bind.retrieve('uid')
+		// id: id
+		OpenWindow(id,id,'rightclick','&uid='+ bind.retrieve('uid'));
+	}
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
-			OpenWindow(item.id,item.title);
+			if(item.id=='Upload_Torrent'){
+				var width=300;
+				var height=100;
+			}else{
+				var width='';
+				var height='';
+			}
+			OpenWindow(item.id,item.title,'icon','',width,height);
 		});
 		item.addEvent('mouseover',function(){
 			item.setStyle('border','1px solid #ccc');
@@ -251,12 +264,15 @@ window.addEvent('domready', function() {
 			}
 	});
 	// right click menu
-    pagemenu = new DDMenu ('ListLeftClick', 'list_torrent', {
-        onItemSelect: function (act_id, act_el, menu_bindon) {
-		OpenWindow(act_id,act_id);
-        }
-    });
-
+	pagemenu = new DDMenu ('ListLeftClick', 'tbody', {
+		onItemSelect: function(act_id, act_el, menu_bindon){
+				if(act_id=='Upload_Torrent'){
+					OpenWindow(act_id,act_id,'icon','',300,100);
+				}else{
+					OpenWindow(act_id,act_id,'icon');
+				}
+		}
+	});
 	//multiselect
 	$('ms_torrent_multiselect1').addEvent('click',function(){
 		var output='';
@@ -278,9 +294,11 @@ window.addEvent('domready', function() {
 		selected_user=output?output:0;
 		forceUpdate();
 	});
-
 	get_data();
-	
+{foreach $userlist $index $user}
+Ajaxtips('ms_torrent_multiselect2_{$index}','ajax.php?action=tips&id=user_profile&uid={$user['uid']}');
+{/foreach}
+
 });
 var progressbar=new Array();
 var selecting;
@@ -294,7 +312,8 @@ var upSpeed=new Array();
 var downSpeed=new Array();
 var MaxdownSpeed=new Array();
 var UpdateInterval={$Update_interval};
-
+var myuid={$cfg['uid']};
+var myusername='{$cfg['user']}';
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">
@@ -304,7 +323,7 @@ var UpdateInterval={$Update_interval};
 	<input type="text" name="searchterm" id='searchterm' value="Torrent {_SEARCH}" size="20" maxlength="50">
 	{echo buildSearchEngineDDL($cfg["searchEngine"])}
 	<input type="Submit" value="{_SEARCH}">
-	 </form>
+	</form>
 </div>
 <div class="icon icon_window" id="Upload_Torrent" title="{_Upload_Torrent}"><img src="images/icon/Upload_Torrent.PNG" alt="upload_torrent" /></div>
 <div class="icon icon_window" id="Url_Torrent" 	title="{_Url_Torrent}"><img src="images/icon/Url_Torrent.PNG" alt="uplaod torrent from url" /></div>
@@ -367,14 +386,12 @@ var UpdateInterval={$Update_interval};
 <div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">_active (<span id="sactive">0</span>)</div>
 <div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">_inactive (<span id="sinactive">0</span>)</div>
 
-
+<!--{ this is the DIV for displaying right click menu on  left menu (user) }-->
 <select size="5" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
-
 {foreach $userlist $index $user}
 <option value="{$user['uid']}">1</option>
 {/foreach}
 </select>
-
 {foreach $userlist $index $user}
 <div id="torrent_multiselect2_{$index}" class="invisible"><img src="images/user_{$user['online']}.gif" id="useronline_{$user['uid']}">{$user['user_id']}(<span id="susering_{$user['uid']}">0</span>)</div>
 {/foreach}
@@ -400,5 +417,27 @@ var UpdateInterval={$Update_interval};
 <li class="item" id="Edit_Torrent"><a href="#">{_Edit_Torrent}</a></li>
 </ul>
 </div>
+{if $isadmin>0}
+<div class="ddmenu def" id="torrent_multiselect2RightClick" style="display:none">
+<ul>
+<li class="item" id="Start"><a href="#">{_ADD_USER}</a></li>
+</ul>
+</div>
+{/if}
+<div class="ddmenu def" id="torrent_multiselect2_innerRightClick" style="display:none">
+<ul>
+<li class="title"></li>
+<li class="item" id="_VIEW_PM"><a href="#">{_VIEW_PM}</a></li>
+<li class="item" id="_SEND_PM"><a href="#">{_SEND_PM}</a></li>
+{if $isadmin>0}
+<li class="item" id="_ADMIN_VIEW_HISTORY"><a href="#">{_VIEW_HISTORY}</a></li>
+<li class="item" id="_ADMIN_DELETEUSER"><a href="#">{_DELETEUSER} </a></li>
+<li class="item" id="_ADMIN_EDITUSER"><a href="#">{_EDITUSER} </a></li>
+{/if}
+<li class="item" id="_EDITUSER"><a href="#">{_EDITUSER} </a></li>
+</ul>
+</div>
+
+
 </body>
 </html>

@@ -1,13 +1,47 @@
 <?php
 
 // this file is for returning html and javascript when ever there is a ajax call
+//most of them are called via javascript::OpenWindow()
 include_once("include/functions.php");
-
-$action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'));
+//group by how  it is called
+$action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs','rightclick','tips'));
 
 if($action=='listtorrent'){
 	include('include/ajax.list_torrent.php');
+}elseif($action=='tips'){
+	$id = getRequestVar('id',Array('user_profile'));
+		if($id=='user_profile'){
+			$uid=intval(getRequestVar('uid'));
+			$UsrData=GrabUserData($uid);
+			include template('ajax_Tips_user_profile');
+		}
+}elseif($action=='rightclick'){
+	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM'));
+		if($id=='_SEND_PM'){
+		    $rmid = getRequestVar('rmid');
+			$tousertmp=getRequestVar('to_user');
+			$to_user=IsUser($tousertmp)?$tousertmp:Uid2Username(intval(getRequestVar('uid')));
+				if($cfg['user']==$to_user){
+					showmessage('should not send message to myself',1);
+				}
+				if(!empty($rmid)){
+					list($from_user, $message, $ip, $time) = GetMessage($rmid);
+					$message = _DATE.": ".date(_DATETIMEFORMAT, $time)."\n".$from_user." "._WROTE.":\n\n".$message;
+					$message = ">".str_replace("\n", "\n>", $message);
+					$message = "\n\n\n".$message;
+				}
+			include template('ajax_RightClick_SendPm');
+		}elseif($id=='_EDITUSER'){
+			$arLanguage = GetLanguages();
+			$arThemes = GetThemes();
+			include template('ajax_user_UpdateProfile');
+		}elseif($id=='_VIEW_PM'){
+			$pmlist=listPM();
+			$pmcount=count($pmlist);
+			include template('ajax_user_VIEW_PM');
+		}
 }elseif($action=='icon'){
+	// if it is called via icon bar
 	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed','Edit_Torrent'));
 		if($id=='Upload_Torrent'){
 			$Default_max_upload_rate=$cfg['max_upload_rate'];
@@ -34,6 +68,7 @@ if($action=='listtorrent'){
 				if(!$torrentid){
 					showmessage('torrent is not a intval',1);
 				}
+			// grab torrent config
 			include_once("include/BtControl_Tornado.class.php");
 			$Bt= new BtControl($torrentid);
 			$file_name=$Bt->file_name;
@@ -44,9 +79,23 @@ if($action=='listtorrent'){
 			$Default_minport=$Bt->minport;
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
+			// grab files config
+			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid));
+			$filearray=array();
+				if(is_array($info['info']['files'])){
+					//if this is a list of file
+					foreach($info['info']['files'] as $fileindex=> $file){
+						$filearray[$fileindex]['path']=$file['path.utf-8']['0'];
+						$filearray[$fileindex]['proi']='1';
+					}
+				}else{
+					$filearray[0]['path']=$file['path.utf-8']['0'];
+					$filearray[0]['proi']='1';
+				}
 			include template('ajax_Edit_Torrent');
 		}
 }elseif($action=='tabs'){
+	//if it is called via tab bar 
 	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5','tab6'));
 	$torrentId=intval(getRequestVar('torrentId'));
 		if(!$torrentId){
@@ -58,11 +107,10 @@ if($action=='listtorrent'){
 			$info=GrabTorrentInfo($torrentfile);
 			$info['info']['pieces']='';
 			$torrent_size = $info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
-			
 			?>
 			<table>
 			<tr><td>Torrent File:</td><td> <?=$torrentfile?> </td></tr>
-			<tr><td>Directory Name:</td><td> <?=htmlentities($info['info']['name'], ENT_QUOTES)?></td></tr>
+			<tr><td>Directory Name:</td><td> <?=htmlentities($info['info']['name.utf-8'], ENT_QUOTES)?></td></tr>
 			<?
 			if(array_key_exists('comment',$info)){
                ?><tr><td>Comment:</td><td> ".htmlentities($info['comment'], ENT_QUOTES)?></td></tr><?
@@ -70,7 +118,6 @@ if($action=='listtorrent'){
 			echo "<tr><td>Created:</td><td>".date("F j, Y, g:i a",$info['creation date'])."</td></tr>";
             echo "<tr><td>Torrent Size:</td><td>".$torrent_size." (".formatBytesToKBMGGB($torrent_size).")</td></tr>";
             echo "<tr><td>Chunk size:</td><td>".$info['info']['piece length']." (".formatBytesToKBMGGB($info['info']['piece length']).")</td></tr>";
-    
 			?>
 			</table>
 			<?
@@ -86,6 +133,8 @@ if($action=='listtorrent'){
 		}elseif($tab=='tab4'){
 			//file
 			/*
+			$torrentfile=TorrentIDtoTorrent($torrentId);
+			$info=GrabTorrentInfo($torrentfile);
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
 				if(is_array($info['info']['files'])){
 					//if this is a list of file
@@ -97,29 +146,27 @@ if($action=='listtorrent'){
 				}
 			*/
 			$torrentfile=TorrentIDtoTorrent($torrentId);
-			$btmeta=GrabTorrentInfo($torrentfile);
+			$info=GrabTorrentInfo($torrentfile);
+			if(array_key_exists('files',$info['info'])){
 			include_once('include/dir.class.php');
-            $dirnum =  (array_key_exists('files',$btmeta['info']))?count($btmeta['info']['files']):0;
-            if ( is_readable($prioFileName)){
+            $dirnum =  (array_key_exists('files',$info['info']))?count($info['info']['files']):0;
+            if (is_readable($prioFileName)){
                 $prio = split(',',file_get_contents($prioFileName));
                 $prio = array_splice($prio,1);
             }else{
                 $prio = array();
-                for($i=0;$i<$dirnum;$i++)
-                {
+                for($i=0;$i<$dirnum;$i++){
                     $prio[$i] = -1;
                 }
             }
             $tree = new dir("/",$dirnum,isset($prio[$dirnum])?$prio[$dirnum]:-1);
-    
-            if (array_key_exists('files',$btmeta['info'])){
-                foreach( $btmeta['info']['files'] as $filenum => $file){
+            if (array_key_exists('files',$info['info'])){
+                foreach( $info['info']['files'] as $filenum => $file){
                     $depth = count($file['path.utf-8']);
                     $branch =& $tree;
                     for($i=0; $i < $depth; $i++){
                         if ($i != $depth-1){
                             $d =& $branch->findDir($file['path.utf-8'][$i]);
-    
                             if($d){
                                 $branch =& $d;
                             }else{
@@ -130,14 +177,14 @@ if($action=='listtorrent'){
                         }else{
                             $branch->addFile(new file($file['path.utf-8'][$i]." (".$file['length'].")",$filenum,$file['length'],$prio[$filenum]));
                         }
-    
                     }
                 }
             }
-			
-            if (array_key_exists('files',$btmeta['info'])){
+			}else{
+				echo $info['info']['name.utf-8'];
+			}
+            if (array_key_exists('files',$info['info'])){
 				echo $tree->draw(-1);
-
 			}
 		}elseif($tab=='tab5'){
 			//speed

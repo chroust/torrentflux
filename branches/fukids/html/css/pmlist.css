@@ -1,0 +1,45 @@
+div#pmlist {
+	width:100%;
+	height:100%;
+	overflow:hidden;
+}
+div#pmlist div#thead {
+	width:100%;
+	height:2em;
+}
+div#pmlist div#thead div {
+	float:left;
+
+	width:110px;
+	height:2em;
+}
+
+div#pmlist .admintd{
+	width:50px !important; 
+}
+div#pmlist .msg{
+	width:200px !important; 
+}
+
+div#pmlist div#tbody {
+	width:100%;
+}
+div#pmlist div#tbody div.tr {
+	width:100%;
+	cursor:pointer;
+
+	height:2em;
+}
+div#pmlist div#tbody div.tr div{
+	cursor:pointer;
+
+	float:left;
+	width:110px;
+	height:2em;
+	overflow:hidden;
+}
+.pmrow_hover{
+}
+.pmrow_active{
+	height:100px !important;
+}

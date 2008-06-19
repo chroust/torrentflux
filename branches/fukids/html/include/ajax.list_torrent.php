@@ -89,7 +89,8 @@ $result = $db->SelectLimit($sql, 50,0);
 			if($in_filter>0){
 				$return = array(
 					'id'		=>$id,
-					'title'	=>$file_name,
+					// try to fix that the filename is too log in firefox 
+					'title'	=>str_replace('.','-',$file_name),
 					'owner'	=>$owner_id,
 					'status'	=>$status_text,
 					'in_filter'=>$in_filter,
@@ -104,6 +105,7 @@ $result = $db->SelectLimit($sql, 50,0);
 						$estTime = $estTime=='Download Succeeded!'?'':$estTime;
 						$timeStarted =  ($haspid)?strval(filectime($dirName.$alias.".pid")):'';
 						$endtime=$af->percent_done >= 100  ?  strval(filemtime($dirName.$alias)): 0;
+						$af->percent_done=$af->percent_done<0?-1*($af->percent_done+100):$af->percent_done;
 						$reutrn_add = array(
 							'down_speed'=>$af->down_speed+0,
 							'up_speed'=>$af->up_speed+0,
@@ -137,7 +139,7 @@ $result = $db->SelectLimit($sql, 50,0);
 		foreach ($tmp_useronline as $userid => $value){
 			$usronline_str=$comma.$userid.':'.$value;
 			$comma=',';
-		}		
+		}
 		$output['global']=array(
 			'totalUpSpeed'=>$totalUpSpeed,
 			'totalDownSpeed'=>$totalDownSpeed,

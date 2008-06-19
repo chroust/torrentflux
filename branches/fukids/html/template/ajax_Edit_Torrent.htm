@@ -1,0 +1,19 @@
+<form method="POST" id="UploadTorrentForm" action="action.php?id=torrent&action=Edit_Torrent&torrentid={$torrentid}" >
+	<fieldset>
+	<legend accesskey="d">{_Torrent_Details}</legend>
+	<table style="width:100%;border:1">
+	<tr>
+		<td style="width:50%">{_Name} :</td>
+		<td>{$file_name}</td>
+	</tr>
+	</table>
+	</fieldset>
+	{template ajax_Torrent_Config}
+	<legend accesskey="d">{_File_Setting}</legend>
+		{foreach $filearray $index $file}
+		<div class="fileline"><input type="checkbox" name="files[{$file['fileindex']}]" />{$file['path']}</div>
+		{/foreach}
+	</fieldset>
+	<input type="submit" value="{_START}">
+
+</form>

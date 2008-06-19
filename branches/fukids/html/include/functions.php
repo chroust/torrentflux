@@ -73,30 +73,50 @@ function getLinkSortOrder($lid)
 
 //*********************************************************
 // avddelete()
-function avddelete($file)
-{
+function avddelete($file){
 	$file = html_entity_decode($file, ENT_QUOTES);
 	chmod($file,0777);
-	if (@is_dir($file))
-	{
+	if (@is_dir($file)){
 		$handle = @opendir($file);
-		while($filename = readdir($handle))
-		{
-			if ($filename != "." && $filename != "..")
-			{
+		while($filename = readdir($handle)){
+			if ($filename != "." && $filename != ".."){
 				avddelete($file."/".$filename);
 			}
 		}
 		closedir($handle);
 		@rmdir($file);
-	}
-	else
-	{
+	}else{
 		@unlink($file);
 	}
 }
-
-
+function Uid2Username($uid){
+	global $db;
+		if(!is_numeric($uid)){
+			showmessage('uid is not a number',1);
+		}elseif($uid==0){
+			showmessage('uid should not equal to 0');
+		}
+	$sql='SELECT `user_id` FROM `tf_users` WHERE `uid`=\''.$uid.'\'';
+	$username=$db->GetOne($sql);
+	showError($db,$sql);
+	return $username;
+}
+function GrabUserData($uid){
+	global $db;
+		if(!is_numeric($uid)){
+			showmessage('uid is not a number',1);
+		}elseif($uid==0){
+			showmessage('uid should not equal to 0');
+		}
+	$sql='SELECT * FROM `tf_users` WHERE `uid`=\''.$uid.'\'';
+	$recordset = $db->Execute($sql);
+	showError($db,$sql);
+	$UsrData=$recordset->FetchRow();
+	$UsrData['user_level_text']=ShowUserType($UsrData['user_level']);
+	$UsrData['last_visit_text']=date("m/d/Y H:i:s",$UsrData['last_visit'] );
+	$UsrData['time_created_text']=date("m/d/Y H:i:s",$UsrData['time_created'] );
+	return $UsrData;
+}
 //*********************************************************
 // Authenticate()
 function Authenticate(){
@@ -165,6 +185,7 @@ function Authenticate(){
 
 	$result = $db->Execute($sql);
 	showError($db,$sql);
+	$GLOBALS['isadmin']=IsAdmin();
 }
 
 
@@ -217,6 +238,9 @@ function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0)
 					'force_read' => $force_read
 					);
 		$sql = $db->GetInsertSql($sTable, $rec);
+		$result = $db->Execute($sql);
+		showError($db,$sql);
+		$sql='UPDATE `tf_users` SET `newpm`=\'1\' WHERE `user_id`=\''.$to_user.'\' LIMIT 1';
 		$result = $db->Execute($sql);
 		showError($db,$sql);
 	}
@@ -508,7 +532,15 @@ function GetSpeedValue($inValue)
 	}
 	return $rtnValue;
 }
-
+function ShowUserType($typeid){
+	if($typeid=='2'){
+		return _SUPERADMIN;
+	}elseif($typeid=='1'){
+		return _ADMINISTRATOR;
+	}else{
+		return _NORMALUSER;
+	}
+}
 // ***************************************************************************
 // Is User Admin
 // user is Admin if level is 1 or higher
@@ -877,34 +909,24 @@ function addNewRSS($newRSS)
 
 // ***************************************************************************
 // UpdateUserProfile
-function UpdateUserProfile($user_id, $pass1, $hideOffline, $theme, $language)
-{
+function UpdateUserProfile($user_id, $pass1, $hideOffline, $theme, $language){
 	global $cfg, $db;
-
-	if (empty($hideOffline) || $hideOffline == "" || !isset($hideOffline))
-	{
+	if (empty($hideOffline) || $hideOffline == "" || !isset($hideOffline)){
 		$hideOffline = "0";
 	}
-
 	// update values
 	$rec = array();
-
-	if ($pass1 != "")
-	{
+	if ($pass1 != ""){
 		$rec['password'] = md5($pass1);
 		AuditAction($cfg["constants"]["update"], _PASSWORD);
 	}
-
 	$sql = 'select * from tf_users where user_id = '.$db->qstr($user_id);
 	$rs = $db->Execute($sql);
 	showError($db,$sql);
-
 	$rec['hide_offline'] = $hideOffline;
 	$rec['theme'] = $theme;
 	$rec['language_file'] = $language;
-
 	$sql = $db->GetUpdateSQL($rs, $rec);
-
 	$result = $db->Execute($sql);
 	showError($db,$sql);
 }
@@ -1252,28 +1274,22 @@ function DisplayTitleBar($pageTitleText, $showButtons=true)
 <?php
 }
 
-
-// ***************************************************************************
-// ***************************************************************************
-// Dipslay dropdown list to send message to a user
-function DisplayMessageList()
-{
-	global $cfg;
-	$users = GetUsers();
-
-	echo '<div align="center">'.
-	'<table border="0" cellpadding="0" cellspacing="0">'.
-	'<form name="formMessage" action="message.php" method="post">'.
-	'<tr><td>' . _SENDMESSAGETO ;
-
-	echo '<select name="to_user">';
-		for($inx = 0; $inx < sizeof($users); $inx++)
-		{
-		echo '<option>'.htmlentities($users[$inx], ENT_QUOTES).'</option>';
-		}
-	echo '</select>';
-	echo '<input type="Submit" value="' . _COMPOSE .'">';
-	echo '</td></tr></form></table></div>';
+function listPM(){
+	global $db,$cfg;
+	$sql = "SELECT u.uid, m.mid, m.from_user, m.message, m.IsNew, m.ip, m.time, m.force_read FROM tf_messages m LEFT JOIN tf_users u ON u.user_id =m.from_user  WHERE to_user=".$db->qstr($cfg['user'])." ORDER BY time";
+    $result = $db->Execute($sql);
+    showError($db,$sql);
+    while($row = $result->FetchRow()){
+        $row['mail_image'] =($row['new'] == 1)? "images/new_message.gif":"images/old_message.gif";
+        $row['display_message'] = check_html($row['message'], "nohtml");
+        if(strlen($row['display_message']) >= 40) { // needs to be trimmed
+            $row['display_message'] = substr($row['display_message'], 0, 39);
+            $row['display_message'] .= "..";
+        }
+		$row['time_text']=date(_DATETIMEFORMAT, $row['time']);
+		$resulta[]=$row;
+	}
+	return $resulta;
 }
 
 // ***************************************************************************
@@ -2042,37 +2058,24 @@ function getRunningTorrentCount()
 }
 
 //**************************************************************************
-function getRunningTorrents()
-{
-
+function getRunningTorrents(){
 	global $cfg;
-
 	$screenStatus = runPS();
-
 	$arScreen = array();
 	$tok = strtok($screenStatus, "\n");
-	while ($tok)
-	{
+	while ($tok){
 		array_push($arScreen, $tok);
 		$tok = strtok("\n");
 	}
-
 	$artorrent = array();
 
-	for($i = 0; $i < sizeof($arScreen); $i++)
-	{
-		if(! strpos($arScreen[$i], $cfg["tfQManager"]) > 0)
-		{
-		   if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false)
-		   {
+	for($i = 0; $i < sizeof($arScreen); $i++){
+		if(! strpos($arScreen[$i], $cfg["tfQManager"]) > 0){
+		   if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false) {
 			   $pinfo = new ProcessInfo($arScreen[$i]);
-
-			   if (intval($pinfo->ppid) == 1)
-			   {
-					if(!strpos($pinfo->cmdline, "rep python") > 0)
-					{
-						if(!strpos($pinfo->cmdline, "ps x") > 0)
-						{
+			   if (intval($pinfo->ppid) == 1) {
+					if(!strpos($pinfo->cmdline, "rep python") > 0){
+						if(!strpos($pinfo->cmdline, "ps x") > 0){
 							array_push($artorrent,$pinfo->pid . " " . $pinfo->cmdline);
 						}
 					}
@@ -2631,28 +2634,24 @@ function CheckHomeDir($owner){
 				if (is_writable($cfg["path"])){
 					mkdir($cfg["path"]."/".$owner, 0777);
 				}else{
-				  AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
-						if (IsAdmin()){
-							header("location: admin.php?op=configSettings");
-						   exit();
-						}else{
-							$messages .= "<b>Error</b> TorrentFlux settings are not correct (path is not writable) -- please contact an admin.<br>";
-						}
+					AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
+					showmessage("TorrentFlux settings are not correct (path is not writable) -- please contact an admin.");
 				}
 		}
 }
 // ***************************************************************************
 // ***************************************************************************
-// check if any hung
-function CheckHung($alias){
-	include_once("RunningTorrent.php");
-		if (!is_file($cfg["torrent_file_path"].$alias.".pid")){
+// check if any hung , whiah have no pid file but running process
+function CheckHung($torrent){
+	global $cfg;
+	include_once(ENGINE_ROOT."include/BtControl/RunningTorrent.php");
+		if (!is_file($cfg["torrent_file_path"].torrent2pid($torrent))){
 			$runningTorrents = getRunningTorrents();
 				foreach ($runningTorrents as $key => $value){
 					$rt = new RunningTorrent($value);
-						if ($rt->statFile == $alias) {
+						if ($rt->statFile == torrent2stat($torrent)) {
 							AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
-							//	$result = exec("kill ".$rt->processId);
+							$result = exec("kill ".$rt->processId);
 						}
 				}
 		}
@@ -2687,11 +2686,11 @@ function Options2Vars($options,$allowedVars){
 // ***************************************************************************
 // ***************************************************************************
 //Check if process is running
-function CheckRunning($alias=''){
+function CheckRunning($pid=''){
 	global $cfg;
-	if($alias){
+	if($torrent){
 		// if check one torrent running or not
-		return (!is_file($cfg["torrent_file_path"].$alias.".pid")) ? 0:1;
+		return (!is_file($cfg["torrent_file_path"].$pid)) ? 0:1;
 	}else{
 		// if check any torrent running or not 
 		//* not build yet
@@ -2717,7 +2716,6 @@ function NewTorrent($file,$name,$options=''){
 	chmod ($file_name, 0644);
 	return NewTorrentInjectDATA($file_name,$options);
 }
-
 // ***************************************************************************
 // ***************************************************************************
 //Upload a Torrent form Url
@@ -2764,8 +2762,11 @@ function CreatNewStat($torrent,$filesize){
 function torrent2stat($torrent){
 	return RemoveExtension(basename($torrent)).'.stat';
 }
+function torrent2pid($torrent){
+	return RemoveExtension(basename($torrent)).'.stat.pid';
+}
 function torrent2log($torrent){
-	return RemoveExtension(basename($torrent)).'.log';
+	return RemoveExtension(basename($torrent)).'.stat.log';
 }
 // ***************************************************************************
 // ***************************************************************************
@@ -2777,13 +2778,26 @@ function RemoveExtension($strName){
 		}
 return $strName;
 }
+// function for grabbing torrent infocarion
 function GrabTorrentInfo($basename){
 	require_once './include/BEncode.php';
 	require_once 'include/TorrentFile.class.php';
 	$basename=basename($basename);
     $torrent = new BDECODE($basename);
-    $torrent->result['hash']=@sha1(BEncode($torrent->result["info"]));
-	return $torrent->result;
+	$info=$torrent->result;
+    $info['hash']=@sha1(BEncode($torrent->result["info"]));
+		if(!is_array($info['announce-list'])){
+			$info['announce-list']=$info['announce'];
+		}
+		if(!is_array($info['info']['files'])){
+			$info['info']['files'][0]=$info['info'];
+		}
+		foreach($info['info']['files'] as $index =>$file){
+				if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
+					unset($info['info']['files'][$index]);
+				}
+		}
+	return $info;
 }
 // ***************************************************************************
 // ***************************************************************************
@@ -2791,18 +2805,18 @@ function GrabTorrentInfo($basename){
 function NewTorrentInjectDATA($filename,$options=''){
 	global $db,$cfg;
 	$basename=basename($filename);
-	
+	//GrabTorrentInfo
 	$info=GrabTorrentInfo($basename);
     $torrent = new BDECODE($basename);
     $hash=@sha1(BEncode($info["info"]));
 	$name=$info['info']['name.utf-8']?$info['info']['name.utf-8'] :$info['info']['name'];
+	$name=str_replace('_','-',$name);
+	// return if it is not a torrent file
 		if(!$name || !$hash){
 			unlink($filename);
 			showmessage('WRONG TORRENT FORMAT');
 			return;
 		}
-	//grab the options to variables
-	extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
 	//check if the torrent exist already
 	$sql = "SELECT `id` FROM `tf_torrents` WHERE `hash`=".$db->qstr($hash);
 	$recordset = $db->Execute($sql);
@@ -2811,7 +2825,21 @@ function NewTorrentInjectDATA($filename,$options=''){
 			showmessage('TORRENT ALREADY EXIST');
 		}
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
+	// creat the .stat file for displaying
 	CreatNewStat($basename,$filesize);
+	//grab the options to variables
+	extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue')),  EXTR_OVERWRITE);
+	//use default if variables is not seted
+	$rate = empty($rate)?$cfg["max_upload_rate"]:intval($rate);
+	$drate = empty($drate)?$cfg["max_download_rate"]:intval($drate);
+	$superseeder = "0";
+	$runtime = empty($runtime)?$cfg["torrent_dies_when_done"]:intval($runtime);
+	$maxuploads = empty($maxuploads)?$maxuploads = $cfg["max_uploads"]:intval($maxuploads);
+	$minport = empty($minport)?$cfg["minport"]:intval($minport);
+	$maxport = empty($maxport)?$cfg["maxport"]:intval($maxport);
+	$rerequest = empty($rerequest)? $cfg["rerequest_interval"]:intval($rerequest);
+	$sharekill= ($sharekill == "0")? "-1": intval($sharekill);
+	//injecting sql
 	$sql = 'INSERT INTO `tf_torrents` 
 	(`file_name`,`torrent` ,`hash` ,`owner_id`,
 	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`maxport`,`rerequest`,`sharekill`) VALUES 
@@ -2899,14 +2927,14 @@ function showmessage($msg,$closewindow=0){
 	global $usejs;
 		if($closewindow){
 				if($usejs){
-					echo '<script type="text/javascript">alert(\''.addslashes($msg).'\');window.MochaUI.closeAll();</script>'; 
+					echo 'alert(\''.addslashes($msg).'\');window.MochaUI.closeAll();'; 
 				}else{
 					echo $msg;
 				}
 					exit();
 		}else{
 				if($usejs){
-					echo '<script type="text/javascript">alert(\''.addslashes($msg).'\');</script>'; 
+					echo 'alert(\''.addslashes($msg).'\');'; 
 				}else{
 					echo $msg;
 				}

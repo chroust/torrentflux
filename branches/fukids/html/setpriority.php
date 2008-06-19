@@ -22,18 +22,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-function getFile($var)
-{
-    if ($var < 65535)
-        return true;
-    else
-        return false;
+function getFile($var){
+	return ($var < 65535)? true:false;
 }
 
 //*********************************************************
 // setPriority()
-function setPriority($torrent)
-{
+function setPriority($torrent){
     global $cfg;
 
     // we will use this to determine if we should create a prio file.
@@ -44,50 +39,36 @@ function setPriority($torrent)
 
     $okToCreate = false;
 
-    if(!empty($torrent))
-    {
-
+    if(!empty($torrent)){
         $alias = getAliasName($torrent);
         $fileName = $cfg["torrent_file_path"].$alias.".prio";
-
         $result = array();
         $files = array();
         $files = getRequestVar('files');
-        
         // if there are files to get then process and create a prio file.
-        if (is_array($files) && count($files) > 0)
-        {
+        if (is_array($files) && count($files) > 0){
             $files = array_filter($files,"getFile");
-            for($i=0;$i<getRequestVar('count');$i++)
-            {
-                if(in_array($i,$files))
-                {
+            for($i=0;$i<getRequestVar('count');$i++){
+                if(in_array($i,$files)){
                     array_push($result,1);
-                }
-                else
-                {
+                }else{
                     $okToCreate = true;
                     array_push($result,-1);
                 }
             }
             $alias = getAliasName($torrent);
 
-            if ($okToCreate)
-            {
+            if ($okToCreate){
                 $fp = fopen($fileName, "w");
                 fwrite($fp,getRequestVar('filecount').",");
                 fwrite($fp,implode($result,','));
                 fclose($fp);
-            }
-            else
-            {
+            }else{
                 // No files to skip so must be wanting them all.
                 // So we will remove the prio file.
                 @unlink($fileName);
             }
-        }
-        else
-        {
+        }else{
             // No files selected so must be wanting them all.
             // So we will remove the prio file.
             @unlink($fileName);

@@ -8,7 +8,6 @@ MozUserSelect:none
 body{
 font-size:10pt;
 MozUserSelect:none
-
 }
 #Mother{
 	padding:10px;
@@ -117,10 +116,16 @@ div.rows div{
 	padding: 0 2px;
 	margin:2px;
   word-wrap: break-word;
+  
+white-space: pre-wrap; /* css-3 */
+white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
 }
 div.tbody{
 	width:100%;
 	cursor:default;
+	height:80%;
 }
 
 .torrent_list_clicked {

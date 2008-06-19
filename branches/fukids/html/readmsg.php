@@ -73,7 +73,6 @@ else
     DisplayHead(_MESSAGES);
     // read and display all messages in a list.
     $inx = 0;
-    DisplayMessageList();
     echo "<table width=\"760\" border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\"><tr>";
     echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"20%\"><div align=center class=\"title\">"._FROM."</div></td>";
     echo "<td bgcolor=\"".$cfg["table_header_bg"]."\"><div align=center class=\"title\">"._MESSAGE."</div></td>";
