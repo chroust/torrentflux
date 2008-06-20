@@ -35,7 +35,7 @@ tableSoort = new Class({
 			});
 			cell.setProperty('column',i);
 			cell.addEvent('click',function(){ this.sort(cell); }.bind(this));
-			if (cell.className=="asc") this.options.column = i;
+			if (cell.hasClass("asc")) this.options.column = i;
 			i++;
 		}.bind(this));
 	},
@@ -46,7 +46,7 @@ tableSoort = new Class({
     		rows[i].getElementsByTagName("div")[iii].setStyle('width', width);
     	}
 	},
-	sort: function(cell) {              
+	sort: function(cell) {       
 		var column = cell.getProperty('column');
 		var rows = $$('#'+this.options.table+' .tbody div.rows');		
 		if(!rows[0].childNodes[column]) return; //table is empty
@@ -56,7 +56,8 @@ tableSoort = new Class({
     for (var i = 0; i < rowslength; i++) {
        	values.push(rows[i].getElementsByTagName("div")[column].innerHTML+"|"+i);
     }
-    this.asc = (cell.className == 'desc') ?  false : true;
+    this.asc = (cell.hasClass('desc')) ?  false : true;
+	this.titles.removeClass('desc').removeClass('asc');
     // reverse only if already sorted
     if (column==this.options.column) { 
    	   	   values.reverse();

@@ -93,10 +93,10 @@ background: url(../images/icon/status/tstatus.bmp) no-repeat 0px 0px
 	padding: 4px;
 }
 .asc {
-	background: url(../images/icon-table-sort-asc.png) no-repeat 80% 4px ;
+	background: url(../images/icon-table-sort-asc.png) no-repeat 80% 4px  !important;
 }
 .desc {
-	background: url(../images/icon-table-sort-desc.png) no-repeat 80% 10px;
+	background: url(../images/icon-table-sort-desc.png) no-repeat 80% 10px !important;
 }
 div.rows{
 	/**
@@ -140,9 +140,8 @@ div.tbody{
 	z-index: 2;
 	height: 1.2em;
 	width: 7px;
-	background-color: #FFF;
 	cursor: e-resize;
-	  float: right;
+	float: right;
 }
 #torrent_list_div{
 	overflow:auto;
