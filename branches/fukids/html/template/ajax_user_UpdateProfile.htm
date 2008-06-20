@@ -23,7 +23,7 @@
 	<td>
 	<select name="theme" id="theme">
 	{foreach $arThemes $inx $theme}
-	<option value="{$theme}" {if $cfg["theme"] == $theme}$selected = "selected"{/if}>{$theme}</option>
+	<option value="{$theme}" {if $cfg["theme"] == $theme}selected = "selected"{/if}>{$theme}</option>
 	{/foreach}
 	</select>
 	</td>
@@ -33,7 +33,7 @@
 	<td>
 	<select name="language" id="language">
 	{foreach $arLanguage $inx $Language}
-	<option value="{$Language}" {if $cfg["language_file"] == $Language}$selected = "selected"{/if}>{echo GetLanguageFromFile($Language)}</option>
+	<option value="{$Language}" {if $cfg["language_file"] == $Language}selected = "selected"{/if}>{echo GetLanguageFromFile($Language)}</option>
 	{/foreach}
 	</select>
 	</td>
