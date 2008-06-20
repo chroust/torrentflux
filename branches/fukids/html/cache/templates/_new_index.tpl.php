@@ -435,6 +435,14 @@ var myusername='<?=$cfg['user']?>';
 <li class="item" id="Url_Torrent"><a href="#"><?=_Url_Torrent?></a></li>
 <li class="item" id="Creat_Torrent"><a href="#"><?=_Creat_Torrent?></a></li>
 <li class="sepline"></li>
+<li class="item sub-item"><a href="#"><?=_All?></a>
+<ul>
+<li class="item" id="Start_All"><a href="#"><?=_Start?></a></li>
+<li class="item" id="Stop_All" ><a href="#"><?=_Stop?></a></li>
+<li class="item" id="Kill_All" ><a href="#"><?=_Kill?></a></li>
+</ul>
+</li>
+<li class="sepline"></li>
 <li class="item" id="_Add_Feed"><a href="#"><?=_Add_Feed?></a></li>
 </ul>
 </div>
@@ -444,6 +452,13 @@ var myusername='<?=$cfg['user']?>';
 <li class="item" id="Start"><a href="#"><?=_Start?></a></li>
 <li class="item" id="Kill"><a href="#"><?=_Kill?></a></li>
 <li class="item" id="Del"><a href="#"><?=_Del?></a></li>
+<li class="item sub-item"><a href="#"><?=_Del_AND?> ...</a>
+<ul>
+<li class="item"><a href="#"><?=_Remove_Torrent?></a></li>
+<li class="item"><a href="#"><?=_Remove_Torrent_And_Files?></a></li>
+<li class="item"><a href="#"><?=_Remove_Files?></a></li>
+</ul>
+</li>
 <li class="sepline"></li>
 <li class="item" id="Edit_Torrent"><a href="#"><?=_Edit_Torrent?></a></li>
 </ul>

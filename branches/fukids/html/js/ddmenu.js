@@ -69,7 +69,6 @@ var DDMenu = new Class ({
             'z-index': 9999, 
             display: 'none'
         });
-
         this.open = this.open.bindWithEvent(this);
         this.close = this.close.bind(this);
         this.preOpenEvent = this.preOpenEvent.bind(this)
@@ -81,6 +80,21 @@ var DDMenu = new Class ({
             'mouseup': this.preOpenEvent
         });
         
+		$$('#'+menu+' .sub-item').each (function (item) {
+			underul=item.getElement('ul');
+			item.addEvents({'mouseover':function(){
+					if(item.style!='none'){
+						this.setStyle('display','block');
+						console.log(this);
+					}
+			}.bind(underul),'mouseout':function(){
+				console.log('2');
+				this.setStyle('display','none');
+			}.bind(underul)
+			});
+			underul.setStyle('display','none');
+		});
+		
         //this.eMenu.getElements('li.item a').addEvent('click', $break); //safari bug :(
         $$('#'+menu+' li a').addEvent('click', $break);
     },
@@ -88,7 +102,6 @@ var DDMenu = new Class ({
     //while hidden
 
     preOpenEvent: function (event) {  
-    
         if (event.shift) {
             this.eBindon.removeEvent ('contextmenu', $break);
         }
