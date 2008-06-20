@@ -4,7 +4,6 @@
 include_once("functions.php");
 // class for writing .stat
 include_once("AliasFile.php");
-include_once("setpriority.php");
 
 Class BtControl {
 	function BtControl($torrentid,$options=''){

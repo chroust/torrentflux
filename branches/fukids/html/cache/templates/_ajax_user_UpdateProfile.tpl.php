@@ -25,7 +25,7 @@
 <? if(isset($arThemes) && is_array($arThemes)) { foreach($arThemes as $inx => $theme) { ?>
 <option value="<?=$theme?>" 
 <? if($cfg["theme"] == $theme) { ?>
-$selected = "selected"
+selected = "selected"
 <? } ?>
 ><?=$theme?></option>
 <? } } ?>
@@ -39,7 +39,7 @@ $selected = "selected"
 <? if(isset($arLanguage) && is_array($arLanguage)) { foreach($arLanguage as $inx => $Language) { ?>
 <option value="<?=$Language?>" 
 <? if($cfg["language_file"] == $Language) { ?>
-$selected = "selected"
+selected = "selected"
 <? } ?>
 >
 <? echo GetLanguageFromFile($Language); ?>
@@ -52,7 +52,11 @@ $selected = "selected"
 <td>
 </td>
 <td>
-<input name="hideOffline" id="hideOffline" type="Checkbox" value="1" <?=$hideChecked?>> <?=_HIDEOFFLINEUSERS?><br>
+<input name="hideOffline" id="hideOffline" type="Checkbox" value="1" 
+<? if($cfg['hide_offline']==1) { ?>
+checked="checked"
+<? } ?>
+> <?=_HIDEOFFLINEUSERS?><br>
 </td>
 </tr>
 <tr>

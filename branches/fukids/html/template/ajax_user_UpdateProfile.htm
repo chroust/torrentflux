@@ -42,7 +42,7 @@
 	<td>
 	</td>
 	<td>
-	<input name="hideOffline" id="hideOffline" type="Checkbox" value="1" {$hideChecked}> {_HIDEOFFLINEUSERS}<br>
+	<input name="hideOffline" id="hideOffline" type="Checkbox" value="1" {if $cfg['hide_offline']==1}checked="checked"{/if}> {_HIDEOFFLINEUSERS}<br>
 	</td>
 </tr>
 <tr>
