@@ -52,7 +52,7 @@ Class BtControl {
 		//creat .stat file
 		CheckHung($this->torrent);
 			if(CheckRunning($this->pid)!==0){
-				showmessage($this->torrent.'is already running',1);
+				showmessage($this->torrent.'is already running');
 			}
 		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($this->torrent), $this->owner);
 			if ($cfg["AllowQueing"] AND $queue == "1"){
@@ -127,10 +127,9 @@ Class BtControl {
         // try to remove the pid file
         @unlink($cfg["torrent_file_path"].$this->pid);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
-
 	}
 
-	function Delete($delTorrent=1,$delFile=0){
+	function Delete($delTorrent=0,$delFile=0){
 		GLOBAL $cfg;
 		if ( !(($cfg["user"] == getOwner($this->torrent)) || IsAdmin())){
 			AuditAction($cfg["constants"]["error"], $cfg["user"]." attempted to delete ".$this->torrent);

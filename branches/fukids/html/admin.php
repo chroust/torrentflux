@@ -105,65 +105,8 @@ function addRSS($newRSS)
     header("location: admin.php?op=editRSS");
 }
 
-//****************************************************************************
-// addUser -- adding a user
-//****************************************************************************
-function addUser($newUser, $pass1, $userType)
-{
-    global $cfg;
-    $newUser = strtolower($newUser);
-    if (IsUser($newUser))
-    {
-        DisplayHead(_ADMINISTRATION);
 
-        // Admin Menu
-        displayMenu();
 
-        echo "<br><div align=\"center\">"._TRYDIFFERENTUSERID."<br><strong>".$newUser."</strong> "._HASBEENUSED."</div><br><br><br>";
-
-        DisplayFoot();
-    }
-    else
-    {
-        addNewUser($newUser, $pass1, $userType);
-        AuditAction($cfg["constants"]["admin"], _NEWUSER.": ".$newUser);
-        header("location: admin.php?op=CreateUser");
-    }
-}
-
-//****************************************************************************
-// updateUser -- updating a user
-//****************************************************************************
-function updateUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
-{
-    global $cfg;
-    $user_id = strtolower($user_id);
-    if (IsUser($user_id) && ($user_id != $org_user_id))
-    {
-        DisplayHead(_ADMINISTRATION);
-
-        // Admin Menu
-        displayMenu();
-
-        echo "<br><div align=\"center\">"._TRYDIFFERENTUSERID."<br><strong>".$user_id."</strong> "._HASBEENUSED."<br><br><br>";
-
-        echo "[<a href=\"admin.php?op=editUser&user_id=".$org_user_id."\">"._RETURNTOEDIT." ".$org_user_id."</a>]</div><br><br><br>";
-
-        DisplayFoot();
-    }
-    else
-    {
-        // Admin is changing id or password through edit screen
-        if(($user_id == $cfg["user"] || $cfg["user"] == $org_user_id) && $pass1 != "")
-        {
-            // this will expire the user
-            $_SESSION['user'] = md5($cfg["pagetitle"]);
-        }
-        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline);
-        AuditAction($cfg["constants"]["admin"], _EDITUSER.": ".$user_id);
-        header("location: admin.php");
-    }
-}
 
 //****************************************************************************
 // deleteLink -- delete a link
@@ -187,19 +130,6 @@ function deleteRSS($rid)
     header("location: admin.php?op=editRSS");
 }
 
-//****************************************************************************
-// deleteUser -- delete a user (only non super admin)
-//****************************************************************************
-function deleteUser($user_id)
-{
-    global $cfg;
-    if (!IsSuperAdmin($user_id))
-    {
-        DeleteThisUser($user_id);
-        AuditAction($cfg["constants"]["admin"], _DELETE." "._USER.": ".$user_id);
-    }
-    header("location: admin.php");
-}
 
 //****************************************************************************
 // showIndex -- default view
@@ -860,118 +790,6 @@ function editUser($user_id)
     DisplayFoot();
 }
 
-
-//****************************************************************************
-// CreateUser -- Create a user
-//****************************************************************************
-function CreateUser()
-{
-    global $cfg;
-    DisplayHead(_USERADMIN);
-
-    // Admin Menu
-    displayMenu();
-    echo "<div align=\"center\">";
-    echo "<table border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\">";
-    echo "<tr><td colspan=6 bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\">";
-    echo "<img src=\"images/user.gif\" width=17 height=14 border=0>&nbsp;&nbsp;&nbsp;<font class=\"title\">"._NEWUSER."</font>";
-    echo "</td></tr><tr><td align=\"center\">";
-?>
-    <div align="center">
-        <table cellpadding="5" cellspacing="0" border="0">
-        <form name="theForm" action="admin.php?op=addUser" method="post" onsubmit="return validateProfile()">
-        <tr>
-            <td align="right"><?php echo _USER ?>:</td>
-            <td>
-            <input name="newUser" type="Text" value="" size="15">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _PASSWORD ?>:</td>
-            <td>
-            <input name="pass1" type="Password" value="" size="15">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _CONFIRMPASSWORD ?>:</td>
-            <td>
-            <input name="pass2" type="Password" value="" size="15">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _USERTYPE ?>:</td>
-            <td>
-            <select name="userType">
-                <option value="0"><?php echo _NORMALUSER ?></option>
-                <option value="1"><?php echo _ADMINISTRATOR ?></option>
-            </select>
-            </td>
-        </tr>
-        <tr>
-            <td align="center" colspan="2">
-            <input type="Submit" value="<?php echo _CREATE ?>">
-            </td>
-        </tr>
-        </form>
-        </table>
-        </div>
-
-    <br>
-
-    <script language="JavaScript">
-    function validateProfile()
-    {
-        var msg = ""
-        if (theForm.newUser.value == "")
-        {
-            msg = msg + "* <?php echo _USERIDREQUIRED ?>\n";
-            theForm.newUser.focus();
-        }
-        if (theForm.pass1.value != "" || theForm.pass2.value != "")
-        {
-            if (theForm.pass1.value.length <= 5 || theForm.pass2.value.length <= 5)
-            {
-                msg = msg + "* <?php echo _PASSWORDLENGTH ?>\n";
-                theForm.pass1.focus();
-            }
-            if (theForm.pass1.value != theForm.pass2.value)
-            {
-                msg = msg + "* <?php echo _PASSWORDNOTMATCH ?>\n";
-                theForm.pass1.value = "";
-                theForm.pass2.value = "";
-                theForm.pass1.focus();
-            }
-        }
-        else
-        {
-            msg = msg + "* <?php echo _PASSWORDLENGTH ?>\n";
-            theForm.pass1.focus();
-        }
-
-        if (msg != "")
-        {
-            alert("<?php echo _PLEASECHECKFOLLOWING ?>:\n\n" + msg);
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    </script>
-
-<?php
-    echo "</td></tr>";
-    echo "</table></div>";
-    echo "<br><br>";
-
-    // Show User Section
-    displayUserSection();
-
-    echo "<br><br>";
-
-    DisplayFoot();
-}
 
 //****************************************************************************
 // editLinks -- Edit Links
@@ -2287,20 +2105,24 @@ switch ($op)
         deleteLink($lid);
     break;
 
-    case "CreateUser":
-        CreateUser();
-    break;
-
     case "addUser":
         $newUser = getRequestVar('newUser');
         $pass1 = getRequestVar('pass1');
+        $pass2 = getRequestVar('pass2');
         $userType = getRequestVar('userType');
-        addUser($newUser, $pass1, $userType);
+			if($pass1!==$pass2){
+				showmessage(_PASSWORDNOTMATCH,1);
+			}
+        $newUser = strtolower($newUser);
+		$newuid=addNewUser($newUser, $pass1, $userType);
+		AuditAction($cfg["constants"]["admin"], _NEWUSER.": ".$newUser);
+		echo("adduser2ms(6,'$newUser');");
+		showmessage(_user_created,1,1);
     break;
 
     case "deleteUser":
-        $user_id = getRequestVar('user_id');
-        deleteUser($user_id);
+        $uid = getRequestVar('uid');
+        DeleteThisUser($uid);
     break;
 
     case "editUser":
@@ -2314,7 +2136,8 @@ switch ($op)
         $pass1 = getRequestVar('pass1');
         $userType = getRequestVar('userType');
         $hideOffline = getRequestVar('hideOffline');
-        updateUser($user_id, $org_user_id, $pass1, $userType, $hideOffline);
+        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline);
+		echo "window.location.reload(true);";
     break;
 
     case "configSettings":

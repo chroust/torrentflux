@@ -16,7 +16,7 @@ if($action=='listtorrent'){
 			include template('ajax_Tips_user_profile');
 		}
 }elseif($action=='rightclick'){
-	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM'));
+	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER'));
 		if($id=='_SEND_PM'){
 		    $rmid = getRequestVar('rmid');
 			$tousertmp=getRequestVar('to_user');
@@ -39,6 +39,16 @@ if($action=='listtorrent'){
 			$pmlist=listPM();
 			$pmcount=count($pmlist);
 			include template('ajax_user_VIEW_PM');
+		}elseif($id=='_ADD_USER'){
+			AdminCheck();
+			include template('ajax_RightClick_ADD_USER');
+		}elseif($id=='_ADMIN_EDIT_USER'){
+			AdminCheck();
+			$uid=intval(getRequestVar('uid'));
+			$userinfo=GrabUserData($uid);
+			$arLanguage = GetLanguages();
+			$arThemes = GetThemes();
+			include template('ajax_RightClick_EDIT_USER');
 		}
 }elseif($action=='icon'){
 	// if it is called via icon bar
@@ -111,55 +121,10 @@ if($action=='listtorrent'){
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId),1);
 				foreach($info['info']['files'] as $file){
 					echo $file['path.utf-8']['0'].'<br />';
-			}
+				}
 		}elseif($tab=='tab5'){
 			//speed
-			?>
-			<img src="" alt="" id="thisspeed">
-			<script type="text/javascript">
-			var speed_updateIntervals = 5;
-			var updateGraph=function(){
-			if($defined(downSpeed[selecting])){
-				downSpeedLength=downSpeed[selecting].length;
-				var chd1='';
-				var max=0;
-				var comma='';
-					for ( i = 0; i < downSpeedLength; i++) {
-						chd1=chd1+comma+downSpeed[selecting][i];
-							if(downSpeed[selecting][i] > max){
-								max=downSpeed[selecting][i];
-							}
-						comma=',';
-					}
-				var chd2='';
-				var comma='';
-					for ( i = 0; i < downSpeedLength; i++) {
-						chd2=chd2+comma+upSpeed[selecting][i];
-							if(upSpeed[selecting][i] > max){
-								max=upSpeed[selecting][i];
-							}
-						comma=',';
-					}
-				max=max==0?1:max;
-				basetime=reloadedcount*UpdateInterval;
-				lastesttime=basetime+uploadcount*UpdateInterval;
-				middletime=(lastesttime-basetime)/2;
-				var MaxdownSpeedselecting=MaxdownSpeed[selecting]>250?MaxdownSpeed[selecting]:250;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeedselecting+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
-				$('thisspeed').src=src;
-				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
-			}
-				
-			}
-			window.addEvent('TabReady', function() {
-			updateGraph();
-			}).addEvent('TabExit', function() {
-				graphtimer=$empty;
-				updateGraph=$empty;
-			});
-
-			</script>
-			<?
+			include template('ajax_tab_tab5');
 		}elseif($tab=='tab6'){
 			//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));

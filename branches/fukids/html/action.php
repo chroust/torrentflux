@@ -4,17 +4,56 @@ include_once("include/functions.php");
 //check and grab action
 $id=getRequestVar('id',array('torrent','user'));
 if($id=='torrent'){
-$action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent'));
+$action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files'));
 $torrentid=getRequestVar('torrentid');
-	if((in_array($action,array('Kill','Del','Start','Edit_Torrent')) && !is_numeric($torrentid))){
+	if((in_array($action,array('Kill','Del','Start','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files')) && !is_numeric($torrentid)) && (in_array($action,array('Kill','Start')) && $torrentid!=='all')){
 		showmessage('no Variable: $torrent OR $torrent is not a intval : '.$torrentid,1);
 	}
 include_once("include/BtControl_Tornado.class.php");
 	if($action=='Kill'){
-		// if user what kill the process
+	// if user what kill the process
+			if(is_numeric($torrentid)){
+				$Bt= new BtControl($torrentid);
+				$Bt->Kill();
+				echo 'Killed';
+			}elseif($torrentid=='all'){
+				all('Kill');
+			}
+	}elseif($action=='Del'){
+		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
-		$Bt->Kill();
-		echo 'Killed';
+		$Bt->Delete();
+		echo 'Deleted';
+	}elseif($action=='_Del_n_Remove_Torrent'){
+		//if user want delet the torrent
+		$Bt= new BtControl($torrentid);
+		$Bt->Delete(1);
+		echo 'Deleted';
+	}elseif($action=='_Del_n_Remove_Torrent_And_Files'){
+		//if user want delet the torrent
+		$Bt= new BtControl($torrentid);
+		$Bt->Delete(1,1);
+		echo 'Deleted';
+	}elseif($action=='_Del_n_Remove_Files'){
+		//if user want delet the torrent
+		$Bt= new BtControl($torrentid);
+		$Bt->Delete(0,1);
+		echo 'Deleted';
+	
+	}elseif($action=='Start'){
+	// if user what kill the process
+			if(is_numeric($torrentid)){
+				$Bt= new BtControl($torrentid);
+				$Bt->Start();
+				echo 'Started';
+			}elseif($torrentid=='all'){
+				all('Start');
+				echo 'all started';
+			}
+		//if user want start the process
+		$Bt= new BtControl($torrentid);
+		$Bt->Start();
+		echo 'Started';
 	}elseif($action=='Edit_Torrent'){
 		//if user want edit the torrent
 		$rate=intval(getRequestVar('rate'));
@@ -41,16 +80,6 @@ include_once("include/BtControl_Tornado.class.php");
 		$Bt->Kill();
 		$Bt->Start();
 		echo('Edited');
-	}elseif($action=='Del'){
-		//if user want delet the torrent
-		$Bt= new BtControl($torrentid);
-		$Bt->Delete();
-		echo 'Deleted';
-	}elseif($action=='Start'){
-		//if user want start the process
-		$Bt= new BtControl($torrentid);
-		$Bt->Start();
-		echo 'Started';
 	}elseif($action=='Upload'){
 		//if user want upload the torrent from file
 			$autostart=getRequestVar('autostart');

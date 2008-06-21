@@ -113,7 +113,6 @@ function echo (a){
 				$(item.id).destroy();
 				downSpeed[item.id]=new Array();
 				upSpeed[item.id]=new Array();
-
 			}
 		});
 		uploadcount++;
@@ -216,11 +215,64 @@ function echo (a){
 				}
 			});
 	}
-	LeftMenuRightClick = function(id,act,bind){
-		// uid:   bind.retrieve('uid')
-		// id: id
-		OpenWindow(id,id,'rightclick','&uid='+ bind.retrieve('uid'));
-	}
+	var UpdateSelectedUser=function(){
+		var output='';
+		var comma='';
+		$('torrent_multiselect2').getSelected().each( function(option){
+			output+=comma+option.value;
+			comma=',';
+		})
+		selected_user=output?output:0;
+		forceUpdate();
+	};
+	//function for updating the interface when added a new user
+var adduser2ms=function(uid,user_id){
+	var next=$('torrent_multiselect2').options.length;
+	newoption=new Element('option', {
+		'value':uid,
+		'html':'1'
+	}).injectInside($('torrent_multiselect2'));
+	console.log(next);
+	displaydiv=new Element('div', {
+		'id':'torrent_multiselect2_'+next,
+		'class':'invisible',
+		'html':'<img src="images/user_0.gif" id="useronline_'+uid+'">'+user_id+'(<span id="susering_'+uid+'">0</span>)'
+	}).injectInside($('Mother'));
+	GreatMS.additem($('torrent_multiselect2'),next);
+};
+var build_UserList_Extra=function(index,uid,user_id){
+	// Add onmouse ajax tips on every user
+	Ajaxtips('ms_torrent_multiselect2_'+index,'ajax.php?action=tips&id=user_profile&uid='+uid);
+	// add right click menu on every user
+	new DDMenu ('torrent_multiselect2_innerRightClick', 'ms_torrent_multiselect2_'+index, {
+		onOpen: function(){
+			if(myuid==uid){
+				// if it is my menu
+				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER']);
+				this.hideItems(['_VIEW_PM','_EDITUSER'],false);
+			}else{
+				// if it is not my menu
+				this.hideItems(['_VIEW_PM','_EDITUSER']);
+				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER'],false);
+			}
+			this.setTitle(user_id);
+		},
+		onItemSelect: function(act_id, act_el, menu_bindon){
+				if(act_id=='_ADMIN_DELETEUSER'){
+					if (confirm('{_WARNING} : {_ABOUTTODELETE} '+user_id)){
+						new Request.HTML({
+							evalScripts:1
+						}).get('admin.php?op=deleteUser&uid='+uid);
+						$('torrent_multiselect2').options[index].destroy();
+						$(menu_bindon).destroy();
+						UpdateSelectedUser();
+					}
+				}else{
+					OpenWindow(act_id,act_id,'rightclick','uid='+uid);
+				}
+		}
+	});
+}
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
@@ -272,13 +324,16 @@ window.addEvent('domready', function() {
 		onItemSelect: function(act_id, act_el, menu_bindon){
 				if(act_id=='Upload_Torrent'){
 					OpenWindow(act_id,act_id,'icon','',300,100);
+				}else if(act_id=='Start_All'){
+					torrentControl('Start','all');
+				}else if(act_id=='Kill_All'){
+					torrentControl('Kill','all');
 				}else{
 					OpenWindow(act_id,act_id,'icon');
 				}
 		}
 	});
 
-	
 	//multiselect
 	$('ms_torrent_multiselect1').addEvent('click',function(){
 		var output='';
@@ -290,44 +345,20 @@ window.addEvent('domready', function() {
 		selected_status=output?output:0;
 		forceUpdate();
 	});
-	$('ms_torrent_multiselect2').addEvent('click',function(){
-		var output='';
-		var comma='';
-		$('torrent_multiselect2').getSelected().each( function(option){
-			output+=comma+option.value;
-			comma=',';
+	$$('div#ms_torrent_multiselect2 div.MSitem').each(function(div){
+		div.addEvent('click',function(){
+			UpdateSelectedUser();
 		})
-		selected_user=output?output:0;
-		forceUpdate();
 	});
-	
 	//update data
 	get_data();
-	
 	new DDMenu ('torrent_multiselect2RightClick', 'ms_torrent_multiselect2', {
 		onItemSelect: function(act_id, act_el, menu_bindon){
 			OpenWindow(act_id,act_id,'rightclick');
 		}
 	});
 	{foreach $userlist $index $user}
-	// Add onmouse ajax tips on every user
-	Ajaxtips('ms_torrent_multiselect2_{$index}','ajax.php?action=tips&id=user_profile&uid={$user['uid']}');
-	// add right click menu on every user
-	new DDMenu ('torrent_multiselect2_innerRightClick', 'ms_torrent_multiselect2_{$index}', {
-		onOpen: function(){
-			{if $myuid==$user['uid']}
-				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDITUSER']);
-				this.hideItems(['_VIEW_PM'],false);
-			{else}
-				this.hideItems(['_VIEW_PM','_ADMIN_EDITUSER']);
-				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER'],false);
-			{/if}
-			this.setTitle('{$user['user_id']}');
-		},
-		onItemSelect: function(act_id, act_el, menu_bindon){
-			OpenWindow(act_id,act_id,'rightclick','uid={$user['uid']}');
-		}
-	});
+		build_UserList_Extra({$index},{$user['uid']},'{$user['user_id']}');
 	{/foreach}
 });
 var progressbar=new Array();
@@ -416,7 +447,7 @@ var myusername='{$cfg['user']}';
 <div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">_active (<span id="sactive">0</span>)</div>
 <div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">_inactive (<span id="sinactive">0</span>)</div>
 <!--{ this is the DIV for displaying  left menu (user) right click menu }-->
-<select size="5" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
+<select size="{echo count($userlist)+5}" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
 {foreach $userlist $index $user}
 <option value="{$user['uid']}">1</option>
 {/foreach}
@@ -435,11 +466,10 @@ var myusername='{$cfg['user']}';
 <li class="item" id="Url_Torrent"><a href="#">{_Url_Torrent}</a></li>
 <li class="item" id="Creat_Torrent"><a href="#">{_Creat_Torrent}</a></li>
 <li class="sepline"></li>
-<li class="item sub-item"><a href="#">{_All}</a>
+<li class="item sub-item"><a href="#">{_All} ...</a>
 	<ul>
 	<li class="item" id="Start_All"><a href="#">{_Start}</a></li>
-	<li class="item" id="Stop_All" ><a href="#">{_Stop}</a></li>
-	<li class="item" id="Kill_All" ><a href="#">{_Kill}</a></li>
+	<li class="item" id="Kill_All" ><a href="#">{_Stop}</a></li>
 	</ul>
 </li>
 <li class="sepline"></li>
@@ -454,9 +484,9 @@ var myusername='{$cfg['user']}';
 <li class="item" id="Del"><a href="#">{_Del}</a></li>
 <li class="item sub-item"><a href="#">{_Del_AND} ...</a>
 	<ul>
-	<li class="item"><a href="#">{_Remove_Torrent}</a></li>
-	<li class="item"><a href="#">{_Remove_Torrent_And_Files}</a></li>
-	<li class="item"><a href="#">{_Remove_Files}</a></li>
+	<li class="item" id="_Del_n_Remove_Torrent"><a href="#">{_Remove_Torrent}</a></li>
+	<li class="item" id="_Del_n_Remove_Torrent_And_Files"><a href="#">{_Remove_Torrent_And_Files}</a></li>
+	<li class="item" id="_Del_n_Remove_Files"><a href="#">{_Remove_Files}</a></li>
 	</ul>
 </li>
 <li class="sepline"></li>
@@ -467,7 +497,7 @@ var myusername='{$cfg['user']}';
 {if $isadmin>0}
 <div class="ddmenu def" id="torrent_multiselect2RightClick" style="display:none">
 <ul>
-<li class="item" id="Start"><a href="#">{_ADD_USER}</a></li>
+<li class="item" id="_ADD_USER"><a href="#">{_ADD_USER}</a></li>
 </ul>
 </div>
 {/if}
@@ -479,12 +509,11 @@ var myusername='{$cfg['user']}';
 {if $isadmin>0}
 <li class="item" id="_ADMIN_VIEW_HISTORY"><a href="#">{_VIEW_HISTORY}</a></li>
 <li class="item" id="_ADMIN_DELETEUSER"><a href="#">{_DELETEUSER} </a></li>
-<li class="item" id="_ADMIN_EDITUSER"><a href="#">{_EDITUSER} </a></li>
+<li class="item" id="_ADMIN_EDIT_USER"><a href="#">{_EDITUSER} </a></li>
 {/if}
 <li class="item" id="_EDITUSER"><a href="#">{_EDITUSER} </a></li>
 </ul>
 </div>
-
 
 </body>
 </html>

@@ -81,53 +81,5 @@ var mootabs = new Class({
 				}
 			}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
 		}
-	},
-
-	
-	addTab: function(title, label, content){
-		//the new title
-		var newTitle = new Element('li', {
-			'title': title
-		});
-		newTitle.appendText(label);
-		this.titles.include(newTitle);
-		$$('#' + this.elid + ' ul').adopt(newTitle);
-		newTitle.addEvent('click', function() {
-			this.activate(newTitle);
-		}.bind(this));
-		
-		newTitle.addEvent('mouseover', function() {
-			if(newTitle != this.activeTitle)
-			{
-				newTitle.addClass(this.options.mouseOverClass);
-			}
-		}.bind(this));
-		newTitle.addEvent('mouseout', function() {
-			if(newTitle != this.activeTitle)
-			{
-				newTitle.removeClass(this.options.mouseOverClass);
-			}
-		}.bind(this));
-		//the new panel
-		var newPanel = new Element('div', {
-			'style': {'height': this.options.panelHeight},
-			'id': title,
-			'class': 'mootabs_panel'
-		});
-		if(!this.options.useAjax)
-		{
-			newPanel.setHTML(content);
-		}
-		this.panels.include(newPanel);
-		this.el.adopt(newPanel);
-	},
-	removeTab: function(title){
-		if(this.activeTitle.title == title)
-		{
-			this.activate(this.titles[0]);
-		}
-		$$('#' + this.elid + ' ul li').filterByAttribute('title', '=', title)[0].remove();
-		
-		$$('#' + this.elid + ' .mootabs_panel').filterById(title)[0].remove();
 	}
 });

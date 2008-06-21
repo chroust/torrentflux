@@ -1,0 +1,44 @@
+	<img src="" alt="" id="thisspeed">
+			<script type="text/javascript">
+			var speed_updateIntervals = 5;
+			var updateGraph=function(){
+			if($defined(downSpeed[selecting])){
+				downSpeedLength=downSpeed[selecting].length;
+				var chd1='';
+				var max=0;
+				var comma='';
+					for ( i = 0; i < downSpeedLength; i++) {
+						chd1=chd1+comma+downSpeed[selecting][i];
+							if(downSpeed[selecting][i] > max){
+								max=downSpeed[selecting][i];
+							}
+						comma=',';
+					}
+				var chd2='';
+				var comma='';
+					for ( i = 0; i < downSpeedLength; i++) {
+						chd2=chd2+comma+upSpeed[selecting][i];
+							if(upSpeed[selecting][i] > max){
+								max=upSpeed[selecting][i];
+							}
+						comma=',';
+					}
+				max=max==0?1:max;
+				basetime=reloadedcount*UpdateInterval;
+				lastesttime=basetime+uploadcount*UpdateInterval;
+				middletime=(lastesttime-basetime)/2;
+				var MaxdownSpeedselecting=MaxdownSpeed[selecting]>250?MaxdownSpeed[selecting]:250;
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x190&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeedselecting+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
+				$('thisspeed').src=src;
+				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
+			}
+				
+			}
+			window.addEvent('TabReady', function() {
+			updateGraph();
+			}).addEvent('TabExit', function() {
+				graphtimer=$empty;
+				updateGraph=$empty;
+			});
+
+			</script>

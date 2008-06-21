@@ -1,0 +1,35 @@
+<form name="thisform" method="post" action="admin.php?op=addUser">
+<table border="0" cellpadding="3" cellspacing="2" width="100%">
+<tr>
+	<td align="right">{_USER}:</td>
+	<td>
+	<input name="newUser" id="newUser" type="Text" value="" size="15" />
+	</td>
+</tr>
+<tr>
+	<td align="right">{_PASSWORD}:</td>
+	<td>
+	<input name="pass1" id="pass1" type="password"size="15" />
+	</td>
+</tr>
+<tr>
+	<td align="right">{_CONFIRMPASSWORD}:</td>
+	<td>
+	<input name="pass2" id="pass2" type="password" size="15" />
+	</td>
+</tr>
+<tr>
+	<td align="right">{_USERTYPE}:</td>
+	<td>
+	<input type="radio" name="userType" value="0" id="userType_0" checked='1'></input><label for ="userType_0">{_NORMALUSER}</label>
+	<input type="radio" name="userType" value="1" id="userType_1"></input><label for ="userType_1">{_ADMINISTRATOR}</label>
+	</select>
+	</td>
+</tr>
+<tr>
+	<td align="center" colspan="2">
+	<input type="Submit" value="{_CREATE}">
+	</td>
+</tr>
+</form>
+</table>

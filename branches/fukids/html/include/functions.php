@@ -188,7 +188,14 @@ function Authenticate(){
 	$GLOBALS['isadmin']=IsAdmin();
 	$GLOBALS['myuid']=$uid;
 }
-
+function AdminCheck(){
+		if(!$GLOBALS['isadmin']){
+			// the user probably hit this page direct
+			AuditAction($cfg["constants"]["access_denied"], $_SERVER['PHP_SELF']);
+			header("location: index.php");
+			exit();
+		}
+}
 
 //*********************************************************
 // SaveMessage
@@ -249,17 +256,23 @@ function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0)
 }
 
 //*********************************************************
-function addNewUser($newUser, $pass1, $userType)
-{
+function addNewUser($newUser, $pass1, $userType=1){
 	global $cfg, $db;
-
+	AdminCheck();
+		if($newUser==''){
+			showmessage(_USERIDREQUIRED,1);
+		}
+		if(strlen($pass1)<6){
+			showmessage(_PASSWORDLENGTH,1);
+		}
+		if (IsUser($newUser)){
+			showmessage(_TRYDIFFERENTUSERID.$newUser._HASBEENUSED,1);
+		}
 	$create_time = time();
-
 	$record = array(
 					'user_id'=>strtolower($newUser),
 					'password'=>md5($pass1),
 					'hits'=>0,
-					'last_visit'=>$create_time,
 					'time_created'=>$create_time,
 					'user_level'=>$userType,
 					'hide_offline'=>"0",
@@ -738,14 +751,21 @@ function deleteOldRSS($rid)
 
 // ***************************************************************************
 // Delete User
-function DeleteThisUser($user_id)
-{
-	global $db;
-
-	$sql = "SELECT uid FROM tf_users WHERE user_id = ".$db->qstr($user_id);
-	$uid = $db->GetOne( $sql );
+function DeleteThisUser($uid){
+	global $db,$cfg;
+	AdminCheck();
+	$uid=intval($uid);
+	$sql = "SELECT `user_level`,`user_id` FROM tf_users WHERE uid = ".$uid;
+	$result = $db->SelectLimit($sql, 1);
+	$ar = $result->FetchRow();
+	$user_id=$ar['user_id'];
+	$user_level=$ar['user_level'];
 	showError($db,$sql);
-
+		if($user_level >= 2){
+			showmessage('cannot delete '._SUPERADMIN,1);
+		}elseif(!$user_id){
+			showmessage(_user_not_found,1);
+		}
 	// delete any cookies this user may have had
 	//$sql = "DELETE tf_cookies FROM tf_cookies, tf_users WHERE (tf_users.uid = tf_cookies.uid) AND tf_users.user_id=".$db->qstr($user_id);
 	$sql = "DELETE FROM tf_cookies WHERE uid=".$uid;
@@ -758,21 +778,27 @@ function DeleteThisUser($user_id)
 	showError($db,$sql);
 
 	// now delete the user from the table
-	$sql = "DELETE FROM tf_users WHERE user_id=".$db->qstr($user_id);
+	$sql = "DELETE FROM tf_users WHERE uid=".$uid;
 	$result = $db->Execute($sql);
 	showError($db,$sql);
+	AuditAction($cfg["constants"]["admin"], _DELETE." "._USER.": ".$user_id);
 }
 
 // ***************************************************************************
 // Update User -- used by admin
-function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
-{
-	global $db;
-
-	if ($hideOffline == "")
-	{
-		$hideOffline = 0;
-	}
+function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline){
+	global $db,$cfg;
+	AdminCheck();
+		if(IsUser($user_id) && ($user_id != $org_user_id)){
+			showmessage(_TRYDIFFERENTUSERID.$user_id._HASBEENUSED,1);
+		}
+		if($user_id==''){
+			showmessage(_USERIDREQUIRED,1);
+		}
+		if(strlen($pass1)<6 AND $pass1 !=''){
+			showmessage(_PASSWORDLENGTH,1);
+		}
+	$hideOffline =$hideOffline?1: 0;
 
 	$sql = 'select * from tf_users where user_id = '.$db->qstr($org_user_id);
 	$rs = $db->Execute($sql);
@@ -783,22 +809,19 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
 	$rec['user_level'] = $userType;
 	$rec['hide_offline'] = $hideOffline;
 
-	if ($pass1 != "")
-	{
+	if ($pass1 != ""){
 		$rec['password'] = md5($pass1);
 	}
 
 	$sql = $db->GetUpdateSQL($rs, $rec);
 
-	if ($sql != "")
-	{
+	if ($sql != ""){
 		$result = $db->Execute($sql);
 		showError($db,$sql);
 	}
 
 	// if the original user id and the new id do not match, we need to update messages and log
-	if ($user_id != $org_user_id)
-	{
+	if ($user_id != $org_user_id){
 		$sql = "UPDATE tf_messages SET to_user=".$db->qstr($user_id)." WHERE to_user=".$db->qstr($org_user_id);
 
 		$result = $db->Execute($sql);
@@ -812,6 +835,7 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
 		$result = $db->Execute($sql);
 		showError($db,$sql);
 	}
+        AuditAction($cfg["constants"]["admin"], _EDITUSER.": ".$user_id);
 }
 
 // ***************************************************************************
@@ -2892,51 +2916,17 @@ function DelTorrentSQL($torrent_id){
 // ***************************************************************************
 //function for controlling all torrent
 function All($action){
-	global $cfg;
+	global $cfg,$db;
 		if(!in_array($action,Array('Start','Kill'))){
-			return 0;
+			showmessage('wrong_action',1);;
 		}
-	$file_filter = getFileFilter($cfg["file_types_array"]);
-	$dirName=$cfg["torrent_file_path"];
-		if (is_dir($dirName)){
-			$handle = opendir($dirName);
-		}else{
-			// nothing to read
-				if (IsAdmin()){
-					echo "<b>ERROR:</b> ".$dirName." Path is not valid. Please edit <a href='admin.php?op=configSettings'>settings</a><br>";
-				}else{
-					echo "<b>ERROR:</b> Contact an admin the Path is not valid.<br>";
-				}
-			return;
-		}
-	while($entry = readdir($handle)) {
-		if ($entry != "." && $entry != ".."){
-			if (is_dir($dirName."/".$entry)){
-				// don''t do a thing
-			}else{
-				if (ereg($file_filter, $entry)){
-					$key = filemtime($dirName."/".$entry).md5($entry);
-					$arList[$key] = $entry;
-				}
-			}
-		}
+	$sql = "SELECT `id` FROM `tf_torrents` ";
+	$result = $db->Execute($sql);
+	while(list($id) = $result->FetchRow()){
+		$abd=new BtControl($id,'');
+		$abd->$action();
 	}
-	// sort the files by date
-	krsort($arList);
-		if($action=='Start'){
-				foreach($arList as $entry){
-					$abd=new BtControl($entry,'');
-					$abd->Start();
-				}
-		}elseif($action=='Kill'){
-				foreach($arList as $entry){
-					$abd=new BtControl($entry,'');
-					$abd->Kill();
-				}
-		}	
-
 }
-
 // ***************************************************************************
 // ***************************************************************************
 //Displaying Curl errors:
@@ -2946,7 +2936,7 @@ function DumpCurlError($errno,$errstring){
 // ***************************************************************************
 // ***************************************************************************
 //showmessage:
-function showmessage($msg,$closewindow=0){
+function showmessage($msg,$stop=0,$closewindow=0){
 	global $usejs;
 		if($closewindow){
 				if($usejs){
@@ -2954,13 +2944,15 @@ function showmessage($msg,$closewindow=0){
 				}else{
 					echo $msg;
 				}
-					exit();
 		}else{
 				if($usejs){
 					echo 'alert(\''.addslashes($msg).'\');'; 
 				}else{
 					echo $msg;
 				}
+		}
+		if($stop){
+			exit();
 		}
 
 }

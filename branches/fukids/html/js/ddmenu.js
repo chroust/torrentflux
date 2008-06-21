@@ -85,10 +85,8 @@ var DDMenu = new Class ({
 			item.addEvents({'mouseover':function(){
 					if(item.style!='none'){
 						this.setStyle('display','block');
-						console.log(this);
 					}
 			}.bind(underul),'mouseout':function(){
-				console.log('2');
 				this.setStyle('display','none');
 			}.bind(underul)
 			});
