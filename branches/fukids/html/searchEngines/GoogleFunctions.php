@@ -24,8 +24,6 @@
 /*
     v 1.00
 */
-include_once("functions.php");
-
 // -------------------------------------------------------------------
 // FetchHTML() method to get data from URL -- uses timeout and user agent
 // -------------------------------------------------------------------

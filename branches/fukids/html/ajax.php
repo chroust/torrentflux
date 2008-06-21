@@ -4,8 +4,7 @@
 //most of them are called via javascript::OpenWindow()
 include_once("include/functions.php");
 //group by how  it is called
-$action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs','rightclick','tips'));
-
+$action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs','rightclick','tips','form'));
 if($action=='listtorrent'){
 	include('include/ajax.list_torrent.php');
 }elseif($action=='tips'){
@@ -138,6 +137,11 @@ if($action=='listtorrent'){
 				}else{
 					echo _Current_No_Log;
 				}
+		}
+}elseif($action=='form'){
+	$id = getRequestVar('id',Array('Torrent_Search'));
+		if($id=='Torrent_Search'){
+			include ENGINE_ROOT.'include/ajax/form/torrent_search.php';
 		}
 }
 ?>

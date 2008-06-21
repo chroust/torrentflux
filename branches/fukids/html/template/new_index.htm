@@ -183,17 +183,39 @@ function echo (a){
 				var wwidth=width?width:500;
 				var wheight=height?height:400;
 				wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
+				wheight=wheight>window.getSize().y?window.getSize().y:wheight;
+				loadmethod=(id=='Torrent_Search')?'iframe':'xhr';
 				new MochaUI.Window({
-				id: 'window_'+title,
+				id: 'window_'+id,
 				title: title,
 				evalScripts:1,
 				resizable:0,
-				loadMethod: 'xhr',
+				loadMethod: loadmethod,
 				contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
 				width: wwidth,
 				height: wheight,
 				onContentLoaded:function(e){
-				$$('#window_'+title+' form').each(function(thisform){
+					windowize(e,id);
+					$('window_'+id+'_content').addEvent('change',function(e){
+						console.log('a');
+					});
+				
+				}
+			});
+	}
+	var windowize=function(e,id){
+				$$('#window_'+id+'_content a').each(function(a){
+					a.addEvent('click',function(){
+						$('window_'+id+'_content').set('load', {
+							'evalScripts': true,
+							'onComplete':function(aa){
+								windowize(aa,id);
+							}
+						}).load(a.href);
+						return false;
+					});
+				});
+				$$('#window_'+id+' form').each(function(thisform){
 					if(thisform.enctype){
 						thisform.action+='&usejs=1';
 					}else{
@@ -204,16 +226,14 @@ function echo (a){
 							});
 					}
 				});
-				$$('#window_ input.num').each(function(thisform){
+				$$('#window_'+id+' input.num').each(function(thisform){
 					thisform.addEvent('keypress',function(event){
 						event = new Event(event);
 						var validChars = '0123456789';
 							if ( event.key.length == 1 && !validChars.contains(event.key) )
 								event.stop();
 					});
-				})
-				}
-			});
+				});
 	}
 	var UpdateSelectedUser=function(){
 		var output='';
@@ -360,6 +380,13 @@ window.addEvent('domready', function() {
 	{foreach $userlist $index $user}
 		build_UserList_Extra({$index},{$user['uid']},'{$user['user_id']}');
 	{/foreach}
+$('form_search').addEvent('submit',function(){
+	if($('searchterm').value=='Torrent {_SEARCH}')
+		$('searchterm').value='';
+	var selectedItem = document.form_search.searchEngine.options[document.form_search.searchEngine.selectedIndex].value;
+	OpenWindow('Torrent_Search','Torrent {_SEARCH}','form','searchterm='+$('searchterm').value+'&searchEngine='+selectedItem,800,500);
+	return false;
+});
 });
 var progressbar=new Array();
 var selecting;
@@ -375,12 +402,12 @@ var MaxdownSpeed=new Array();
 var UpdateInterval={$Update_interval};
 var myuid={$cfg['uid']};
 var myusername='{$cfg['user']}';
+
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">
 <div id="searchdiv">
-<form name="form_search" action="torrentSearch.php" method="get">
-	<form name="form_search" action="torrentSearch.php" method="get">
+<form id="form_search" name="form_search" action="torrentSearch.php" method="get">
 	<input type="text" name="searchterm" id='searchterm' value="Torrent {_SEARCH}" size="20" maxlength="50">
 	{echo buildSearchEngineDDL($cfg["searchEngine"])}
 	<input type="Submit" value="{_SEARCH}">

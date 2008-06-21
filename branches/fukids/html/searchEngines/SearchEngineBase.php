@@ -196,7 +196,7 @@ class SearchEngineBase
     // Function to return the URL needed by tf
     function searchURL()
     {
-        return "torrentSearch.php?searchEngine=".$this->engineName;
+        return "ajax.php?action=form&usejs=1&id=Torrent_Search&searchEngine=".$this->engineName;
     }
 
     //----------------------------------------------------------------
@@ -225,7 +225,6 @@ class SearchEngineBase
 
         $this->htmlPage = FetchHTML( $request, $refererURI );
         $rtnVal = true;
-
         return $rtnVal;
     }
 

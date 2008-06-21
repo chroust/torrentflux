@@ -1,0 +1,27 @@
+<div>
+<form id="searchForm" name="searchForm" action="ajax.php?action=form&usejs=1&id=Torrent_Search" method="get">
+<input type="text" name="searchterm" value="{$searchterm}" size="30"  maxlength="50">
+{echo buildSearchEngineDDL($searchEngine)}
+<input type="Submit" value="{_SEARCH}"><br />
+<script language="JavaScript">
+       function getLatest(){
+           var selectedItem = document.searchForm.searchEngine.selectedIndex;
+           document.searchForm.searchterm.value = '';
+           document.location.href = 'ajax.php?action=form&usejs=1&id=Torrent_Search&searchEngine='+document.searchForm.searchEngine.options[selectedItem].value+'&LATEST=1';
+           return true;
+       }
+ </script>
+<a href="#" onclick="javascript:getLatest()");"><img src="images/properties.png" width="18" height="13" title="Show Latest Torrents" align="absmiddle" border="0">Show Latest Torrents</a>
+ </form>
+ * Click on Torrent Links to add them to the Torrent Download List
+</div>
+<div>
+
+{$tmpCatLinks} {$catLinks}
+ 
+{if array_key_exists("LATEST",$_REQUEST) && $_REQUEST["LATEST"] == "1"}
+{echo $sEngine->getLatest()}
+{else}
+{echo $sEngine->performSearch($searchterm)}
+{/if}
+</div>

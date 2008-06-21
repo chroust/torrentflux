@@ -29,7 +29,6 @@
     v 1.02 - Jun 29, 06 - fix to paging..
     v 1.01 - Apr 11, 06 - bug in parsing paging.
 */
-
 class SearchEngine extends SearchEngineBase
 {
 
@@ -272,9 +271,9 @@ class SearchEngine extends SearchEngineBase
 
 		} else {
 
-			while (is_integer(strpos($thing,"searchRresults")))
+			while (is_integer(strpos($thing,"results")))
 			{
-				$thing = substr($thing,strpos($thing,"searchRresults"));
+				$thing = substr($thing,strpos($thing,"results"));
 				$thing = substr($thing,strpos($thing,"</thead>"));
 				$thing = substr($thing,strpos($thing,"<tr>"));
 
@@ -539,5 +538,4 @@ class pBay
 
     }
 }
-
 ?>

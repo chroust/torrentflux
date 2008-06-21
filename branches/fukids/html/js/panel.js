@@ -17,6 +17,11 @@ var goresize=function(){
 		}else{
 			MinWidth();
 		}
+		if(windowwidth >700){
+			$('searchdiv').setStyle('display','inline');
+		}else{
+			$('searchdiv').setStyle('display','none');
+		}
 		if(windowheight < 600){
 			CloseTabTable();
 		}else{
@@ -26,12 +31,10 @@ var goresize=function(){
 var MaxWidth=function(){
 	$('down_right').setStyle('width','85%');
 	$('down_left').setStyle('display','inline');
-	$('searchdiv').setStyle('display','inline');
 }
 var MinWidth=function(){
 	$('down_left').setStyle('display','none');
 	$('down_right').setStyle('width','100%');
-	$('searchdiv').setStyle('display','none');
 }
 var OpenTabTable=function(){
 	var thisheight=windowheight-300;

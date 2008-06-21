@@ -23,12 +23,7 @@
 */
 include_once("include/functions.php");
 
-if(!IsAdmin())
-{
-     // the user probably hit this page direct
-    AuditAction($cfg["constants"]["access_denied"], $_SERVER['PHP_SELF']);
-    header("location: index.php");
-}
+AdminCheck();
 
 //****************************************************************************
 function editLink($lid,$newLink,$newSite)
