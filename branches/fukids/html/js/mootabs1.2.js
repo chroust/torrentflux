@@ -4,8 +4,8 @@
 var mootabs = new Class({
 	initialize: function(element, options) {
 		this.options = Object.extend({
-			width:				'300px',
-			height:				'200px',
+			width:				'100%',
+			height:				'170px',
 			changeTransition:	Fx.Transitions.Bounce.easeOut,
 			duration:			1000,
 			mouseOverClass:		'active',
@@ -22,7 +22,7 @@ var mootabs = new Class({
 		});
 		
 		this.titles = $$('#' + this.elid + ' ul.mootabs_title li');
-		this.panelHeight = this.el.getStyle('height') - (this.titles[0].getStyle('height') + 4);
+		this.panelHeight = (this.options.height);
 		this.panels = $$('#' + this.elid + ' .mootabs_panel');
 		
 		this.panels.setStyle('height', this.panelHeight);
@@ -70,8 +70,10 @@ var mootabs = new Class({
 			this.panels.removeClass('active');
 			this.activePanel = this.panels.filter('#'+newTab)[0];
 			this.activePanel.addClass('active');
-			this.titles.removeClass('active');
+			$$('#' + this.elid + ' ul.mootabs_title li').removeClass('active');
+			$$('#' + this.elid + ' ul.mootabs_title li a').removeClass('active');
 			tab.addClass('active');
+			tab.getChildren('a').addClass('active');
 			this.activeTitle = tab;
 			new Request.HTML({
 				evalScripts:true,

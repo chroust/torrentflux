@@ -2,25 +2,62 @@
 .mootabs_title {
 	list-style-image: none;
 	list-style-type: none;
-	margin: 0px;
+	margin: 5px 0px 0px 0px;
 	padding: 0px;
-	height: 24px;
+	height: 40px;
 	width:1000px;
+	vertical-align: top; 
 }
-
+ .mootabs_title ul {
+	margin:0;
+	padding:10px 10px 0 0px;
+	list-style:none;
+      }
 .mootabs_title li {
-	float: left;
-	background-color: #ddd;
-	padding: 2px 8px 2px 8px;
-	margin-right: 2px;
-	cursor: pointer;
-	height: 24px;
-	
+      float:left;
+      display:inline;
+      margin:0;
+      padding:0;
+      }
+.mootabs_title a.active {
+      background-position:0% -42px;
+	  height:30px;
+      padding:0 0 0 4px;
+}
+.mootabs_title div.active {
+      background-position:100% -42px;
+	  height:22px;
+      color:#666;
 }
 
-.mootabs_title li.active {
-	background-color: #e6e6e6;
-}
+    .mootabs_title a {
+      float:left;
+      background:url("../images/tabs/tableftB.gif") no-repeat left top;
+      margin:0;
+      padding:6px 0 0 4px;
+      text-decoration:none;
+	  position:relative;
+	  
+      }
+    .mootabs_title a div {
+      float:left;
+      display:block;
+      background:url("../images/tabs/tabrightB.gif") no-repeat right top;
+      padding:5px 15px 4px 6px;
+      color:#666;
+      }
+
+    .mootabs_title a:hover {
+      background-position:0% -42px;
+	  height:30px;
+      padding:0 0 0 4px;
+      }
+    .mootabs_title a:hover div {
+      background-position:100% -42px;
+	  height:22px;
+      }
+
+
 
 .mootabs_panel {
 	display: none;

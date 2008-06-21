@@ -58,6 +58,7 @@ overflow:hidden;
 
 #torrent_info{
 height:100%;
+width:100%;
 }
 .statusicon{
 height:16px;
@@ -93,10 +94,10 @@ background: url(../images/icon/status/tstatus.bmp) no-repeat 0px 0px
 	padding: 4px;
 }
 .asc {
-	background: url(../images/icon-table-sort-asc.png) no-repeat 80% 4px  !important;
+	background: url(../images/icon-table-sort-asc.png) no-repeat 80% 0px  !important;
 }
 .desc {
-	background: url(../images/icon-table-sort-desc.png) no-repeat 80% 10px !important;
+	background: url(../images/icon-table-sort-desc.png) no-repeat 80% 8px !important;
 }
 div.rows{
 	/**
@@ -152,8 +153,11 @@ div.tbody{
 
 /*************************************************************/
 
-.tl_percent,.tl_name{
+.tl_name{
 	width:200px;
+}
+.tl_percent{
+	width:150px;
 }
 .tl_peers,.tl_status,.tl_totalupload{
 	width:50px;
@@ -170,7 +174,6 @@ background-position:-120px 0pt;
 }
 .progressbar_text{
 	left:-60px;
-	
 }
 
 input.num{

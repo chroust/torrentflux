@@ -120,20 +120,20 @@ function echo (a){
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
 		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody'));
-		var namediv=new Element('div',{'class':'tl_name'}).injectInside(tr);
+		var namediv=new Element('div',{'styles':{'width':$('th_tl_name').getStyle('width')}}).injectInside(tr);
 		new Element('span',{'class':'tl_name_span'}).injectInside(namediv).set('html',torrent.title);
 		new Element('img',{'class':'statusimg'}).setProperty('src', 'images/icon/status/'+torrent.statusid+'.png').inject(namediv,'top');
-		var percent=new Element('div',{'class':'tl_percent'}).injectInside(tr);
+		var percent=new Element('div',{'class':'tl_percent','styles':{'width':$('th_tl_percent').getStyle('width')}}).injectInside(tr);
 		new Element('img',{'class':'progressbar'}).setProperty('src', 'images/percentImage.png').injectInside(percent);
 		new Element('span',{'class':'progressbar_text'}).injectInside(percent);
-		new Element('div',{'class':'tl_filesize'}).set('html',torrent.size).injectInside(tr);
-		new Element('div',{'class':'tl_status'}).set('html',torrent.status).injectInside(tr);
-		new Element('div',{'class':'tl_seeds'}).set('html',torrent.seeds).injectInside(tr);
-		new Element('div',{'class':'tl_peers'}).set('html',torrent.peers).injectInside(tr);
-		new Element('div',{'class':'tl_downloadspeed'}).set('html',torrent.down_speed+' KB/s').injectInside(tr);
-		new Element('div',{'class':'tl_uploadspeed'}).set('html',torrent.up_speed+' KB/s').injectInside(tr);
-		new Element('div',{'class':'tl_estime'}).set('html',torrent.estTime).injectInside(tr);
-		new Element('div',{'class':'tl_totalupload'}).set('html',torrent.totalUpload).injectInside(tr);
+		new Element('div',{'html':torrent.size,'styles':{'width':$('th_tl_filesize').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.status,'styles':{'width':$('th_tl_status').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.seeds,'styles':{'width':$('th_tl_seeds').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.peers,'styles':{'width':$('th_tl_peers').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.down_speed+' KB/s','styles':{'width':$('th_tl_downloadspeed').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.up_speed+' KB/s','styles':{'width':$('th_tl_uploadspeed').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.estTime,'styles':{'width':$('th_tl_estime').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'html':torrent.totalUpload,'styles':{'width':$('th_tl_totalupload').getStyle('width')}}).injectInside(tr);
 		tr.addEvents({
 			'mouseup': function() {
 					if(selecting)$(selecting).removeClass('torrent_list_clicked');
@@ -295,7 +295,7 @@ var build_UserList_Extra=function(index,uid,user_id){
 }
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
-	myTabs1		=	new mootabs('torrent_info', {height: '300px', width: '100%', useAjax: '1', ajaxUrl: 'ajax.php'});
+	myTabs1		=	new mootabs('torrent_info', { useAjax: '1', ajaxUrl: 'ajax.php'});
 	//icon bar control
 	$$('div.icon_window').each(function(item){
 		item.addEvent('click', function(){
@@ -429,16 +429,16 @@ var myusername='{$cfg['user']}';
 	<div id="torrent_list_div">
 		<div id="list_torrent" >
 			<div class="rows th">
-				<div class="tl_name"><?php echo _NAME?></div>
-				<div class="tl_percent">%</div>
-				<div class="tl_filesize"><?php echo _FILESIZE?></div>
-				<div class="tl_status"><?php echo _STATUS?></div>
-				<div class="tl_seeds"><?php echo _SEEDS?></div>
-				<div class="tl_peers"><?php echo _PEERS?></div>
-				<div class="tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
-				<div class="tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
-				<div class="tl_estime"><?php echo _ESTIMATEDTIME?></div>
-				<div class="tl_totalupload">Total Upload</div>
+				<div class="tl_name" id="th_tl_name"><?php echo _NAME?></div>
+				<div class="tl_percent" id="th_tl_percent">%</div>
+				<div class="tl_filesize" id="th_tl_filesize"><?php echo _FILESIZE?></div>
+				<div class="tl_status" id="th_tl_status"><?php echo _STATUS?></div>
+				<div class="tl_seeds" id="th_tl_seeds"><?php echo _SEEDS?></div>
+				<div class="tl_peers" id="th_tl_peers"><?php echo _PEERS?></div>
+				<div class="tl_downloadspeed" id="th_tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
+				<div class="tl_uploadspeed" id="th_tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
+				<div class="tl_estime" id="th_tl_estime"><?php echo _ESTIMATEDTIME?></div>
+				<div class="tl_totalupload" id="th_tl_totalupload">Total Upload</div>
 			</div>
 			<div class="tbody" id="tbody">
 			</div>
@@ -446,12 +446,12 @@ var myusername='{$cfg['user']}';
 	</div>
 	<div id="torrent_info">
 		<ul class="mootabs_title">
-			<li title="tab1">normal</li>
-			<li title="tab2">Tracker</li>
-			<li title="tab3">user</li>
-			<li title="tab4">file</li>
-			<li title="tab5">speed</li>
-			<li title="tab6">log</li>
+			<li title="tab1"><a href="#" title="Link 1"><div>normal</div></a></li>
+			<li title="tab2"><a href="#" title="Link 1"><div>Tracker</div></a></li>
+			<li title="tab3"><a href="#" title="Link 1"><div>user</div></a></li>
+			<li title="tab4"><a href="#" title="Link 1"><div>file</div></a></li>
+			<li title="tab5"><a href="#" title="Link 1"><div>speed</div></a></li>
+			<li title="tab6"><a href="#" title="Link 1"><div>log</div></a></li>
 		</ul>
 		<div id="tab1" class="mootabs_panel"></div>
 		<div id="tab2" class="mootabs_panel"></div>

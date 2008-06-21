@@ -27,6 +27,13 @@ var goresize=function(){
 		}else{
 			OpenTabTable();
 		}
+		if(windowwidth < 500){
+			$$('img.progressbar').setStyle('display','none');
+			$$('.tl_percent').setStyle('width','50px');
+		}else{
+			$$('img.progressbar').setStyle('display','inline');
+			$$('.tl_percent').setStyle('width','150px');
+		}
 }
 var MaxWidth=function(){
 	$('down_right').setStyle('width','85%');
