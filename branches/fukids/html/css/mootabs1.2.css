@@ -4,75 +4,52 @@
 	list-style-type: none;
 	margin: 5px 0px 0px 0px;
 	padding: 0px;
-	height: 40px;
+	height: 32px;
 	width:1000px;
 	vertical-align: top; 
 }
- .mootabs_title ul {
-	margin:0;
-	padding:10px 10px 0 0px;
-	list-style:none;
-      }
 .mootabs_title li {
       float:left;
       display:inline;
       margin:0;
-      padding:0;
+      background:url("../images/tabs/tableftB.gif") no-repeat left 6px;
+      margin:0;
+      padding:6px 0 0 0px;
+      text-decoration:none;
+	  position:relative;
       }
-.mootabs_title a.active {
+.mootabs_title li div.hover {
+	  cursor:pointer;
+	  border-top:2px solid #FFBB73;
+}
+.mootabs_title li.active {
       background-position:0% -42px;
 	  height:30px;
       padding:0 0 0 4px;
+	  cursor:pointer;
 }
-.mootabs_title div.active {
-      background-position:100% -42px;
-	  height:22px;
-      color:#666;
-}
-
-    .mootabs_title a {
+.mootabs_title  li div{
       float:left;
-      background:url("../images/tabs/tableftB.gif") no-repeat left top;
-      margin:0;
-      padding:6px 0 0 4px;
-      text-decoration:none;
-	  position:relative;
-	  
-      }
-    .mootabs_title a div {
-      float:left;
+	  min-width:50px;
       display:block;
       background:url("../images/tabs/tabrightB.gif") no-repeat right top;
       padding:5px 15px 4px 6px;
       color:#666;
-      }
-
-    .mootabs_title a:hover {
-      background-position:0% -42px;
-	  height:30px;
-      padding:0 0 0 4px;
-      }
-    .mootabs_title a:hover div {
-      background-position:100% -42px;
-	  height:22px;
-      }
-
-
+}
 
 .mootabs_panel {
 	display: none;
 	background-color: #ddd;
 	position: relative;
 	width: 100%;
-	top: -1px;
 	clear: both;
 	overflow: auto;
 	height:100%;
-max-height: 200px !IMPORTANT;
-overflow:auto;
+	max-height: 200px !IMPORTANT;
+	overflow:auto;
 }
-
 .mootabs_panel.active {
-	background-color: #e6e6e6;
+	background-color: #fff;
+	border:2px solid #DDCCDD;
 	display: block;
 }

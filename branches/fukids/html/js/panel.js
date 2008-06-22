@@ -32,7 +32,7 @@ var goresize=function(){
 			$$('.tl_percent').setStyle('width','50px');
 		}else{
 			$$('img.progressbar').setStyle('display','inline');
-			$$('.tl_percent').setStyle('width','150px');
+			$$('.tl_percent').setStyle('width','170px');
 		}
 }
 var MaxWidth=function(){

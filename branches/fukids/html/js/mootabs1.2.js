@@ -8,7 +8,7 @@ var mootabs = new Class({
 			height:				'170px',
 			changeTransition:	Fx.Transitions.Bounce.easeOut,
 			duration:			1000,
-			mouseOverClass:		'active',
+			mouseOverClass:		'hover',
 			useAjax: 			false,
 			ajaxUrl: 			'',
 			ajaxOptions: 		{method:'get'},
@@ -26,10 +26,10 @@ var mootabs = new Class({
 		this.panels = $$('#' + this.elid + ' .mootabs_panel');
 		
 		this.panels.setStyle('height', this.panelHeight);
-		
+
 		this.titles.each(function(item) {
-			item.addEvent('click', function(){
-					item.removeClass(this.options.mouseOverClass);
+			item.addEvent('click', function(e){
+					item.getChildren('div').removeClass(this.options.mouseOverClass);
 					this.activate(item);
 				}.bind(this)
 			);
@@ -37,16 +37,17 @@ var mootabs = new Class({
 			item.addEvent('mouseover', function() {
 				if(item != this.activeTitle)
 				{
-					item.addClass(this.options.mouseOverClass);
+					item.getChildren('div').addClass(this.options.mouseOverClass);
 				}
 			}.bind(this));
 			
 			item.addEvent('mouseout', function() {
 				if(item != this.activeTitle){
-					item.removeClass(this.options.mouseOverClass);
+					item.getChildren('div').removeClass(this.options.mouseOverClass);
 				}
 			}.bind(this));
 		}.bind(this));
+
 	},
 	activate: function(tab, skipAnim){	
 		if(!$defined(selecting))
@@ -71,9 +72,7 @@ var mootabs = new Class({
 			this.activePanel = this.panels.filter('#'+newTab)[0];
 			this.activePanel.addClass('active');
 			$$('#' + this.elid + ' ul.mootabs_title li').removeClass('active');
-			$$('#' + this.elid + ' ul.mootabs_title li a').removeClass('active');
 			tab.addClass('active');
-			tab.getChildren('a').addClass('active');
 			this.activeTitle = tab;
 			new Request.HTML({
 				evalScripts:true,
