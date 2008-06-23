@@ -24,7 +24,7 @@ tableSoort = new Class({
 				onComplete: function(){
 					if( cell.getStyle('width')< 10 ) {
 						cell.setStyle('width', '10px');
-					}console.log(cell.id);
+					}
 					listwidth.set(cell.id,cell.getStyle('width'));
 				}.bind(this),
 				onStart: function(ele){

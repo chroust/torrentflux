@@ -158,4 +158,63 @@ define("_FORCESTOP","Kill Torrent");
 define("_STOPPING","Stopping");
 define("_COOKIE_MENU","cookies");
 
+//status
+define("_show_status_New","New");
+define("_show_status_Queue","Queue");
+define("_show_status_Downloading","Downloading");
+define("_show_status_Stopped","Stopped");
+define("_show_status_Seeding","Seeding");
+define("_show_status_Finished","Finished");
+define("_show_status_active","Active");
+define("_show_status_inactive","Inactive");
+
+// new torrent
+define('_Upload_Torrent','Upload a Torrent');
+define('_Url_Torrent','Upload a Torrent from Url');
+define('_AutoStart','Start Automatically');
+define('_Url','Url');
+//torrent config
+define("_Torrent_Details","Torrent Details");
+define("_Name","Name");
+
+define("_TRAFFIC_SETTING","Traffic Setting");
+define("_Max_Upload_Rate","Max Upload Rate");
+define("_Max_Download_Rate","Max Download Rate");
+define("_Max_Uploads_Connections","Max Upload Connections");
+
+define("_SEEDING_SETTING","Seeding Setting");
+define("_KillWhen","Kill When");
+define("_Die_When_Done","Finished");
+define("_Die_Until_Ratio","Until Sharing Ratio > ");
+
+define("_OTHER_SETTING","Other Setting");
+define("_Port","Port(s)");
+define("_Rerequest_Interval","Rerequest Interval");
+define("_File_Setting","Files Setting");
+
+define("_START","Start");
+
+//index ,list torrent, left click menu 
+define("_Creat_Torrent","Creat a Torrent");
+define("_All","All");
+define("_Creat_Torrent","Creat a Torrent");
+define("_Start","Start");
+define("_Stop","Stop");
+define("_Add_Feed","Add Feed");
+//index ,torrent, left click menu 
+define("_Kill","Stop");
+define("_Del","Delete");
+define("_Del_AND","Delete and");
+define("_Remove_Torrent","Remove Torrent");
+define("_Remove_Files","Remove Files");
+define("_Remove_Torrent_And_Files","Remove Torrent And Files");
+define("_Edit_Torrent","Edit");
+define("_Download_Torrent","Download Torrent");
+//index,list user, left click menu
+define("_VIEW_PM","View Message");
+define("_SEND_PM","Send Message");
+define("_VIEW_HISTORY","View History");
+define("_DELETEUSER","Delete User");
+define("_ADD_USER","Add User");
+
 ?>

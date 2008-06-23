@@ -1,6 +1,6 @@
 <table>
 <tr>
-	<td>{_NAME} : </td>
+	<td>{_Name} : </td>
 	<td>{$UsrData['user_id']}</td>
 </tr>
 <tr>
@@ -11,8 +11,10 @@
 	<td>{_JOINED} : </td>
 	<td>{$UsrData['last_visit_text']}</td>
 </tr>
+{if $isadmin}
 <tr>
 	<td>{_LASTVISIT} : </td>
 	<td>{$UsrData['time_created_text']}</td>
 </tr>
+{/if}
 </table>

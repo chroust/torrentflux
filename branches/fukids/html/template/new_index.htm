@@ -83,8 +83,14 @@ function echo (a){
 				ChangeTorrent(torrent);
 			}else{
 				NewTorrent(torrent);
+				uploadingspeed[torrent.id]=new Array;
+				downloadingspeed[torrent.id]=new Array;
 			}
-
+			if(selecting==torrent.id){
+				downSpeedLength=downloadingspeed[torrent.id].length;
+				downloadingspeed[torrent.id][downSpeedLength]=torrent.down_speed;
+				uploadingspeed[torrent.id][downSpeedLength]=torrent.up_speed;
+			}
 		});
 		//check if any displayed torrent need to be destory
 		$$('#tbody div.rows').each(function(item){
@@ -97,6 +103,7 @@ function echo (a){
 				$(item.id).destroy();
 			}
 		});
+			
 	}
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
@@ -130,6 +137,8 @@ function echo (a){
 		onItemSelect: function (act_id, act_el, menu_bindon) {
 			if(act_id=='Edit_Torrent'){
 				OpenWindow('Edit_Torrent','{_Edit_Torrent}','icon','torrentid='+menu_bindon.id);
+			}else if(act_id=='_Download_Torrent'){
+				
 			}else{
 				torrentControl(act_id,menu_bindon.id);
 			}
@@ -346,8 +355,6 @@ window.addEvent('domready', function() {
 			UpdateSelectedUser();
 		})
 	});
-	//update data
-	get_data();
 	new DDMenu ('torrent_multiselect2RightClick', 'ms_torrent_multiselect2', {
 		onItemSelect: function(act_id, act_el, menu_bindon){
 		
@@ -371,6 +378,8 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 				e.setStyle('width',listwidth.get(e.id));
 			}
 	});
+	//update data
+	get_data();
 });
 var progressbar=new Array();
 var selecting;
@@ -381,7 +390,8 @@ var selected_user ='0';
 var UpdateInterval={$Update_interval};
 var myuid={$cfg['uid']};
 var myusername='{$cfg['user']}';
-
+var downloadingspeed =new Array;
+var uploadingspeed =new Array;
 </script>
 <div id="Mother">
 <div id="top_icon_Bar">
@@ -408,15 +418,15 @@ var myusername='{$cfg['user']}';
 	<div id="torrent_list_div">
 		<div id="list_torrent" >
 			<div class="rows th">
-				<div class="tl_name tl" id="th_tl_name"><?php echo _NAME?></div>
+				<div class="tl_name tl" id="th_tl_name">{_Name}</div>
 				<div class="tl_percent tl" id="th_tl_percent">%</div>
-				<div class="tl_filesize tl" id="th_tl_filesize"><?php echo _FILESIZE?></div>
-				<div class="tl_status tl" id="th_tl_status"><?php echo _STATUS?></div>
-				<div class="tl_seeds tl" id="th_tl_seeds"><?php echo _SEEDS?></div>
-				<div class="tl_peers tl" id="th_tl_peers"><?php echo _PEERS?></div>
-				<div class="tl_downloadspeed tl" id="th_tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
-				<div class="tl_uploadspeed tl" id="th_tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
-				<div class="tl_estime tl" id="th_tl_estime"><?php echo _ESTIMATEDTIME?></div>
+				<div class="tl_filesize tl" id="th_tl_filesize">{_FILESIZE}</div>
+				<div class="tl_status tl" id="th_tl_status">{_STATUS}</div>
+				<div class="tl_seeds tl" id="th_tl_seeds">{_SEEDS}</div>
+				<div class="tl_peers tl" id="th_tl_peers">{_PEERS}</div>
+				<div class="tl_downloadspeed tl" id="th_tl_downloadspeed">{_DOWNLOADSPEED}</div>
+				<div class="tl_uploadspeed tl" id="th_tl_uploadspeed">{_UPLOADSPEED}</div>
+				<div class="tl_estime tl" id="th_tl_estime">{_ESTIMATEDTIME}</div>
 				<div class="tl_totalupload tl" id="th_tl_totalupload">Total Upload</div>
 			</div>
 			<div class="tbody" id="tbody">
@@ -448,10 +458,10 @@ var myusername='{$cfg['user']}';
 	<option value="3">1</option>
 	<option value="4">1</option>
 </select>
-<div id="torrent_multiselect1_0" class="invisible"><img src="images/icon/status/2.png" alt="d">_downloading (<span id="sdownloading">0</span>)</div>
-<div id="torrent_multiselect1_1" class="invisible"><img src="images/icon/status/4.png" alt="d">_finished (<span id="sfinished">0</span>)</div>
-<div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">_active (<span id="sactive">0</span>)</div>
-<div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">_inactive (<span id="sinactive">0</span>)</div>
+<div id="torrent_multiselect1_0" class="invisible"><img src="images/icon/status/2.png" alt="d">{_show_status_Downloading} (<span id="sdownloading">0</span>)</div>
+<div id="torrent_multiselect1_1" class="invisible"><img src="images/icon/status/4.png" alt="d">{_show_status_Finished} (<span id="sfinished">0</span>)</div>
+<div id="torrent_multiselect1_2" class="invisible"><img src="images/icon/status/C_active.png" alt="d">{_show_status_active} (<span id="sactive">0</span>)</div>
+<div id="torrent_multiselect1_3" class="invisible"><img src="images/icon/status/C_Inactive.png" alt="d">{_show_status_inactive} (<span id="sinactive">0</span>)</div>
 <!--{ this is the DIV for displaying  left menu (user) right click menu }-->
 <select size="{echo count($userlist)+5}" id="torrent_multiselect2" class="multipleSelect" multiple="multiple">
 {foreach $userlist $index $user}
@@ -497,6 +507,7 @@ var myusername='{$cfg['user']}';
 </li>
 <li class="sepline"></li>
 <li class="item" id="Edit_Torrent"><a href="#">{_Edit_Torrent}</a></li>
+<li class="item" id="_Download_Torrent"><a href="#">{_Download_Torrent}</a></li>
 </ul>
 </div>
 <!--{ this is the DIV for displaying user list right click menu }-->

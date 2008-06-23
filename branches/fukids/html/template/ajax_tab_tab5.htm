@@ -2,33 +2,29 @@
 			<script type="text/javascript">
 			var speed_updateIntervals = 5;
 			var updateGraph=function(){
-			if($defined(downSpeed[selecting])){
-				downSpeedLength=downSpeed[selecting].length;
+			if($defined(uploadingspeed[selecting])){
+				downSpeedLength=downloadingspeed[selecting].length;
 				var chd1='';
-				var max=0;
 				var comma='';
+				var max=0;
 					for ( i = 0; i < downSpeedLength; i++) {
-						chd1=chd1+comma+downSpeed[selecting][i];
-							if(downSpeed[selecting][i] > max){
-								max=downSpeed[selecting][i];
-							}
+						chd1=chd1+comma+downloadingspeed[selecting][i];
 						comma=',';
+							if(downloadingspeed[selecting][i]>max){
+								max=downloadingspeed[selecting][i];
+							}
 					}
 				var chd2='';
 				var comma='';
 					for ( i = 0; i < downSpeedLength; i++) {
-						chd2=chd2+comma+upSpeed[selecting][i];
-							if(upSpeed[selecting][i] > max){
-								max=upSpeed[selecting][i];
-							}
+						chd2=chd2+comma+uploadingspeed[selecting][i];
 						comma=',';
+							if(uploadingspeed[selecting][i]>max){
+								max=uploadingspeed[selecting][i];
+							}
 					}
-				max=max==0?1:max;
-				basetime=reloadedcount*UpdateInterval;
-				lastesttime=basetime+uploadcount*UpdateInterval;
-				middletime=(lastesttime-basetime)/2;
-				var MaxdownSpeedselecting=MaxdownSpeed[selecting]>250?MaxdownSpeed[selecting]:250;
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|'+MaxdownSpeedselecting+'|1:||Speed(KB/s)|2:|'+basetime+'s|'+middletime+'s|'+lastesttime+'s|3:||time(s)|';
+				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y&chxl=0:|0|'+max+'|1:||Speed(KB/s)';
+				console.log(src);
 				$('thisspeed').src=src;
 				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
 			}
@@ -37,8 +33,9 @@
 			window.addEvent('TabReady', function() {
 			updateGraph();
 			}).addEvent('TabExit', function() {
+				downloadingspeed[selecting]=$empty;
+				downloadingspeed[selecting]=$empty;
 				graphtimer=$empty;
-				updateGraph=$empty;
 			});
 
 			</script>
