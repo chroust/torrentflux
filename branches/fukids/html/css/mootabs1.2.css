@@ -20,7 +20,7 @@
       }
 .mootabs_title li div.hover {
 	  cursor:pointer;
-	  border-top:2px solid #FFBB73;
+	  border-top:2px solid #FFBB73 !important;
 }
 .mootabs_title li.active {
       background-position:0% -42px;
@@ -35,6 +35,7 @@
       background:url("../images/tabs/tabrightB.gif") no-repeat right top;
       padding:5px 15px 4px 6px;
       color:#666;
+	  border-top:2px solid #fff;
 }
 
 .mootabs_panel {
@@ -47,6 +48,7 @@
 	height:100%;
 	max-height: 200px !IMPORTANT;
 	overflow:auto;
+	padding: 2px;
 }
 .mootabs_panel.active {
 	background-color: #fff;

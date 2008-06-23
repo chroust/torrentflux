@@ -15,7 +15,7 @@ include_once("include/BtControl_Tornado.class.php");
 			if(is_numeric($torrentid)){
 				$Bt= new BtControl($torrentid);
 				$Bt->Kill();
-				echo 'Killed';
+				showmessage('Killed',1,1);
 			}elseif($torrentid=='all'){
 				all('Kill');
 			}
@@ -23,23 +23,22 @@ include_once("include/BtControl_Tornado.class.php");
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete();
-		echo 'Deleted';
+		showmessage('Deleted',1,1);
 	}elseif($action=='_Del_n_Remove_Torrent'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete(1);
-		echo 'Deleted';
+		showmessage('Deleted',1,1);
 	}elseif($action=='_Del_n_Remove_Torrent_And_Files'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete(1,1);
-		echo 'Deleted';
+		showmessage('Deleted',1,1);
 	}elseif($action=='_Del_n_Remove_Files'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete(0,1);
-		echo 'Deleted';
-	
+		showmessage('Deleted',1,1);
 	}elseif($action=='Start'){
 	// if user what kill the process
 			if(is_numeric($torrentid)){
@@ -53,7 +52,7 @@ include_once("include/BtControl_Tornado.class.php");
 		//if user want start the process
 		$Bt= new BtControl($torrentid);
 		$Bt->Start();
-		echo 'Started';
+		showmessage('Started',1,1);
 	}elseif($action=='Edit_Torrent'){
 		//if user want edit the torrent
 		$rate=intval(getRequestVar('rate'));
@@ -79,7 +78,7 @@ include_once("include/BtControl_Tornado.class.php");
 		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime;prio:$prio");
 		$Bt->Kill();
 		$Bt->Start();
-		echo('Edited');
+		showmessage('Edited',1,1);
 	}elseif($action=='Upload'){
 		//if user want upload the torrent from file
 			$autostart=getRequestVar('autostart');
@@ -100,12 +99,12 @@ include_once("include/BtControl_Tornado.class.php");
 					if($autostart){
 						$Bt= new BtControl($torrentid);
 						$Bt->Start();
+						showmessage('Uploaded And Started',1,1);
 					}else{
 						?> OpenWindow('Edit_Torrent','<?=Edit_Torrent?>','icon','torrentid=<?=$torrentid?>');<?
 					}
 			}
 
-			
 	}elseif($action=='UrlUpload'){
 		//if user want upload torrent from url
 		$torrentid=UrlTorrent(getRequestVar('torrent'));
@@ -113,7 +112,9 @@ include_once("include/BtControl_Tornado.class.php");
 			if($autostart){
 				$Bt= new BtControl($torrentid);
 				$Bt->Start();
+				showmessage('Uploaded And Started',1,1);
 			}
+			showmessage('Uploaded',1,1);
 	}
 }elseif($id=='user'){
 	$action=getRequestVar('action',array('Send_PM','_EDITUSER','Del_PM'));

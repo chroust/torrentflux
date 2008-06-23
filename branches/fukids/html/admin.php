@@ -157,15 +157,10 @@ function showUserActivity($min=0, $user_id="", $srchFile="", $srchAction="")
 {
     global $cfg;
 
-    DisplayHead(_ADMINUSERACTIVITY);
-
-    // Admin Menu
-    displayMenu();
 
     // display Activity for user
     displayActivity($min, $user_id, $srchFile, $srchAction);
 
-    DisplayFoot();
 
 }
 
@@ -222,30 +217,6 @@ function backupDatabase()
     }
 }
 
-
-//****************************************************************************
-// displayMenu -- displays Admin Menu
-//****************************************************************************
-function displayMenu()
-{
-    global $cfg;
-    echo "<table width=\"760\" border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\">";
-    echo "<tr><td colspan=6 bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\"><div align=\"center\">";
-    echo "<a href=\"admin.php\"><font class=\"adminlink\">"._ADMIN_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=configSettings\"><font class=\"adminlink\">"._SETTINGS_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=queueSettings\"><font class=\"adminlink\">"._QMANAGER_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=searchSettings\"><font class=\"adminlink\">"._SEARCHSETTINGS_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=showUserActivity\"><font class=\"adminlink\">"._ACTIVITY_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=editLinks\"><font class=\"adminlink\">"._LINKS_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=editRSS\"><font class=\"adminlink\">rss</font></a> | ";
-    echo "<a href=\"admin.php?op=CreateUser\"><font class=\"adminlink\">"._NEWUSER_MENU."</font></a> | ";
-    echo "<a href=\"admin.php?op=backupDatabase\"><font class=\"adminlink\">"._BACKUP_MENU."</font></a>";
-    echo "</div></td></tr>";
-    echo "</table><br>";
-
-}
-
-
 //****************************************************************************
 // displayActivity -- displays Activity
 //****************************************************************************
@@ -288,10 +259,10 @@ function displayActivity($min=0, $user="", $srchFile="", $srchAction="")
     $result = $db->SelectLimit($sql, $offset, $min);
     while(list($user_id, $file, $action, $ip, $ip_resolved, $user_agent, $time) = $result->FetchRow())
     {
-        $user_icon = "images/user_offline.gif";
+        $user_icon = "images/user_0.gif";
         if (IsOnline($user_id))
         {
-            $user_icon = "images/user.gif";
+            $user_icon = "images/user_1.gif";
         }
 
         $ip_info = htmlentities($ip_resolved, ENT_QUOTES)."<br>".htmlentities($user_agent, ENT_QUOTES);
@@ -333,18 +304,7 @@ function displayActivity($min=0, $user="", $srchFile="", $srchAction="")
         $morelink .= "<font class=\"TinyWhite\">["._SHOWMORE."&gt;&gt;</font></a>";
     }
 ?>
-    <div id="overDiv" style="position:absolute;visibility:hidden;z-index:1000;"></div>
-    <script language="JavaScript">
-        var ol_closeclick = "1";
-        var ol_close = "<font color=#ffffff><b>X</b></font>";
-        var ol_fgclass = "fg";
-        var ol_bgclass = "bg";
-        var ol_captionfontclass = "overCaption";
-        var ol_closefontclass = "overClose";
-        var ol_textfontclass = "overBody";
-        var ol_cap = "&nbsp;IP Info";
-    </script>
-    <script src="overlib.js" type="text/javascript"></script>
+ 
     <div align="center">
     <table>
     <form action="admin.php?op=showUserActivity" name="searchForm" method="post">
@@ -438,351 +398,6 @@ function displayActivity($min=0, $user="", $srchFile="", $srchAction="")
 
     echo "</table>";
 
-}
-
-
-
-//****************************************************************************
-// displayUserSection -- displays the user section
-//****************************************************************************
-function displayUserSection()
-{
-    global $cfg, $db;
-
-    echo "<table width=\"760\" border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\">";
-    echo "<tr><td colspan=6 bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\"><img src=\"images/user_group.gif\" width=17 height=14 border=0>&nbsp;&nbsp;<font class=\"title\">"._USERDETAILS."</font></div></td></tr>";
-    echo "<tr>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"15%\"><div align=center class=\"title\">"._USER."</div></td>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"6%\"><div align=center class=\"title\">"._HITS."</div></td>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\"><div align=center class=\"title\">"._UPLOADACTIVITY." (".$cfg["days_to_keep"]." "._DAYS.")</div></td>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"6%\"><div align=center class=\"title\">"._JOINED."</div></td>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"15%\"><div align=center class=\"title\">"._LASTVISIT."</div></td>";
-    echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"8%\"><div align=center class=\"title\">"._ADMIN."</div></td>";
-    echo "</tr>";
-
-    $total_activity = GetActivityCount();
-
-    $sql= "SELECT user_id, hits, last_visit, time_created, user_level FROM tf_users ORDER BY user_id";
-    $result = $db->Execute($sql);
-    while(list($user_id, $hits, $last_visit, $time_created, $user_level) = $result->FetchRow())
-    {
-        $user_activity = GetActivityCount($user_id);
-
-        if ($user_activity == 0)
-        {
-            $user_percent = 0;
-        }
-        else
-        {
-            $user_percent = number_format(($user_activity/$total_activity)*100);
-        }
-        $user_icon = "images/user_offline.gif";
-        if (IsOnline($user_id))
-        {
-            $user_icon = "images/user.gif";
-        }
-
-        echo "<tr>";
-        if (IsUser($user_id))
-        {
-            echo "<td><a href=\"message.php?to_user=".$user_id."\"><img src=\"".$user_icon."\" width=17 height=14 title=\""._SENDMESSAGETO." ".$user_id."\" border=0 align=\"bottom\">".$user_id."</a></td>";
-        }
-        else
-        {
-            echo "<td><img src=\"".$user_icon."\" width=17 height=14 title=\"n/a\" border=0 align=\"bottom\">".$user_id."</td>";
-        }
-        echo "<td><div class=\"tiny\" align=\"right\">".$hits."</div></td>";
-        echo "<td><div align=center>";
-?>
-        <table width="310" border="0" cellpadding="0" cellspacing="0">
-        <tr>
-        <td width="200">
-            <table width="200" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td background="themes/<?php echo $cfg["theme"] ?>/images/proglass.gif" width="<?php echo $user_percent*2 ?>"><img src="images/blank.gif" width="1" height="12" border="0"></td>
-                <td background="themes/<?php echo $cfg["theme"] ?>/images/noglass.gif" width="<?php echo (200 - ($user_percent*2)) ?>"><img src="images/blank.gif" width="1" height="12" border="0"></td>
-            </tr>
-            </table>
-        </td>
-        <td align="right" width="40"><div class="tiny" align="right"><?php echo $user_activity ?></div></td>
-        <td align="right" width="40"><div class="tiny" align="right"><?php echo $user_percent ?>%</div></td>
-        <td align="right"><a href="admin.php?op=showUserActivity&user_id=<?php echo $user_id ?>"><img src="images/properties.png" width="18" height="13" title="<?php echo $user_id."'s "._USERSACTIVITY ?>" border="0"></a></td>
-        </tr>
-        </table>
-<?php
-        echo "</td>";
-        echo "<td><div class=\"tiny\" align=\"center\">".date(_DATEFORMAT, $time_created)."</div></td>";
-        echo "<td><div class=\"tiny\" align=\"center\">".date(_DATETIMEFORMAT, $last_visit)."</div></td>";
-        echo "<td><div align=\"right\" class=\"tiny\">";
-        $user_image = "images/user.gif";
-        $type_user = _NORMALUSER;
-        if ($user_level == 1)
-        {
-            $user_image = "images/admin_user.gif";
-            $type_user = _ADMINISTRATOR;
-        }
-        if ($user_level == 2)
-        {
-            $user_image = "images/superadmin.gif";
-            $type_user = _SUPERADMIN;
-        }
-        if ($user_level <= 1 || IsSuperAdmin())
-        {
-            echo "<a href=\"admin.php?op=editUser&user_id=".$user_id."\"><img src=\"images/edit.png\" width=12 height=13 title=\""._EDIT." ".$user_id."\" border=0></a>";
-        }
-        echo "<img src=\"".$user_image."\" title=\"".$user_id." - ".$type_user."\">";
-        if ($user_level <= 1)
-        {
-            echo "<a href=\"admin.php?op=deleteUser&user_id=".$user_id."\"><img src=\"images/delete_on.gif\" border=0 width=16 height=16 title=\""._DELETE." ".$user_id."\" onclick=\"return ConfirmDeleteUser('".$user_id."')\"></a>";
-        }
-        else
-        {
-            echo "<img src=\"images/delete_off.gif\" width=16 height=16 title=\"n/a\">";
-        }
-
-        echo "</div></td>";
-        echo "</tr>";
-    }
-
-    echo "</table>";
-?>
-    <script language="JavaScript">
-    function ConfirmDeleteUser(user)
-    {
-        return confirm("<?php echo _WARNING.": "._ABOUTTODELETE ?>: " + user)
-    }
-    </script>
-<?php
-}
-
-
-//****************************************************************************
-// editUser -- edit a user
-//****************************************************************************
-function editUser($user_id)
-{
-    global $cfg, $db;
-    DisplayHead(_USERADMIN);
-
-    $editUserImage = "images/user.gif";
-    $selected_n = "selected";
-    $selected_a = "";
-
-    $hide_checked = "";
-
-    // Admin Menu
-    displayMenu();
-
-    $total_activity = GetActivityCount();
-
-    $sql= "SELECT user_id, hits, last_visit, time_created, user_level, hide_offline, theme, language_file FROM tf_users WHERE user_id=".$db->qstr($user_id);
-
-    list($user_id, $hits, $last_visit, $time_created, $user_level, $hide_offline, $theme, $language_file) = $db->GetRow($sql);
-
-    $user_type = _NORMALUSER;
-    if ($user_level == 1)
-    {
-        $user_type = _ADMINISTRATOR;
-        $selected_n = "";
-        $selected_a = "selected";
-        $editUserImage = "images/admin_user.gif";
-    }
-    if ($user_level >= 2)
-    {
-        $user_type = _SUPERADMIN;
-        $editUserImage = "images/superadmin.gif";
-    }
-
-    if ($hide_offline == 1)
-    {
-        $hide_checked = "checked";
-    }
-
-
-    $user_activity = GetActivityCount($user_id);
-
-    if ($user_activity == 0)
-    {
-        $user_percent = 0;
-    }
-    else
-    {
-        $user_percent = number_format(($user_activity/$total_activity)*100);
-    }
-
-    echo "<div align=\"center\">";
-    echo "<table width=\"100%\" border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\">";
-    echo "<tr><td colspan=6 bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\">";
-    echo "<img src=\"".$editUserImage."\" width=17 height=14 border=0>&nbsp;&nbsp;&nbsp;<font class=\"title\">"._EDITUSER.": ".$user_id."</font>";
-    echo "</td></tr><tr><td align=\"center\">";
-?>
-
-    <table width="100%" border="0" cellpadding="3" cellspacing="0">
-    <tr>
-        <td width="50%" bgcolor="<?php echo $cfg["table_data_bg"]?>" valign="top">
-
-        <div align="center">
-        <table border="0" cellpadding="0" cellspacing="0">
-        <tr>
-            <td align="right"><?php echo $user_id." "._JOINED ?>:&nbsp;</td>
-            <td><strong><?php echo date(_DATETIMEFORMAT, $time_created) ?></strong></td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _LASTVISIT ?>:&nbsp;</td>
-            <td><strong><?php echo date(_DATETIMEFORMAT, $last_visit) ?></strong></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">&nbsp;</td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _UPLOADPARTICIPATION ?>:&nbsp;</td>
-            <td>
-                <table width="200" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td background="themes/<?php echo $cfg["theme"] ?>/images/proglass.gif" width="<?php echo $user_percent*2 ?>"><img src="images/blank.gif" width="1" height="12" border="0"></td>
-                    <td background="themes/<?php echo $cfg["theme"] ?>/images/noglass.gif" width="<?php echo (200 - ($user_percent*2)) ?>"><img src="images/blank.gif" width="1" height="12" border="0"></td>
-                </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _UPLOADS ?>:&nbsp;</td>
-            <td><strong><?php echo $user_activity ?></strong></td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _PERCENTPARTICIPATION ?>:&nbsp;</td>
-            <td><strong><?php echo $user_percent ?>%</strong></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center"><div align="center" class="tiny">(<?php echo _PARTICIPATIONSTATEMENT. " ".$cfg['days_to_keep']." "._DAYS ?>)</div><br></td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _TOTALPAGEVIEWS ?>:&nbsp;</td>
-            <td><strong><?php echo $hits ?></strong></td>
-        </tr>
-        <tr>
-            <td align="right" valign="top"><?php echo _THEME ?>:&nbsp;</td>
-            <td valign="top"><strong><?php echo $theme ?></strong><br></td>
-        </tr>
-        <tr>
-            <td align="right" valign="top"><?php echo _LANGUAGE ?>:&nbsp;</td>
-            <td valign="top"><strong><?php echo GetLanguageFromFile($language_file) ?></strong><br><br></td>
-        </tr>
-        <tr>
-            <td align="right" valign="top"><?php echo _USERTYPE ?>:&nbsp;</td>
-            <td valign="top"><strong><?php echo $user_type ?></strong><br></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center"><div align="center">[<a href="admin.php?op=showUserActivity&user_id=<?php echo $user_id ?>"><?php echo _USERSACTIVITY ?></a>]</div></td>
-        </tr>
-        </table>
-        </div>
-
-        </td>
-        <td valign="top" bgcolor="<?php echo $cfg["body_data_bg"] ?>">
-        <div align="center">
-        <table cellpadding="5" cellspacing="0" border="0">
-        <form name="theForm" action="admin.php?op=updateUser" method="post" onsubmit="return validateUser()">
-        <tr>
-            <td align="right"><?php echo _USER ?>:</td>
-            <td>
-            <input name="user_id" type="Text" value="<?php echo $user_id ?>" size="15">
-            <input name="org_user_id" type="Hidden" value="<?php echo $user_id ?>">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _NEWPASSWORD ?>:</td>
-            <td>
-            <input name="pass1" type="Password" value="" size="15">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _CONFIRMPASSWORD ?>:</td>
-            <td>
-            <input name="pass2" type="Password" value="" size="15">
-            </td>
-        </tr>
-        <tr>
-            <td align="right"><?php echo _USERTYPE ?>:</td>
-            <td>
-<?php if ($user_level <= 1) { ?>
-            <select name="userType">
-                <option value="0" <?php echo $selected_n ?>><?php echo _NORMALUSER ?></option>
-                <option value="1" <?php echo $selected_a ?>><?php echo _ADMINISTRATOR ?></option>
-            </select>
-<?php } else { ?>
-            <strong><?php echo _SUPERADMIN ?></strong>
-            <input type="Hidden" name="userType" value="2">
-<?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-            <input name="hideOffline" type="Checkbox" value="1" <?php echo $hide_checked ?>> <?php echo _HIDEOFFLINEUSERS ?><br>
-            </td>
-        </tr>
-        <tr>
-            <td align="center" colspan="2">
-            <input type="Submit" value="<?php echo _UPDATE ?>">
-            </td>
-        </tr>
-        </form>
-        </table>
-        </div>
-        </td>
-    </tr>
-    </table>
-
-
-    <script language="JavaScript">
-    function validateUser()
-    {
-        var msg = ""
-        if (theForm.user_id.value == "")
-        {
-            msg = msg + "* <?php echo _USERIDREQUIRED ?>\n";
-            theForm.user_id.focus();
-        }
-
-        if (theForm.pass1.value != "" || theForm.pass2.value != "")
-        {
-            if (theForm.pass1.value.length <= 5 || theForm.pass2.value.length <= 5)
-            {
-                msg = msg + "* <?php echo _PASSWORDLENGTH ?>\n";
-                theForm.pass1.focus();
-            }
-            if (theForm.pass1.value != theForm.pass2.value)
-            {
-                msg = msg + "* <?php echo _PASSWORDNOTMATCH ?>\n";
-                theForm.pass1.value = "";
-                theForm.pass2.value = "";
-                theForm.pass1.focus();
-            }
-        }
-
-        if (msg != "")
-        {
-            alert("<?php echo _PLEASECHECKFOLLOWING ?>:\n\n" + msg);
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    </script>
-
-<?php
-    echo "</td></tr>";
-    echo "</table></div>";
-    echo "<br><br>";
-
-    // Show User Section
-    displayUserSection();
-
-    echo "<br><br>";
-
-    DisplayFoot();
 }
 
 

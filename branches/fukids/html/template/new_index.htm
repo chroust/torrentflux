@@ -53,7 +53,6 @@ function echo (a){
 				$('sactive').innerHTML=data['global']['totalactive'];
 				$('sinactive').innerHTML=data['global']['totalinactive'];
 					// update leftmenu 2
-					
 					if($type(data['global']['usrtotal_str'])=='string'){
 						tmparray=data['global']['usrtotal_str'].split(',');
 						tmparray.forEach(function(e,i,a){
@@ -78,29 +77,14 @@ function echo (a){
 	}
 	update_data =function (Torrents){
 		var thisarray=new Array();
-		var needclear=0;
-		if(uploadcount>{$maxsaveTime}){
-			uploadcount=0;
-			needclear=1
-			reloadedcount=1;
-		}
 		Torrents.each(function(torrent){
 		thisarray[torrent.id]=1
 			if($defined($(torrent.id))){
 				ChangeTorrent(torrent);
 			}else{
 				NewTorrent(torrent);
-				upSpeed[torrent.id]=new Array();
-				downSpeed[torrent.id]=new Array();
-				MaxdownSpeed[torrent.id]=0;
 			}
-				if(needclear){
-					upSpeed[torrent.id]=new Array();
-					downSpeed[torrent.id]=new Array();
-				}
-			upSpeed[torrent.id][uploadcount]=parseFloat(torrent.up_speed);
-			downSpeed[torrent.id][uploadcount]=parseFloat(torrent.down_speed);
-			MaxdownSpeed[torrent.id]=(downSpeed[torrent.id][uploadcount]>MaxdownSpeed[torrent.id])?downSpeed[torrent.id][uploadcount]:MaxdownSpeed[torrent.id];
+
 		});
 		//check if any displayed torrent need to be destory
 		$$('#tbody div.rows').each(function(item){
@@ -111,11 +95,8 @@ function echo (a){
 						selecting=$empty();
 					}
 				$(item.id).destroy();
-				downSpeed[item.id]=new Array();
-				upSpeed[item.id]=new Array();
 			}
 		});
-		uploadcount++;
 	}
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
@@ -184,7 +165,7 @@ function echo (a){
 				var wheight=height?height:400;
 				wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
 				wheight=wheight>window.getSize().y?window.getSize().y:wheight;
-				loadmethod=(id=='Torrent_Search')?'iframe':'xhr';
+				loadmethod=(id=='Torrent_Search'|| id=='_ADMIN_VIEW_HISTORY')?'iframe':'xhr';
 				new MochaUI.Window({
 				id: 'window_'+id,
 				title: title,
@@ -196,10 +177,6 @@ function echo (a){
 				height: wheight,
 				onContentLoaded:function(e){
 					windowize(e,id);
-					$('window_'+id+'_content').addEvent('change',function(e){
-						console.log('a');
-					});
-				
 				}
 			});
 	}
@@ -207,10 +184,7 @@ function echo (a){
 				$$('#window_'+id+'_content a').each(function(a){
 					a.addEvent('click',function(){
 						$('window_'+id+'_content').set('load', {
-							'evalScripts': true,
-							'onComplete':function(aa){
-								windowize(aa,id);
-							}
+							'evalScripts': true
 						}).load(a.href);
 						return false;
 					});
@@ -287,6 +261,8 @@ var build_UserList_Extra=function(index,uid,user_id){
 						$(menu_bindon).destroy();
 						UpdateSelectedUser();
 					}
+				}else if(act_id=='_ADMIN_VIEW_HISTORY'){
+					OpenWindow(act_id,act_id,'rightclick','uid='+uid,800,500);
 				}else{
 					OpenWindow(act_id,act_id,'rightclick','uid='+uid);
 				}
@@ -374,31 +350,34 @@ window.addEvent('domready', function() {
 	get_data();
 	new DDMenu ('torrent_multiselect2RightClick', 'ms_torrent_multiselect2', {
 		onItemSelect: function(act_id, act_el, menu_bindon){
+		
 			OpenWindow(act_id,act_id,'rightclick');
 		}
 	});
 	{foreach $userlist $index $user}
 		build_UserList_Extra({$index},{$user['uid']},'{$user['user_id']}');
 	{/foreach}
-$('form_search').addEvent('submit',function(){
-	if($('searchterm').value=='Torrent {_SEARCH}')
-		$('searchterm').value='';
-	var selectedItem = document.form_search.searchEngine.options[document.form_search.searchEngine.selectedIndex].value;
-	OpenWindow('Torrent_Search','Torrent {_SEARCH}','form','searchterm='+$('searchterm').value+'&searchEngine='+selectedItem,800,500);
-	return false;
-});
+	$('form_search').addEvent('submit',function(){
+		if($('searchterm').value=='Torrent {_SEARCH}')
+			$('searchterm').value='';
+		var selectedItem = document.form_search.searchEngine.options[document.form_search.searchEngine.selectedIndex].value;
+		OpenWindow('Torrent_Search','Torrent {_SEARCH}','form','searchterm='+$('searchterm').value+'&searchEngine='+selectedItem,800,500);
+		return false;
+	});
+
+listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
+	$$('#list_torrent div.tl').each(function(e){
+			if($defined(listwidth.get(e.id))){
+				e.setStyle('width',listwidth.get(e.id));
+			}
+	});
 });
 var progressbar=new Array();
 var selecting;
-var reloadedcount=0;
-var uploadcount=0;
 var down_selecting_tab;
 var selected_feeds ='0';
 var selected_status='0';
 var selected_user ='0';
-var upSpeed=new Array();
-var downSpeed=new Array();
-var MaxdownSpeed=new Array();
 var UpdateInterval={$Update_interval};
 var myuid={$cfg['uid']};
 var myusername='{$cfg['user']}';
@@ -429,16 +408,16 @@ var myusername='{$cfg['user']}';
 	<div id="torrent_list_div">
 		<div id="list_torrent" >
 			<div class="rows th">
-				<div class="tl_name" id="th_tl_name"><?php echo _NAME?></div>
-				<div class="tl_percent" id="th_tl_percent">%</div>
-				<div class="tl_filesize" id="th_tl_filesize"><?php echo _FILESIZE?></div>
-				<div class="tl_status" id="th_tl_status"><?php echo _STATUS?></div>
-				<div class="tl_seeds" id="th_tl_seeds"><?php echo _SEEDS?></div>
-				<div class="tl_peers" id="th_tl_peers"><?php echo _PEERS?></div>
-				<div class="tl_downloadspeed" id="th_tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
-				<div class="tl_uploadspeed" id="th_tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
-				<div class="tl_estime" id="th_tl_estime"><?php echo _ESTIMATEDTIME?></div>
-				<div class="tl_totalupload" id="th_tl_totalupload">Total Upload</div>
+				<div class="tl_name tl" id="th_tl_name"><?php echo _NAME?></div>
+				<div class="tl_percent tl" id="th_tl_percent">%</div>
+				<div class="tl_filesize tl" id="th_tl_filesize"><?php echo _FILESIZE?></div>
+				<div class="tl_status tl" id="th_tl_status"><?php echo _STATUS?></div>
+				<div class="tl_seeds tl" id="th_tl_seeds"><?php echo _SEEDS?></div>
+				<div class="tl_peers tl" id="th_tl_peers"><?php echo _PEERS?></div>
+				<div class="tl_downloadspeed tl" id="th_tl_downloadspeed"><?php echo _DOWNLOADSPEED?></div>
+				<div class="tl_uploadspeed tl" id="th_tl_uploadspeed"><?php echo _UPLOADSPEED?></div>
+				<div class="tl_estime tl" id="th_tl_estime"><?php echo _ESTIMATEDTIME?></div>
+				<div class="tl_totalupload tl" id="th_tl_totalupload">Total Upload</div>
 			</div>
 			<div class="tbody" id="tbody">
 			</div>

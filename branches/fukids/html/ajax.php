@@ -6,7 +6,7 @@ include_once("include/functions.php");
 //group by how  it is called
 $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs','rightclick','tips','form'));
 if($action=='listtorrent'){
-	include('include/ajax.list_torrent.php');
+	include(ENGINE_ROOT.'include/ajax/list_torrent.php');
 }elseif($action=='tips'){
 	$id = getRequestVar('id',Array('user_profile'));
 		if($id=='user_profile'){
@@ -15,7 +15,7 @@ if($action=='listtorrent'){
 			include template('ajax_Tips_user_profile');
 		}
 }elseif($action=='rightclick'){
-	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER'));
+	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER','_ADMIN_VIEW_HISTORY'));
 		if($id=='_SEND_PM'){
 		    $rmid = getRequestVar('rmid');
 			$tousertmp=getRequestVar('to_user');
@@ -48,6 +48,10 @@ if($action=='listtorrent'){
 			$arLanguage = GetLanguages();
 			$arThemes = GetThemes();
 			include template('ajax_RightClick_EDIT_USER');
+		}elseif($id=='_ADMIN_VIEW_HISTORY'){
+			AdminCheck();
+			header("location: admin.php?op=showUserActivity");
+			exit;
 		}
 }elseif($action=='icon'){
 	// if it is called via icon bar

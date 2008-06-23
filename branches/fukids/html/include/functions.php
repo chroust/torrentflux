@@ -2823,24 +2823,34 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
     $torrent = new BDECODE($basename);
 	$info=$torrent->result;
     $info['hash']=@sha1(BEncode($torrent->result["info"]));
+		//giveing same announce-list t pattern even there is only one announce
 		if(!is_array($info['announce-list'])){
-			$info['announce-list']=$info['announce'];
+			$info['announce-list'][0][0]=$info['announce'];
 		}
+		// giving same file-list pattern even there is only one file
 		if(!array_key_exists('files',$info['info'])){
 			$info['info']['files'][0]['length'][0]=$info['info']['length'];
 			$info['info']['files'][0]['path'][0]=$info['info']['name'];
-			$info['info']['files'][0]['path.utf-8'][0]=$info['info']['name.utf-8'];
+			$info['info']['files'][0]['path.utf-8'][0]=$info['info']['name.utf-8']?$info['info']['name.utf-8']:$info['info']['name'];
 			$info['info']['files'][0]['piece length'][0]=$info['info']['piece length'];
 			$info['info']['files'][0]['pieces'][0]=$info['info']['pieces'];
 		}
 	$info['creation date_text']=date("m/d/Y H:i:s",$info['creation date'] );
-			if($smartremove_padding){
-				foreach($info['info']['files'] as $index =>$file){
-						if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
-							unset($info['info']['files'][$index]);
-						}
+		//creat utf8 path name if there is not
+		foreach($info['info']['files'] as $index =>$file){
+				if(!array_key_exists('path.utf-8',$file)){
+					$info['info']['files'][$index]['path.utf-8']['0']=$file['path']['0'];
+					unset($file['path']['0']);
 				}
+		}
+		if($smartremove_padding){
+			foreach($info['info']['files'] as $index =>$file){
+					if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
+						unset($info['info']['files'][$index]);
+					}
 			}
+		}
+
 	return $info;
 }
 // ***************************************************************************
@@ -3053,6 +3063,7 @@ function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
 // 1= download, 0=not download
 	$comma='';
 	$default==1?1:-1;
+	$prioList=$prioList==NULL?array():$prioList;
 		if (is_array($FileList) && count($FileList) > 0){
             foreach($FileList as $index => $file){
 					if($smartremove AND (get_file_extension($file['path'])=='txt' OR get_file_extension($file['path'])=='url') ){

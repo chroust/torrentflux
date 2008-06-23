@@ -3,7 +3,8 @@ $('fileupload').addEvent('change',function(){
 		AIM.submit($('UploadTorrentForm'), {
 			'onStart' : function(){
 			}, 
-			'onComplete' : function(e){ 
+			'onComplete' : function(e){
+				console.log(e);
 				eval(e);
 			}
 		})
