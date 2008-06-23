@@ -12,7 +12,10 @@ var mootabs = new Class({
 			useAjax: 			false,
 			ajaxUrl: 			'',
 			ajaxOptions: 		{method:'get'},
-			ajaxLoadingText: 	'Loading...'
+			ajaxLoadingText: 	'Loading...',
+			ultitle:			'mootabs_title',
+			panelsclass:		'mootabs_panel',
+			defaultPanel:		false
 		}, options || {});
 		this.el = $(element);
 		this.elid = element;
@@ -20,11 +23,9 @@ var mootabs = new Class({
 			height: this.options.height,
 			width: this.options.width
 		});
-		
-		this.titles = $$('#' + this.elid + ' ul.mootabs_title li');
+		this.titles = $$('#' + this.elid + ' ul.'+this.options.ultitle+' li');
 		this.panelHeight = (this.options.height);
-		this.panels = $$('#' + this.elid + ' .mootabs_panel');
-		
+		this.panels = $$('#' + this.elid + ' .'+this.options.panelsclass);
 		this.panels.setStyle('height', this.panelHeight);
 
 		this.titles.each(function(item) {
@@ -47,10 +48,12 @@ var mootabs = new Class({
 				}
 			}.bind(this));
 		}.bind(this));
-
+			if($$('#' + this.elid + ' .'+this.options.panelsclass+'#'+this.options.defaultPanel)){
+				this.activate(this.options.defaultPanel);
+			}
 	},
 	activate: function(tab, skipAnim){	
-		if(!$defined(selecting))
+		if(!$defined(selecting) && this.elid =='torrent_info')
 				return false;
 		window.fireEvent('TabExit');
 		window.removeEvents('TabExit').removeEvents('TabReady');	
@@ -74,13 +77,15 @@ var mootabs = new Class({
 			$$('#' + this.elid + ' ul.mootabs_title li').removeClass('active');
 			tab.addClass('active');
 			this.activeTitle = tab;
-			new Request.HTML({
-				evalScripts:true,
-				update:this.activePanel,
-				onComplete:function(data){
-					window.fireEvent('TabReady');
-				}
-			}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
+				if(this.options.useAjax){
+					new Request.HTML({
+						evalScripts:true,
+						update:this.activePanel,
+						onComplete:function(data){
+							window.fireEvent('TabReady');
+						}
+					}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
+			}
 		}
 	}
 });

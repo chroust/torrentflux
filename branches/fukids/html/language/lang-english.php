@@ -217,4 +217,36 @@ define("_VIEW_HISTORY","View History");
 define("_DELETEUSER","Delete User");
 define("_ADD_USER","Add User");
 
+//admin setting
+define("_Admin_Setting","Setting");
+//admin setting ,display
+define("_Display","Display");
+define("_Display_Options","Display");
+define("_Confirm_When_Delete_Torrent","confirm when deleting Torrent(s)");
+define("_Display_Current_Speed_in_Title","display current speed in the title bar");
+define("_Display_Torrent_Search","display Torrent searching");
+define("_Show_Server_Load","show server load");
+define("_Show_Disk_Space","show disk space");
+define("_Refresh_interval","refresh interval");
+define("_When_Adding_Torrents","when adding new Torrent");
+define("_Auto_Start","start automatically");
+define("_Smart_Select","smart select download file(s)");
+//admin setting ,Directories
+define("_Directories","Directories");
+define("_Enable_File_download","enable file downloading");
+define("_Enable_Download_Compressed_Dir","enable downloading whole folder as compressed file");
+define("_Preview","Preview");
+define("_Allow_text_Preview","allow text preview");
+define("_Allow_pic_Preview"," allow picture preview");
+define("_Allow_video_Preview","allow video preview");
+//admin setting ,Connection
+define("_Connection","Connection");
+define("_Port_LIMIT","Global port limit");
+//admin setting ,BitTorrent
+define("_BitTorrent","BitTorrent");
+define("_Force_Download_In_Home_Dir","limit user download in their home directories");
+define("_Enable_Make_Torrent","enable user creat Torrent");
+define("_encrypted_connections","encrypted connections");
+define("_Allow_Encrypted_Connections","allow encrypted connections");
+define("_Only_Allow_Encrypted_Connections","only allow encrypted connections");
 ?>

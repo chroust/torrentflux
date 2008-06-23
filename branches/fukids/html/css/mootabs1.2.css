@@ -1,5 +1,5 @@
 
-.mootabs_title {
+#torrent_info .mootabs_title {
 	list-style-image: none;
 	list-style-type: none;
 	margin: 5px 0px 0px 0px;
@@ -8,37 +8,37 @@
 	width:1000px;
 	vertical-align: top; 
 }
-.mootabs_title li {
-      float:left;
-      display:inline;
-      margin:0;
-      background:url("../images/tabs/tableftB.gif") no-repeat left 6px;
-      margin:0;
-      padding:6px 0 0 0px;
-      text-decoration:none;
-	  position:relative;
-      }
-.mootabs_title li div.hover {
-	  cursor:pointer;
-	  border-top:2px solid #FFBB73 !important;
+#torrent_info .mootabs_title li {
+float:left;
+display:inline;
+margin:0;
+background:url("../images/tabs/tableftB.gif") no-repeat left 6px;
+margin:0;
+padding:6px 0 0 0px;
+text-decoration:none;
+	position:relative;
 }
-.mootabs_title li.active {
-      background-position:0% -42px;
-	  height:30px;
-      padding:0 0 0 4px;
-	  cursor:pointer;
+#torrent_info .mootabs_title li div.hover {
+	cursor:pointer;
+	border-top:2px solid #FFBB73 !important;
 }
-.mootabs_title  li div{
-      float:left;
-	  min-width:50px;
-      display:block;
-      background:url("../images/tabs/tabrightB.gif") no-repeat right top;
-      padding:5px 15px 4px 6px;
-      color:#666;
-	  border-top:2px solid #fff;
+#torrent_info .mootabs_title li.active {
+background-position:0% -42px;
+	height:30px;
+padding:0 0 0 4px;
+	cursor:pointer;
+}
+#torrent_info .mootabs_title li div{
+float:left;
+	min-width:50px;
+display:block;
+background:url("../images/tabs/tabrightB.gif") no-repeat right top;
+padding:5px 15px 4px 6px;
+color:#666;
+	border-top:2px solid #fff;
 }
 
-.mootabs_panel {
+#torrent_info .mootabs_panel {
 	display: none;
 	background-color: #ddd;
 	position: relative;
@@ -50,8 +50,47 @@
 	overflow:auto;
 	padding: 2px;
 }
-.mootabs_panel.active {
+#torrent_info .mootabs_panel.active {
 	background-color: #fff;
 	border:2px solid #DDCCDD;
+	display: block;
+}
+
+
+#setting_info {
+	width:100%
+}
+#setting_info #setting_left{
+	width:20%
+}
+#setting_info #setting_right{
+	width:75%;
+	float:right;
+}
+#setting_info .mootabs_title {
+	border:2px solid #DDCCDD;
+	list-style-image: none;
+	list-style-type: none;
+	padding: 0px;
+	vertical-align: top; 
+}
+#setting_info .mootabs_title li {
+	display:inline;
+}
+#setting_info .mootabs_title li div{
+	padding:5px;
+}
+#setting_info .mootabs_title li div.hover {
+	cursor:pointer;
+}
+#setting_info .mootabs_title li.active {
+	cursor:pointer;
+	font-weight: bold; 
+	font-size:120%;
+}
+#setting_info .mootabs_panel {
+	display: none;
+}
+#setting_info .mootabs_panel.active {
 	display: block;
 }

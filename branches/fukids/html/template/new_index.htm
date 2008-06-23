@@ -410,8 +410,10 @@ var uploadingspeed =new Array;
 <div class="icon icon_control" id="Stop" title="Kill"><img src="images/icon/Stop.PNG" alt="stop"/></div>
 <div class="icon icon_control" id="Del" title="Del"><img src="images/icon/Del.PNG" alt="del"/></div>
 <div class="icon-seperator"></div>
-<div class="icon icon_window" id="New_Feed" {_New_Feed}><img src="images/icon/New_Feed.PNG" alt="new Feed"/></div>
-
+<div class="icon icon_window" id="New_Feed" title="{_New_Feed}"><img src="images/icon/New_Feed.PNG" alt="{_New_Feed}"/></div>
+{if $isadmin}
+<div class="icon icon_window" id="_Admin_Setting" title="{_Admin_Setting}"><img src="" alt="{_Admin_Setting}"/></div>
+{/if}
 </div>
 <div id="down">
 <div id="down_right">

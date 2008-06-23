@@ -88,7 +88,11 @@ var DDMenu = new Class ({
 					}
 			}.bind(underul),'mouseout':function(){
 				this.setStyle('display','none');
-			}.bind(underul)
+			}.bind(underul),'mousedown':function(){
+				return false;
+			},'mouseup':function(){
+				return false;
+			}
 			});
 			underul.setStyle('display','none');
 		});

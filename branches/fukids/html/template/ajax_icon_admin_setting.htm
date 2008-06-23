@@ -1,0 +1,196 @@
+<div id="setting_info">
+<div id="setting_right">
+	<div id="setting_Display" class="mootabs_panel">
+		<fieldset>
+		<legend>{_Display_Options}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Confirm_When_Delete_Torrent} :</td>
+			<td><input type="checkbox" name="confirm_delete_torrent"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Display_Current_Speed_in_Title} :</td>
+			<td><input type="checkbox" name="speed_in_title"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Display_Torrent_Search} :</td>
+			<td><input type="checkbox" name="speed_in_title"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Show_Server_Load} :</td>
+			<td><input type="checkbox" name="speed_in_title"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Show_Disk_Space} :</td>
+			<td><input type="checkbox" name="speed_in_title"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Refresh_interval} :</td>
+			<td><input type="text" class="num" size="3" name="speed_in_title"/>s</td>
+		</tr>
+		</table>
+		</fieldset>
+		<fieldset>
+		<legend>{_When_Adding_Torrents}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Auto_Start} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Smart_Select} :</td>
+			<td><input type="checkbox" name="smart_select"/></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+	<div id="setting_Directories" class="mootabs_panel">
+		<fieldset>
+		<legend>{_Directories}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Enable_File_download} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Enable_Download_Compressed_Dir} :</td>
+			<td><input type="checkbox" name="smart_select"/></td>
+		</tr>
+		</table>
+		</fieldset>
+		<fieldset>
+		<legend>{_Preview}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Allow_text_Preview} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Allow_pic_Preview} :</td>
+			<td><input type="checkbox" name="smart_select"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Allow_video_Preview} :</td>
+			<td><input type="checkbox" name="smart_select"/></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+	<div id="setting_Connection" class="mootabs_panel">
+		<fieldset>
+		<legend>{_Port}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td>{_Port_LIMIT} :</td>
+			<td><input type="text" name="minport" class="num" size="5" value="{$Default_minport}" /> -<input type="text" name="maxport" class="num" size="5" value="{$Default_maxport}" /></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+	<div id="setting_BitTorrent" class="mootabs_panel">
+		<fieldset>
+		<legend>{_BitTorrent}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Force_Download_In_Home_Dir} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Enable_Make_Torrent} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		</table>
+		</fieldset>
+		<fieldset>
+		<legend>{_encrypted_connections}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Allow_Encrypted_Connections} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Only_Allow_Encrypted_Connections} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+	<div id="setting_Queueing" class="mootabs_panel">
+		<fieldset>
+		<legend>{_Queueing_Setting}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{Enable_Queue_Manager} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{tfQManager_Path} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{Max_Server_Threads} :</td>
+			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{Max_User_Threads} :</td>
+			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{Polling_Interval} :</td>
+			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+	<div id="setting_Advanced" class="mootabs_panel">
+		<fieldset>
+		<legend>{_Path_Setting}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Python_Path} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_btphptornado_Path} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_btmakemetafilepy_Path} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{loadavg_Path} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		</table>
+		</fieldset>
+		<fieldset>
+		<legend>{_Others}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{Extra_BitTornado_Commandline} :</td>
+			<td><input type="text" size="20" name="auto_start"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_SQL_Debug} :</td>
+			<td><input type="checkbox" name="auto_start"/></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
+</div>
+<div id="setting_left">
+	<ul class="mootabs_title">
+		<li title="setting_Display"><div>{_Display}</div></li>
+		<li title="setting_Directories"><div>{_Directories}</div></li>
+		<li title="setting_Connection"><div>{_Connection}</div></li>
+		<li title="setting_BitTorrent"><div>{_BitTorrent}</div></li>
+		<li title="setting_Queueing"><div>{_Queueing}</div></li>
+		<li title="setting_Advanced"><div>{_Advanced}</div></li>
+	</ul>
+</div>
+</div>
+<script type="text/javascript">
+settingtab		=	new mootabs('setting_info', {'defaultPanel':'setting_display'});
+
+</script>

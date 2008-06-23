@@ -55,7 +55,7 @@ if($action=='listtorrent'){
 		}
 }elseif($action=='icon'){
 	// if it is called via icon bar
-	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed','Edit_Torrent'));
+	$id = getRequestVar('id',Array('Upload_Torrent','Url_Torrent','Creat_Torrent','New_Feed','Edit_Torrent','_Admin_Setting'));
 		if($id=='Upload_Torrent'){
 			$Default_max_upload_rate=$cfg['max_upload_rate'];
 			$Default_max_download_rate=$cfg['max_download_rate'];
@@ -98,6 +98,8 @@ if($action=='listtorrent'){
 			//grab the prio details
 			$priolist=explode(',',$Bt->prio);
 			include template('ajax_Edit_Torrent');
+		}elseif($id=='_Admin_Setting'){
+			include template('ajax_icon_admin_setting');
 		}
 }elseif($action=='tabs'){
 	//if it is called via tab bar 
