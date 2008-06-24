@@ -108,20 +108,20 @@ function echo (a){
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
 		var tr =  new Element('div', {'class': 'rows','id':torrent.id}).injectInside($('tbody'));
-		var namediv=new Element('div',{'styles':{'width':$('th_tl_name').getStyle('width')}}).injectInside(tr);
+		var namediv=new Element('div',{'class': 'tl_name','styles':{'width':$('th_tl_name').getStyle('width')}}).injectInside(tr);
 		new Element('span',{'class':'tl_name_span'}).injectInside(namediv).set('html',torrent.title);
 		new Element('img',{'class':'statusimg'}).setProperty('src', 'images/icon/status/'+torrent.statusid+'.png').inject(namediv,'top');
 		var percent=new Element('div',{'class':'tl_percent','styles':{'width':$('th_tl_percent').getStyle('width')}}).injectInside(tr);
 		new Element('img',{'class':'progressbar'}).setProperty('src', 'images/percentImage.png').injectInside(percent);
 		new Element('span',{'class':'progressbar_text'}).injectInside(percent);
-		new Element('div',{'html':torrent.size,'styles':{'width':$('th_tl_filesize').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.status,'styles':{'width':$('th_tl_status').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.seeds,'styles':{'width':$('th_tl_seeds').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.peers,'styles':{'width':$('th_tl_peers').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.down_speed+' KB/s','styles':{'width':$('th_tl_downloadspeed').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.up_speed+' KB/s','styles':{'width':$('th_tl_uploadspeed').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.estTime,'styles':{'width':$('th_tl_estime').getStyle('width')}}).injectInside(tr);
-		new Element('div',{'html':torrent.totalUpload,'styles':{'width':$('th_tl_totalupload').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_filesize','html':torrent.size,'styles':{'width':$('th_tl_filesize').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_status','html':torrent.status,'styles':{'width':$('th_tl_status').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_seeds','html':torrent.seeds,'styles':{'width':$('th_tl_seeds').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_peers','html':torrent.peers,'styles':{'width':$('th_tl_peers').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_downloadspeed','html':torrent.down_speed+' KB/s','styles':{'width':$('th_tl_downloadspeed').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_uploadspeed','html':torrent.up_speed+' KB/s','styles':{'width':$('th_tl_uploadspeed').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_estime','html':torrent.estTime,'styles':{'width':$('th_tl_estime').getStyle('width')}}).injectInside(tr);
+		new Element('div',{'class':'tl_totalupload','html':torrent.totalUpload,'styles':{'width':$('th_tl_totalupload').getStyle('width')}}).injectInside(tr);
 		tr.addEvents({
 			'mouseup': function() {
 					if(selecting)$(selecting).removeClass('torrent_list_clicked');

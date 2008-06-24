@@ -52,8 +52,8 @@ var mootabs = new Class({
 				this.activate(this.options.defaultPanel);
 			}
 	},
-	activate: function(tab, skipAnim){	
-		if(!$defined(selecting) && this.elid =='torrent_info')
+	activate: function(tab, skipAnim){
+		if(!$defined(selecting) && this.elid !='torrent_info')
 				return false;
 		window.fireEvent('TabExit');
 		window.removeEvents('TabExit').removeEvents('TabReady');	
@@ -77,7 +77,7 @@ var mootabs = new Class({
 			$$('#' + this.elid + ' ul.mootabs_title li').removeClass('active');
 			tab.addClass('active');
 			this.activeTitle = tab;
-				if(this.options.useAjax){
+				if(this.elid =='torrent_info'){
 					new Request.HTML({
 						evalScripts:true,
 						update:this.activePanel,
