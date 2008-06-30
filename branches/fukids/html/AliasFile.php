@@ -25,6 +25,13 @@
 this is a class for reading and writing .stat file
 	
 */
+class FileInfo{
+	var $name = "";
+	var $complete = "";
+	var $amtdone = "";
+	var $inplace = "";
+}
+
 
 class AliasFile{
 	var $theFile;
@@ -44,6 +51,8 @@ class AliasFile{
 	var $downtotal = "";
 	var $size = "";
 	var $errors = array();
+	// files percentage
+	var $files = array();
 
 	function AliasFile( $statFile, $user="" ){
 		$this->theFile = $statFile;
@@ -66,8 +75,20 @@ class AliasFile{
 			$this->uptotal = trim($arStatus[10]);
 			$this->downtotal = trim($arStatus[11]);
 			$this->size = trim($arStatus[12]);
-			if (sizeof($arStatus) > 13){
-				for ($inx = 13; $inx < sizeof($arStatus); $inx++){
+			
+			$nrOfFiles = (trim($arStatus[13])*4) +14;
+			$filePos = 14;
+			while( $filePos < $nrOfFiles ){
+			    $fileInfo = new FileInfo();
+			    $fileInfo->name = trim($arStatus[$filePos++]);
+			    $fileInfo->complete = trim($arStatus[$filePos++]);
+			    $fileInfo->amtdone = trim($arStatus[$filePos++]);
+			    $fileInfo->inplace = trim($arStatus[$filePos++]);
+			    array_push($this->files, $fileInfo);
+			}
+			
+			if (sizeof($arStatus) > $filePos){
+				for ($inx = $filePos; $inx < sizeof($arStatus); $inx++){
 					array_push($this->errors, $arStatus[$inx]);
 				}
 			}
@@ -92,7 +113,7 @@ class AliasFile{
 		$this->uptotal = "";
 		$this->downtotal = "";
 		$this->errors = array();
-
+		$this->files = array();
 		// Write to file
 		$this->WriteFile();
 	}
@@ -107,6 +128,7 @@ class AliasFile{
 		$this->up_speed = "";
 		$this->seeds = "";
 		$this->peers = "";
+		$this->files = array();
 		$this->errors = array();
 
 		// Write to file
@@ -138,7 +160,16 @@ class AliasFile{
 		$output .= $this->seedlimit."\n";
 		$output .= $this->uptotal."\n";
 		$output .= $this->downtotal."\n";
-		$output .= $this->size;
+        $output .= $this->size."\n";
+		//
+		$output .= sizeof($this->files);
+		foreach ( $this->files as $fileInfo ){
+		    $output .= "\n" + $fileInfo->name;
+		    $output .= "\n" + $fileInfo->complete;
+		    $output .= "\n" + $fileInfo->amtdone;
+		    $output .= "\n" + $fileInfo->inplace;
+		}
+
 		for ($inx = 0; $inx < sizeof($this->errors); $inx++)
 		{
 			if ($this->errors[$inx] != "")

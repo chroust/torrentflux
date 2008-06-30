@@ -109,29 +109,37 @@ if($action=='listtorrent'){
 			showmessage('torrentId Error',1);
 		}
 		if($tab=='tab1'){
-			//normal
+		//normal
 			$torrentfile=TorrentIDtoTorrent($torrentId);
 			$info=GrabTorrentInfo($torrentfile);
 			include template('ajax_tab_tab1');
 		}elseif($tab=='tab2'){
-			//Tracker
+		//Tracker
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId));
 				foreach($info['announce-list'] as $announce){
 					echo $announce[0].'<br />';
 				}
 		}elseif($tab=='tab3'){
-			//user
+		//user
 		}elseif($tab=='tab4'){
-			//file
+		//file
+			// read the .torrent file
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentId),1);
+			//read .stat file
+			include_once("AliasFile.php");	
+			$af = new AliasFile($cfg["torrent_file_path"].torrent2stat(TorrentIDtoTorrent($torrentId)), $torrentowner);
+			//display
+			foreach ( $af->files as $fileInfo ){
+			echo  $fileInfo->inplace.$fileInfo->complete;
+			}
 				foreach($info['info']['files'] as $file){
 					echo $file['path.utf-8']['0'].'<br />';
 				}
 		}elseif($tab=='tab5'){
-			//speed
+		//speed
 			include template('ajax_tab_tab5');
 		}elseif($tab=='tab6'){
-			//log
+		//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));
 			$fh = fopen($logfile, 'r');
 				if ($fh) {

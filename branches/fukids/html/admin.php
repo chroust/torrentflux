@@ -135,10 +135,8 @@ function showIndex($min = 0)
     DisplayHead(_ADMINISTRATION);
 
     // Admin Menu
-    displayMenu();
+    
 
-    // Show User Section
-    displayUserSection();
 
     echo "<br>";
 
@@ -410,7 +408,7 @@ function editLinks()
     DisplayHead(_ADMINEDITLINKS);
 
     // Admin Menu
-    displayMenu();
+    
     echo "<div align=\"center\">";
     echo "<table border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\">";
     echo "<tr><td colspan=\"2\" bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\">";
@@ -493,7 +491,7 @@ function editRSS()
     DisplayHead("Administration - RSS");
 
     // Admin Menu
-    displayMenu();
+    
     echo "<div align=\"center\">";
     echo "<table border=1 bordercolor=\"".$cfg["table_admin_border"]."\" cellpadding=\"2\" cellspacing=\"0\" bgcolor=\"".$cfg["table_data_bg"]."\">";
     echo "<tr><td bgcolor=\"".$cfg["table_header_bg"]."\" background=\"themes/".$cfg["theme"]."/images/bar.gif\">";
@@ -570,7 +568,7 @@ function configSettings()
     DisplayHead("Administration - Settings");
 
     // Admin Menu
-    displayMenu();
+    
 
     // Main Settings Section
     echo "<div align=\"center\">";
@@ -1197,8 +1195,7 @@ function updateConfigSettings()
              AuditAction($cfg["constants"]["admin"], " Updating TorrentFlux Settings");
     }
 
-    $continue = getRequestVar('continue');
-    header("Location: admin.php?op=".$continue);
+showmessage('',1,1);
 }
 
 //****************************************************************************
@@ -1213,7 +1210,7 @@ function queueSettings()
     DisplayHead("Administration - Search Settings");
 
     // Admin Menu
-    displayMenu();
+    
 
         // Queue Manager Section
     echo "<div align=\"center\">";
@@ -1502,7 +1499,7 @@ function searchSettings()
     DisplayHead("Administration - Search Settings");
 
     // Admin Menu
-    displayMenu();
+    
 
     // Main Settings Section
     echo "<div align=\"center\">";
@@ -1650,11 +1647,11 @@ function updateSearchSettings()
 //****************************************************************************
 // TRAFFIC CONTROLER
 $op = getRequestVar('op');
-
 switch ($op)
 {
 
     default:
+		exit();
         $min = getRequestVar('min');
         if(empty($min)) $min=0;
         showIndex($min);

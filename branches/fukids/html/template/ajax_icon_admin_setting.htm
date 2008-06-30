@@ -1,3 +1,4 @@
+<form id="admin_setting_form" method="post" action="admin.php?op=updateConfigSettings" >
 <div id="setting_info">
 <div id="setting_right">
 	<div id="setting_Display" class="mootabs_panel">
@@ -6,27 +7,27 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Confirm_When_Delete_Torrent} :</td>
-			<td><input type="checkbox" name="confirm_delete_torrent"/></td>
+			<td><input type="checkbox" name="Confirm_Del_tor" {echo MakeDefault('Confirm_Del_tor','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Display_Current_Speed_in_Title} :</td>
-			<td><input type="checkbox" name="speed_in_title"/></td>
+			<td><input type="checkbox" name="speed_in_title" {echo MakeDefault('speed_in_title','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Display_Torrent_Search} :</td>
-			<td><input type="checkbox" name="speed_in_title"/></td>
+			<td><input type="checkbox" name="enable_search" {echo MakeDefault('enable_search','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Show_Server_Load} :</td>
-			<td><input type="checkbox" name="speed_in_title"/></td>
+			<td><input type="checkbox" name="show_ser_load" {echo MakeDefault('show_ser_load','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Show_Disk_Space} :</td>
-			<td><input type="checkbox" name="speed_in_title"/></td>
+			<td><input type="checkbox" name="show_disk_space" {echo MakeDefault('show_disk_space','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Refresh_interval} :</td>
-			<td><input type="text" class="num" size="3" name="speed_in_title"/>s</td>
+			<td><input type="text" class="num" size="3" {echo MakeDefault('page_refresh','text')} name="page_refresh"/>s</td>
 		</tr>
 		</table>
 		</fieldset>
@@ -35,11 +36,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Auto_Start} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="auto_start" {echo MakeDefault('auto_start','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Smart_Select} :</td>
-			<td><input type="checkbox" name="smart_select"/></td>
+			<td><input type="checkbox" name="smart_select" {echo MakeDefault('smart_select','checkbox')} value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -50,11 +51,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Enable_File_download} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="enable_file_dl" {echo MakeDefault('enable_file_dl','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Enable_Download_Compressed_Dir} :</td>
-			<td><input type="checkbox" name="smart_select"/></td>
+			<td><input type="checkbox" name="enable_dl_compress_dir" {echo MakeDefault('enable_dl_compress_dir','checkbox')} value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -63,15 +64,15 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Allow_text_Preview} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="allow_text_preview" {echo MakeDefault('allow_text_preview','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Allow_pic_Preview} :</td>
-			<td><input type="checkbox" name="smart_select"/></td>
+			<td><input type="checkbox" name="allow_pic_preview" {echo MakeDefault('allow_pic_preview','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Allow_video_Preview} :</td>
-			<td><input type="checkbox" name="smart_select"/></td>
+			<td><input type="checkbox" name="allow_video_preview" {echo MakeDefault('allow_video_preview','checkbox')} value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -82,7 +83,7 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td>{_Port_LIMIT} :</td>
-			<td><input type="text" name="minport" class="num" size="5" value="{$Default_minport}" /> -<input type="text" name="maxport" class="num" size="5" value="{$Default_maxport}" /></td>
+			<td><input type="text" name="limitminport" class="num" size="5" {echo MakeDefault('limitminport','text')} /> -<input type="text" name="limitmaxport" class="num" size="5" {echo MakeDefault('limitmaxport','text')}  /></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -93,11 +94,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Force_Download_In_Home_Dir} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="force_dl_in_home_dir" {echo MakeDefault('force_dl_in_home_dir','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Enable_Make_Torrent} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="enable_maketorrent" {echo MakeDefault('enable_maketorrent','checkbox')} value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -106,11 +107,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Allow_Encrypted_Connections} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="crypto_allowed" {echo MakeDefault('crypto_allowed','checkbox')}  value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Only_Allow_Encrypted_Connections} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="crypto_only" {echo MakeDefault('crypto_only','checkbox')}  value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -148,19 +149,19 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Python_Path} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td><input type="text" size="20" name="pythonCmd" value="{$cfg['pythonCmd']}" /></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btphptornado_Path} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td><input type="text" size="20" name="btphpbin" value="{$cfg['btphpbin']}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btmakemetafilepy_Path} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td><input type="text" size="20" name="btshowmetainfo" value="{$cfg['btshowmetainfo']}"/></td>
 		</tr>
 		<tr>
-			<td style="width:80%">{loadavg_Path} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td style="width:80%">{_loadavg_Path} :</td>
+			<td><input type="text" size="20" name="loadavg_path" value="{$cfg['loadavg_path']}"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -169,11 +170,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{Extra_BitTornado_Commandline} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td><input type="text" size="20" name="cmd_options" value="{$cfg['cmd_options']}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_SQL_Debug} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="debug_sql" {echo MakeDefault('debug_sql','checkbox')} value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -190,7 +191,10 @@
 	</ul>
 </div>
 </div>
+
 <script type="text/javascript">
 settingtab		=	new mootabs('setting_info', {'defaultPanel':'setting_display'});
 
 </script>
+	<input type="Submit" value="{_UPDATE}">
+</form>

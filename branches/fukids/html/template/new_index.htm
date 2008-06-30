@@ -46,7 +46,9 @@ function echo (a){
 					}
 				update_data(data['torrents']);
 				//update title
+					{if $cfg['speed_in_title']}
 				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
+					{/if}
 				//update leftmenu 1
 				$('sdownloading').innerHTML=data['global']['totaldownloading'];
 				$('sfinished').innerHTML=data['global']['totalfinished'];
@@ -160,8 +162,29 @@ function echo (a){
 		$$('div#tbody div#'+torrent.id+' .tl_estime').set('html',torrent.estTime);
 		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
 	}
-
 	torrentControl=function(action,id){
+		{if $cfg['Confirm_Del_tor']}
+		if(action=='Del'){
+				if(!confirm('{_sure_delete}')){
+					return false;
+				}
+		}
+		if(action=='_Del_n_Remove_Torrent'){
+				if(!confirm('{_sure_delete_n_tor}')){
+					return false;
+				}
+		}
+		if( action=='_Del_n_Remove_Torrent_And_Files'){
+				if(!confirm('{_sure_delete_tor_n_file}')){
+					return false;
+				}
+		}
+		if( action=='_Del_n_Remove_Files'){
+				if(!confirm('{_sure_delete_n_file}')){
+					return false;
+				}
+		}
+		{/if}
 		Mainloading.show();
 		new Request.HTML({onComplete:function(data){
 			forceUpdate();
@@ -195,6 +218,7 @@ function echo (a){
 						$('window_'+id+'_content').set('load', {
 							'evalScripts': true
 						}).load(a.href);
+						
 						return false;
 					});
 				});
@@ -203,10 +227,21 @@ function echo (a){
 						thisform.action+='&usejs=1';
 					}else{
 							thisform.addEvent('submit',function(){
+									if($defined(thisform.id)){
+										$$('#'+thisform.id+' input[type=checkbox]').each(function(i){
+											if(i.checked==false){
+												i.value=0;
+												i.checked=true;
+											}
+										});
+									}
+							
 								thisform.set('send', {url:thisform.action+'&usejs=1',
-									onSuccess:function(e){eval(e);}}).send();
+									onSuccess:function(e){eval(e);}}
+								).send();
 								return false;
 							});
+
 					}
 				});
 				$$('#window_'+id+' input.num').each(function(thisform){
@@ -312,12 +347,7 @@ window.addEvent('domready', function() {
 			item.setStyle('border','1px solid #fff');
 		});
 	});
-	//search bar javascript
-	$('searchterm').addEvent('focus',function(){
-		this.value='';
-	}).addEvent('blur',function(){
-		if(this.value=='')this.value='Torrent {_SEARCH}';
-	});
+
 	window.addEvent('keydown', function(e){
 		e = new Event(e); 
 			if(e.key=='esc'){
@@ -364,14 +394,21 @@ window.addEvent('domready', function() {
 	{foreach $userlist $index $user}
 		build_UserList_Extra({$index},{$user['uid']},'{$user['user_id']}');
 	{/foreach}
-	$('form_search').addEvent('submit',function(){
-		if($('searchterm').value=='Torrent {_SEARCH}')
-			$('searchterm').value='';
-		var selectedItem = document.form_search.searchEngine.options[document.form_search.searchEngine.selectedIndex].value;
-		OpenWindow('Torrent_Search','Torrent {_SEARCH}','form','searchterm='+$('searchterm').value+'&searchEngine='+selectedItem,800,500);
-		return false;
-	});
-
+	{if $cfg['enable_search']}
+		//search bar javascript
+		$('searchterm').addEvent('focus',function(){
+			this.value='';
+		}).addEvent('blur',function(){
+			if(this.value=='')this.value='Torrent {_SEARCH}';
+		});
+		$('form_search').addEvent('submit',function(){
+				if($('searchterm').value=='Torrent {_SEARCH}')
+					$('searchterm').value='';
+			var selectedItem = document.form_search.searchEngine.options[document.form_search.searchEngine.selectedIndex].value;
+			OpenWindow('Torrent_Search','Torrent {_SEARCH}','form','searchterm='+$('searchterm').value+'&searchEngine='+selectedItem,800,500);
+			return false;
+		});
+	{/if}
 listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 	$$('#list_torrent div.tl').each(function(e){
 			if($defined(listwidth.get(e.id))){
@@ -387,7 +424,7 @@ var down_selecting_tab;
 var selected_feeds ='0';
 var selected_status='0';
 var selected_user ='0';
-var UpdateInterval={$Update_interval};
+var UpdateInterval={$cfg['page_refresh']};
 var myuid={$cfg['uid']};
 var myusername='{$cfg['user']}';
 var downloadingspeed =new Array;
@@ -397,10 +434,12 @@ var uploadingspeed =new Array;
 <div id="top_icon_Bar">
 <div id="searchdiv">
 <form id="form_search" name="form_search" action="torrentSearch.php" method="get">
+	{if $cfg['enable_search']}
 	<input type="text" name="searchterm" id='searchterm' value="Torrent {_SEARCH}" size="20" maxlength="50">
 	{echo buildSearchEngineDDL($cfg["searchEngine"])}
 	<input type="Submit" value="{_SEARCH}">
 	</form>
+	{/if}
 </div>
 <div class="icon icon_window" id="Upload_Torrent" title="{_Upload_Torrent}"><img src="images/icon/Upload_Torrent.PNG" alt="upload_torrent" /></div>
 <div class="icon icon_window" id="Url_Torrent" 	title="{_Url_Torrent}"><img src="images/icon/Url_Torrent.PNG" alt="uplaod torrent from url" /></div>

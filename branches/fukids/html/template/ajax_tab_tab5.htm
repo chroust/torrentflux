@@ -34,8 +34,8 @@
 			updateGraph();
 			}).addEvent('TabExit', function() {
 				downloadingspeed[selecting]=$empty;
-				downloadingspeed[selecting]=$empty;
-				graphtimer=$empty;
+				uploadingspeed[selecting]=$empty;
+				clearTimeout(graphtimer);
 			});
 
 			</script>
