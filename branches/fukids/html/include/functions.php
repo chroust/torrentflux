@@ -2503,7 +2503,7 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
 		if($recordset->RecordCount() == 1){
-			showmessage('TORRENT ALREADY EXIST');
+			showmessage('TORRENT ALREADY EXIST',1,0);
 		}
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
 	// creat the .stat file for displaying
@@ -2658,6 +2658,7 @@ function TorrentIDtoTorrent($id){
 	return $return['torrent'];
 }
 function GetUserList(){
+// get an array of user list
 	global $db;
 	$sql='select * From `tf_users`';
 	$recordset = $db->Execute($sql);
@@ -2668,6 +2669,8 @@ function GetUserList(){
 	return $array;
 }
 function template($file){
+// return the path of the cached template file
+// it also creat cache file if it does not exist
 	global $lang;
 	$objfile = ENGINE_ROOT . '/cache/templates/' .$lang.'_'.$file .'.tpl.php';
 	$tmpfile = ENGINE_ROOT.'/template/'.$file.'.htm';
@@ -2682,8 +2685,8 @@ function template($file){
 	return $objfile;
 }
 function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
-// this function build the var for prio
-// the file list should look like this:
+// this function build the variable for prio
+// the input file list should look like this:
 //  $filelist[0]['path']='xxxxxxx';
 //  $filelist[1]['path']='xxxxxxx';
 //
@@ -2691,6 +2694,8 @@ function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
 //  $priolist[0]=1;
 //  $priolist[1]=1;
 // 1= download, 0=not download
+//
+// it return -1,2,2,2,-1, for saving into database or send to the tornado
 	$comma='';
 	$default==1?1:-1;
 	$prioList=$prioList==NULL?array():$prioList;
@@ -2719,6 +2724,7 @@ function getFile($var){
 	return ($var < 65535)? true:false;
 }
 function formatTorrentInfoFilesList($meta_info,$FindPadding=9){
+	//this function can format torrent meta to the file array
 		if(is_array($meta_info)){
 			//if this is a list of file
 			foreach($meta_info as $fileindex=> $file){

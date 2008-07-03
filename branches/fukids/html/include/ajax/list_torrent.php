@@ -56,7 +56,12 @@ $result = $db->SelectLimit($sql, 50,0);
 		$af = new AliasFile($dirName.$alias, $owner_id);
 		$timeStarted = "";
 		$haspid=GetPid(torrent2stat($torrent))=='-1'?false:true;
-		list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
+			if($af->time_left=='Download Failed!'){
+				$status='-1';
+				$status_text=_ERRORSREPORTED;
+			}else{
+				list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
+			}
 		$totaldownloading+= ($status==2)?1:0;
 		$totalfinished+= ($status==4 || $status ==5)?1:0;
 		$totalactive+=($haspid==true)?1:0;
@@ -67,7 +72,6 @@ $result = $db->SelectLimit($sql, 50,0);
 		if(!in_array('0',$Requiredusers) AND !in_array($owner_id,$Requiredusers)){
 			$in_filter=0;
 		}else{
-			
 		//check required status
 			if(in_array('0',$Requiredstatus)){
 				//if no specific status required

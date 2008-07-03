@@ -306,10 +306,9 @@ function ListDirectory($dirName)
         echo "<table cellpadding=2 width=740>";
         echo '<form action="multi.php" method="post" name="multidir">';
         echo '<input type="hidden" name="action" value="fileDelete" />';
-        echo '<tr><td colspan="2">';
+        echo '<tr><td colspan="3">';
         echo "<a href=\"" . $parentURL . "\"><img src=\"images/up_dir.gif\" width=16 height=16 title=\""._BACKTOPARRENT."\" border=0>["._BACKTOPARRENT."]</a>";
         echo '</td>';
-        echo '<td align="right">Multi-Delete-&gt;</td>';
         echo '<td align="right"><a href="javascript:document.multidir.submit()" onclick="return ConfirmDelete(\'Multiple Files\')">';
         echo '<img src="images/delete_on.gif" title="Delete Multiple Files" border="0" height="16" width="16"></a>';
         echo '<input type="checkbox" onclick="checkCheck(this);" /></td></tr>';
