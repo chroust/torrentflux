@@ -4,7 +4,7 @@ include_once("include/functions.php");
 //check and grab action
 $id=getRequestVar('id',array('torrent','user'));
 if($id=='torrent'){
-$action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files'));
+$action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files','torrent_download'));
 $torrentid=getRequestVar('torrentid');
 	if((in_array($action,array('Kill','Del','Start','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files')) && !is_numeric($torrentid)) && (in_array($action,array('Kill','Start')) && $torrentid!=='all')){
 		showmessage('no Variable: $torrent OR $torrent is not a intval : '.$torrentid,1);
@@ -108,7 +108,6 @@ include_once("include/BtControl_Tornado.class.php");
 						?> OpenWindow('Edit_Torrent','<?=Edit_Torrent?>','icon','torrentid=<?=$torrentid?>');<?
 					}
 			}
-
 	}elseif($action=='UrlUpload'){
 		//if user want upload torrent from url
 		$torrentid=UrlTorrent(getRequestVar('torrent'));
@@ -119,6 +118,14 @@ include_once("include/BtControl_Tornado.class.php");
 				showmessage('Uploaded And Started',1,1);
 			}
 			showmessage('Uploaded',1,1);
+	}elseif($action=='torrent_download'){
+			if(!is_numeric($torrentid)){
+				exit();
+			}
+		$torrentName=torrentid2torrentname($torrentid);
+		header("Content-Disposition: attachment; filename=$torrentName");
+		//header("Content-Type: application/octet-stream");
+		readfile($cfg["torrent_file_path"].$torrentName);
 	}
 }elseif($id=='user'){
 	$action=getRequestVar('action',array('Send_PM','_EDITUSER','Del_PM'));

@@ -34,9 +34,19 @@
 </head>
 <body>
 <script  type="text/javascript">
-function echo (a){
+function echo(a){
 	console.log(a);
 }
+function iframeLoad(url){
+	var myIframe = new Element('iframe', {
+		'src': url,
+		'styles': {
+			'display': 'none',
+		}
+	}).inject($('down'),'before');
+	
+}
+
 	//function for grabing torrent list
 	get_data=function(){
 		Mainloading.show();
@@ -140,7 +150,7 @@ function echo (a){
 			if(act_id=='Edit_Torrent'){
 				OpenWindow('Edit_Torrent','{_Edit_Torrent}','icon','torrentid='+menu_bindon.id);
 			}else if(act_id=='_Download_Torrent'){
-				
+				iframeLoad('action.php?id=torrent&action=torrent_download&torrentid='+menu_bindon.id);
 			}else{
 				torrentControl(act_id,menu_bindon.id);
 			}
