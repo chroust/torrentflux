@@ -60,6 +60,10 @@ include_once("include/BtControl_Tornado.class.php");
 		$maxuploads=intval(getRequestVar('maxuploads'));
 		$minport=intval(getRequestVar('minport'));
 		$maxport=intval(getRequestVar('maxport'));
+		//fix max port and min port in admin specific range
+		$minport=$minport < $cfg['minport']? $cfg['minport']:$minport;
+		$maxport=$maxport > $cfg['maxport']? $cfg['maxport']:$maxport;
+		
 		$rerequest=intval(getRequestVar('rerequest'));
 		$sharekill=intval(getRequestVar('sharekill'));
 		$runtime=intval(getRequestVar('runtime'));
@@ -78,7 +82,7 @@ include_once("include/BtControl_Tornado.class.php");
 		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime;prio:$prio");
 		$Bt->Kill();
 		$Bt->Start();
-		showmessage('Edited',1,1);
+		showmessage('',1,1);
 	}elseif($action=='Upload'){
 		//if user want upload the torrent from file
 			$autostart=getRequestVar('autostart');

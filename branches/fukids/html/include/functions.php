@@ -35,6 +35,8 @@ $usejs=getRequestVar('usejs');
 $db = getdb();
 loadSettings();
 
+$cfg['path']=$cfg['force_dl_in_home_dir']?$cfg['path'].$cfg["user"].'/':$cfg['path'];
+
 // Free space in MB
 $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 

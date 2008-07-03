@@ -233,7 +233,6 @@ if (isset($dir))
     }
 }
 
-DisplayHead(_DIRECTORYLIST);
 ?>
 
 <script language="JavaScript">
@@ -264,7 +263,7 @@ function checkCheck(thisIn)
 <?php
 
 displayDriveSpaceBar(getDriveSpace($cfg["path"]));
-echo "<br>";
+echo "<br />";
 
 if(!isset($dir)) $dir = "";
 
@@ -276,8 +275,6 @@ else
 {
     ListDirectory($cfg["path"].$dir);
 }
-
-DisplayFoot();
 
 
 //**************************************************************************

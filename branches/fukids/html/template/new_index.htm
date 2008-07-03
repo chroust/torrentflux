@@ -227,6 +227,7 @@ function echo (a){
 						thisform.action+='&usejs=1';
 					}else{
 							thisform.addEvent('submit',function(){
+							
 									if($defined(thisform.id)){
 										$$('#'+thisform.id+' input[type=checkbox]').each(function(i){
 											if(i.checked==false){
