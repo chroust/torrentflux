@@ -31,14 +31,14 @@ function getRequestVar($varName,$limited_values=''){
         if (is_array($_REQUEST[$varName])){
             $tmpArr = $_REQUEST[$varName];
             foreach($tmpArr as $key => $value){
-                $tmp = htmlentities(trim($value), ENT_QUOTES);
+                $tmp = saftSQL($value);
 					if($limited_values !=='' && is_array($limited_values) && in_array($tmp,$limited_values)){
 						$tmpArr[$key]=$tmp;
 					}
             }
             return $tmpArr;
         } else {
-			$tmp = htmlentities(trim($_REQUEST[$varName]), ENT_QUOTES);
+			$tmp = saftSQL($_REQUEST[$varName]);
 				if(is_array($limited_values)){
 						if(in_array($tmp,$limited_values)){
 							return $tmp;
@@ -55,6 +55,18 @@ function getRequestVar($varName,$limited_values=''){
 }
 
 
+function saftSQL($content){
+	if (!get_magic_quotes_gpc()) {
+			if (is_array($content)) {
+					foreach ($content as $key=>$value) {
+						$content[$key] = saftSQL($value);
+					}
+			} else {
+				$content=addslashes($content);
+			}
+	}
+return $content;
+}
 //*********************************************************
 // AuditAction
 function AuditAction($action, $file="")

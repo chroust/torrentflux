@@ -87,9 +87,9 @@ function parse_template($file,$InTemplate=0) {
 
 	$template = preg_replace("/[\n\r\t]*\{template\s+([a-z0-9_]+)\}[\n\r\t]*/e", "get_Template_HTML('$1')", $template);
 	$template = preg_replace("/[\n\r\t]*\{template\s+(.+?)\}[\n\r\t]*/e", "get_Template_HTML('$1')", $template);
-	$template = preg_replace("/[\n\r\t]*\{eval\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('\n<? \\1 ?>\n','')", $template);
-	$template = preg_replace("/[\n\r\t]*\{echo\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('\n<? echo \\1; ?>\n','')", $template);
-	$template = preg_replace("/[\n\r\t]*\{elseif\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('\n<? } elseif(\\1) { ?>\n','')", $template);
+	$template = preg_replace("/[\n\r\t]*\{eval\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('<? \\1 ?>\n','')", $template);
+	$template = preg_replace("/[\n\r\t]*\{echo\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('<? echo \\1; ?>\n','')", $template);
+	$template = preg_replace("/[\n\r\t]*\{elseif\s+(.+?)\}[\n\r\t]*/ies", "stripvtags('<? } elseif(\\1) { ?>\n','')", $template);
 	$template = preg_replace("/[\n\r\t]*\{else\}[\n\r\t]*/is", "\n<? } else { ?>\n", $template);
 
 	for($i = 0; $i < $nest; $i++) {
