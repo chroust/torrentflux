@@ -46,7 +46,13 @@ $Requiredstatus=split(',',getRequestVar('status'),4);
     }
 $Requiredusers=split(',',getRequestVar('users'));
 
-$sql = "SELECT w.hide_offline,w.last_visit,t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id ";
+$sqladd='';
+	if(!$allow_view_other_torrent){
+		//restrict other user's torrent are invisable
+		$sqladd=" AND t.owner_id=\'$myuid\'";
+	}
+
+$sql = "SELECT w.hide_offline,w.last_visit,t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id $sqladd";
 $result = $db->SelectLimit($sql, 50,0);
 	while(list($hide_offline,$list_visit,$id, $file_name,$torrent,$hash, $owner_id,$owner) = $result->FetchRow()){
 		// get torrent info

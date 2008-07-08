@@ -47,7 +47,7 @@ if($action=='listtorrent'){
 			$userinfo=GrabUserData($uid);
 			$arLanguage = GetLanguages();
 			$arThemes = GetThemes();
-			include template('ajax_RightClick_EDIT_USER');
+			include template('ajax_admin_EDIT_USER');
 		}elseif($id=='_ADMIN_VIEW_HISTORY'){
 			AdminCheck();
 			header("location: admin.php?op=showUserActivity");

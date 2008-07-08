@@ -1743,7 +1743,8 @@ switch ($op)
         $pass1 = getRequestVar('pass1');
         $userType = getRequestVar('userType');
         $hideOffline = getRequestVar('hideOffline');
-        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline);
+        $allow_view_other_torrent = getRequestVar('allow_view_other_torrent');
+        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent);
 		echo "window.location.reload(true);";
     break;
 

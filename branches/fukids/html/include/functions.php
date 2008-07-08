@@ -137,7 +137,7 @@ function Authenticate(){
 		exit();
 	}
 
-	$sql = "SELECT uid, hits, hide_offline, theme, language_file FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
+	$sql = "SELECT uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
 
@@ -148,7 +148,7 @@ function Authenticate(){
 		exit();
 	}
 
-	list($uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file']) = $recordset->FetchRow();
+	list($uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file'],$allow_view_other_torrent) = $recordset->FetchRow();
 	$cfg['uid']=$uid;
 	// Check for valid theme
 	if (!ereg('^[^./][^/]*$', $cfg['theme'])){
@@ -189,6 +189,7 @@ function Authenticate(){
 	showError($db,$sql);
 	$GLOBALS['isadmin']=IsAdmin();
 	$GLOBALS['myuid']=$uid;
+	$GLOBALS['allow_view_other_torrent']=$GLOBALS['isadmin'] || $allow_view_other_torrent?1:0;
 }
 function AdminCheck(){
 		if(!$GLOBALS['isadmin']){
@@ -788,7 +789,7 @@ function DeleteThisUser($uid){
 
 // ***************************************************************************
 // Update User -- used by admin
-function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline){
+function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent){
 	global $db,$cfg;
 	AdminCheck();
 		if(IsUser($user_id) && ($user_id != $org_user_id)){
@@ -801,7 +802,7 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
 			showmessage(_PASSWORDLENGTH,1);
 		}
 	$hideOffline =$hideOffline?1: 0;
-
+	$$allow_view_other_torrent=$allow_view_other_torrent?1:0;
 	$sql = 'select * from tf_users where user_id = '.$db->qstr($org_user_id);
 	$rs = $db->Execute($sql);
 	showError($db,$sql);
@@ -810,6 +811,7 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline)
 	$rec['user_id'] = $user_id;
 	$rec['user_level'] = $userType;
 	$rec['hide_offline'] = $hideOffline;
+	$rec['allow_view_other_torrent'] = $allow_view_other_torrent;
 
 	if ($pass1 != ""){
 		$rec['password'] = md5($pass1);
