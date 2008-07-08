@@ -43,8 +43,8 @@ $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
 $cfg["torrent_file_path"] = $cfg["path"].".torrents/";
-
-if($_SERVER['SCRIPT_FILENAME']!==ENGINE_ROOT.'login.php'){
+if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || ($_SERVER['argv'][0]==ENGINE_ROOT.'cronwork.php')){
+}else{
 Authenticate();
 include_once("language/".$cfg['language_file']);
 include_once("themes/".$cfg['theme']."/index.php");
@@ -125,7 +125,6 @@ function Authenticate(){
 	global $cfg, $db;
 
 	$create_time = time();
-
 	if(!isset($_SESSION['user'])){
 		header('location: login.php');
 		exit();
@@ -519,7 +518,7 @@ function IsOwner($user, $owner)
 }
 
 //*********************************************************
-function GetActivityCount($user="")
+function GetActivityCount($user="",$timestamp=0)
 {
 	global $cfg, $db;
 
@@ -531,6 +530,9 @@ function GetActivityCount($user="")
 		$for_user = "user_id=".$db->qstr($user)." AND ";
 	}
 
+	if(intval($timestamp) && $timestamp >0){
+		$foruser.="time > $timestamp AND ";
+	}
 	$sql = "SELECT count(*) FROM tf_log WHERE ".$for_user."(action=".$db->qstr($cfg["constants"]["file_upload"])." OR action=".$db->qstr($cfg["constants"]["url_upload"]).")";
 	$count = $db->GetOne($sql);
 
@@ -789,7 +791,7 @@ function DeleteThisUser($uid){
 
 // ***************************************************************************
 // Update User -- used by admin
-function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent){
+function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent,$torrentlimit_period,$torrentlimit_number){
 	global $db,$cfg;
 	AdminCheck();
 		if(IsUser($user_id) && ($user_id != $org_user_id)){
@@ -803,6 +805,8 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 		}
 	$hideOffline =$hideOffline?1: 0;
 	$$allow_view_other_torrent=$allow_view_other_torrent?1:0;
+	$torrentlimit_period=intval($torrentlimit_period);
+	$torrentlimit_number=intval($torrentlimit_number);
 	$sql = 'select * from tf_users where user_id = '.$db->qstr($org_user_id);
 	$rs = $db->Execute($sql);
 	showError($db,$sql);
@@ -812,6 +816,8 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 	$rec['user_level'] = $userType;
 	$rec['hide_offline'] = $hideOffline;
 	$rec['allow_view_other_torrent'] = $allow_view_other_torrent;
+	$rec['torrentlimit_period'] = $torrentlimit_period;
+	$rec['torrentlimit_number'] = $torrentlimit_number;
 
 	if ($pass1 != ""){
 		$rec['password'] = md5($pass1);
@@ -2418,6 +2424,7 @@ function UrlTorrent($url,$options=''){
 		if(!function_exists('curl_init')){
 			showmessage('please install php curl first',1);
 		}
+	// download by curl
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_TIMEOUT, 300);
 	curl_setopt($ch, CURLE_OPERATION_TIMEOUTED, 300);
@@ -2431,6 +2438,7 @@ function UrlTorrent($url,$options=''){
 			showmessage(DumpCurlError($errno,$errstring),1);
 		}
 	curl_close($ch);
+	//generate torrent name
 		do{
 			$file_name=$cfg["torrent_file_path"].RANDOM().$timestamp.'.torrent';
 		}while(is_file($cfg["torrent_file_path"].$file_name));
@@ -2518,6 +2526,10 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 //function for injecting SQL while creating a torrent job
 function NewTorrentInjectDATA($filename,$options=''){
 	global $db,$cfg;
+	//check torrent limit
+		if(checkTorrentLimit($cfg['uid'])){
+			showmessage('_Max_Torrent_Limit_Reached',1,1);
+		}
 	$basename=basename($filename);
 	//GrabTorrentInfo
 	$info=GrabTorrentInfo($basename);
@@ -2568,6 +2580,16 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
 	return $torrentID;
+}
+
+function checkTorrentLimit($uid){
+	global $db;
+	$userinfo=GrabUserData($uid);
+		if($userinfo['torrentlimit_period']>0 && $userinfo['torrentlimit_number']>0){
+			return GetActivityCount(Uid2Username($uid),$userinfo['torrentlimit_period']*85200)>$userinfo['torrentlimit_number']?false:true;
+		}else{
+			return true;
+		}
 }
 // ***************************************************************************
 // ***************************************************************************

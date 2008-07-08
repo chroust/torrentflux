@@ -1,0 +1,70 @@
+<form name="this" method="post" action="admin.php?op=updateUser" >
+<table border="0" cellpadding="3" cellspacing="2" width="100%">
+<input type="hidden" id="org_user_id" name="org_user_id" value="{$userinfo['user_id']}" />
+<tr>
+	<td>{_USER}:</td>
+	<td>
+	<input type="Text" name="user_id" id="user_id" value="{$userinfo["user_id"]}" size="15" />
+	</td>
+</tr>
+<tr>
+	<td>{_NEWPASSWORD}:</td>
+	<td>
+	<input name="pass1" id="pass1" type="Password"size="15" />
+	</td>
+</tr>
+<tr>
+	<td>{_CONFIRMPASSWORD}:</td>
+	<td>
+	<input name="pass2" id="pass2" type="Password" size="15" />
+	</td>
+</tr>
+<tr>
+	<td>{_THEME}:</td>
+	<td>
+	<select name="theme" id="theme">
+	{foreach $arThemes $inx $theme}
+	<option value="{$theme}" {if $userinfo["theme"] == $theme}selected = "selected"{/if}>{$theme}</option>
+	{/foreach}
+	</select>
+	</td>
+</tr>
+<tr>
+	<td>{_LANGUAGE}:</td>
+	<td>
+	<select name="language" id="language">
+	{foreach $arLanguage $inx $Language}
+	<option value="{$Language}" {if $userinfo["language_file"] == $Language}selected = "selected"{/if}>{echo GetLanguageFromFile($Language)}</option>
+	{/foreach}
+	</select>
+	</td>
+</tr>
+<tr>
+	<td colspan=2>
+	{_torrentlimit_period} <input name="torrentlimit_period" id="torrentlimit_period" type="text" class="num" size="5" value="{$userinfo['torrentlimit_period']}" />
+	{_torrentlimit_number} <input name="torrentlimit_number" id="torrentlimit_number" type="text" class="num" size="5" value="{$userinfo['torrentlimit_number']}" />
+	{_torrentlimit_number_after} <br />
+	({_zero_is_no_limit})
+	</td>
+</tr>
+<tr>
+	<td>
+	</td>
+	<td>
+	<input name="hideOffline" id="hideOffline" type="Checkbox" value="1" {if $userinfo['hide_offline']==1}checked="checked"{/if}> {_HIDEOFFLINEUSERS}<br>
+	</td>
+</tr>
+<tr>
+	<td>
+	</td>
+	<td>
+	<input name="allow_view_other_torrent" id="allow_view_other_torrent" type="Checkbox" value="1" {if $userinfo['allow_view_other_torrent']==1}checked="checked"{/if}> {_allow_view_other_torrent}<br>
+	</td>
+</tr>
+<tr>
+	<td align="center" colspan="2">
+	<input type="Submit" value="{_UPDATE}">
+	</td>
+</tr>
+</form>
+</table>

@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<script type="text/javascript" src="js/mootools-1.2-core.js"></script>
+<script type="text/javascript" src="js/mootools-1.2-more.js"></script>
+<script type="text/javascript" src="js/ddmenu.js"></script>				
+<link href="css/dir.css" rel="stylesheet" type="text/css" />
+<link href="css/menu.css" rel="stylesheet" type="text/css" media="screen" />
+<!--[if IE]>
+	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
+<![endif]-->
+</head>
+<body>
+<script  type="text/javascript">
+var selecting;
+var Yesmousedown=0;
+var Dragging=0;
+var renaming=0;
+var clone;
+var basedir='{echo addslashes(rawurlencode($_GET['dir']))}/';
+window.addEvent('domready', function() {
+	FxScroll = new Fx.Scroll('DirListContainer');
+	$$('.DirList').each(function(item){
+		item.addEvents({
+		'mousedown':function(e){
+			// for selecting
+			e = new Event(e).preventDefault(); 
+			Yesmousedown=1;
+				if(selecting!==item){
+					SelectThis(item);
+				}
+		},
+		'mouseup':function(e){
+			Yesmousedown=0;
+			Dragging=0;
+		},
+		'dblclick':function(e){
+			//for opening
+			e = new Event(e).stop();
+			OpenAct(item);
+		},
+		'mouseleave':function(e){
+			item.removeClass('dragOver');
+		},
+		'mouseenter':function(e) {
+			// for dragging
+			e = new Event(e).stop();
+				if(Yesmousedown==0) return;
+				if(Dragging==1 && item.hasClass('folder')){
+					item.addClass('dragOver');
+				}else if(Dragging==0){
+					Dragging=1;
+					clone = selecting.clone()
+						.setStyles({'opacity': 0.7, 'position': 'absolute','left':e.client.x+10,'top':e.client.y+10,'width':selecting.width,'height':selecting.height})
+						.inject(document.body);
+					var drag = clone.makeDraggable({
+						droppables: $$('.folder'),
+						container :'DirListContainer',
+							onDrop: function(element, droppable){
+								element.destroy();
+								Dragging=0;
+								Yesmousedown=0;
+									if($defined(droppable) && droppable.getProperty('alt')!==element.getProperty('alt')){
+										MoveInto(element,droppable);
+									}
+							},
+					}).start(e); // start the event manual
+						if(item.hasClass('folder'))
+							item.addClass('dragOver');
+				}
+		}
+		});
+	});
+
+document.addEvent('keypress', function(event){
+    event = new Event(event);
+	console.log(event.code);
+		if(selecting){
+				if(event.code==113){
+					Rename(selecting);
+				}else if(event.code==13){OpenAct(selecting);
+				}else if(event.code==46){
+					//pressing delet
+					DeleteAct(selecting);
+				}
+		}
+		if(event.code==37){
+			//pressing arrow <-
+				if(selecting){
+					SelectThis(selecting.getPrevious());
+				}else{
+					SelectThis($('DirListContainer').getLast('div.DirList'));
+					FxScroll.toBottom();
+				}
+		}else if(event.code==39){
+			//pressing arrow ->
+				if(selecting){
+					SelectThis(selecting.getNext());
+				}else{
+					SelectThis($('DirListContainer').getElement('div.DirList'));
+					FxScroll.toTop();
+				}
+		}
+});
+	//for right clicking
+	{foreach $DirList $index $file}
+	new DDMenu ('FileRightClick', 'File_{$index}', {
+		onItemSelect: function (act_id, act_el, menu_bindon) {
+			if(act_id=='Del'){
+				DeleteAct(menu_bindon);
+			}else if(act_id=='Rename'){
+				Rename(menu_bindon);
+			}else if(act_id=='Download'){
+				window.location=($(act_id).hasClass('folder'))?'dir.php?tar='+basedir+menu_bindon.getProperty('alt'):'dir.php?down='+basedir+menu_bindon.getProperty('alt');
+			}
+		}
+	});
+	{/foreach}
+});
+
+
+var SelectThis = function(item){
+		if(!$defined(item) || !item.hasClass('DirList'))
+			return false;
+		if(selecting){
+				if(renaming){
+					RenameAct(selecting);
+				}
+			selecting.removeClass('selected');
+			var shortname=selecting.getElement('span').innerHTML;
+			selecting.getElement('span').set('html',selecting.getElement('span').getProperty('alt')).setProperty('alt',shortname);
+		}
+	item.addClass('selected');
+	var shortname=item.getElement('span').innerHTML;
+	item.getElement('span').set('html',item.getElement('span').getProperty('alt')).setProperty('alt',shortname);
+	selecting=item;
+}
+
+//function for moving file/ folder into another folder
+var MoveInto =function(FileDiv,Target){
+		var myRequest = new Request({method: 'post', url: 'dir.php',onSuccess:function(){
+			window.location.reload();
+		}}).send('moveinto='+basedir+FileDiv.getProperty('alt')+'&target='+basedir+Target.getProperty('alt'));
+}
+var OpenAct = function(FileDiv){
+			window.location=
+				(FileDiv.hasClass('folder'))?'dir.php?dir='+basedir+FileDiv.getProperty('alt'):
+				'dir.php?down='+basedir+urlencode(FileDiv.getProperty('alt'));
+				
+}
+
+//function for delete file / folder
+var DeleteAct = function(FileDiv){
+	if(confirm('delete')){
+		var myRequest = new Request({method: 'post', url: 'dir.php',onSuccess:function(){
+			window.location.reload();
+		}}).send('del='+basedir+FileDiv.getProperty('alt'));
+	}
+}
+//function for renaming
+var Rename = function(FileDiv){
+	renaming=1;
+	var oldname=FileDiv.getElement('span').innerHTML;
+	FileDiv.store('oldname',oldname);
+	FileDiv.getElement('span').set('html','');
+	thisinput=new Element('input', {
+		'type': 'text',
+		'value': oldname,
+		'events': {
+			'blur': function(){
+				RenameAct(FileDiv);
+			},
+			'mousedown':function(e){
+				e = new Event(e).stopPropagation (); 
+			},
+			'keypress':function(e){
+				e = new Event(e).stopPropagation (); 
+			}
+		}
+	}).inject(FileDiv.getElement('span')).select();
+}
+//function for requesting rename
+var RenameAct = function(FileDiv){
+	renaming=0;
+	OldName=FileDiv.retrieve('oldname');
+	NewName=FileDiv.getElement('input').value;
+	// rename check
+		if(NewName==null || NewName.trim()==""){
+			NewName=OldName;
+		}
+		console.log(NewName);
+	new Request({method: 'post', url: 'dir.php',onSuccess:function(){
+	}}).send('rename='+basedir+urlencode(OldName)+'&newname='+basedir+(NewName));
+	FileDiv.getElement('span').set('html',NewName).setProperty('alt',NewName);
+	FileDiv.setProperty('alt',NewName);
+}
+
+
+
+function urlencode(str) {
+	str = encodeURIComponent(str);
+	str = str.replace('+', '%2B');
+	str = str.replace('%20', '+');
+	str = str.replace('*', '%2A');
+	str = str.replace('/', '%2F');
+	str = str.replace('@', '%40');
+	return (str);
+}
+
+function urldecode(str) {
+	str = str.replace('+', ' ');
+	str = decodeURIComponent((str));
+	return str;
+}
+</script>
+<div id="DirListContainer">
+{foreach $DirList $index $file}
+	<div class="DirList {$file['type']}" alt="{echo rawurlencode($file['name'])}" id="File_{$index}">
+		<div class="fileInfo">
+			<span class="filename" alt="{$file['name']}">{$file['shortname']}</span>
+			<br />
+			<span class="filetype"></span>
+			<br />
+			<span class="filesize">{$file['size']}</span>
+		</div>
+		<div class="icon">
+			<img src="{$file['icon']}" class="icon" alt="">
+		</div>
+	</div>
+{/foreach}
+</div>
+
+
+<!--{ this is the DIV for displaying right click menu }-->
+<div class="ddmenu def" id="FileRightClick" style="display:none">
+<ul>
+<li class="item" id="Del"><a href="#">{_Del}</a></li>
+<li class="item" id="Rename"><a href="#">{_Rename}</a></li>
+<li class="item" id="Download"><a href="#">{_Download}</a></li>
+</ul>
+</div>
+</body>
+</html>

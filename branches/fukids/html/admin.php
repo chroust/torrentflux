@@ -1713,7 +1713,9 @@ switch ($op)
         $userType = getRequestVar('userType');
         $hideOffline = getRequestVar('hideOffline');
         $allow_view_other_torrent = getRequestVar('allow_view_other_torrent');
-        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent);
+        $torrentlimit_period = getRequestVar('torrentlimit_period');
+        $torrentlimit_number = getRequestVar('torrentlimit_number');
+        updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent,$torrentlimit_period,$torrentlimit_number);
 		echo "window.location.reload(true);";
     break;
 

@@ -70,6 +70,19 @@
 		</tr>
 		</table>
 		</fieldset>
+		<fieldset>
+		<legend>{_encrypted_connections}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Allow_Encrypted_Connections} :</td>
+			<td><input type="checkbox" name="crypto_allowed" {echo MakeDefault('crypto_allowed','checkbox')}  value="1"/></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_Only_Allow_Encrypted_Connections} :</td>
+			<td><input type="checkbox" name="crypto_only" {echo MakeDefault('crypto_only','checkbox')}  value="1"/></td>
+		</tr>
+		</table>
+		</fieldset>
 	</div>
 	<div id="setting_BitTorrent" class="mootabs_panel">
 		<fieldset>
@@ -86,19 +99,6 @@
 		<tr>
 			<td style="width:80%">{_Enable_Make_Torrent} :</td>
 			<td><input type="checkbox" name="enable_maketorrent" {echo MakeDefault('enable_maketorrent','checkbox')} value="1"/></td>
-		</tr>
-		</table>
-		</fieldset>
-		<fieldset>
-		<legend>{_encrypted_connections}</legend>
-		<table style="width:100%;border:1">
-		<tr>
-			<td style="width:80%">{_Allow_Encrypted_Connections} :</td>
-			<td><input type="checkbox" name="crypto_allowed" {echo MakeDefault('crypto_allowed','checkbox')}  value="1"/></td>
-		</tr>
-		<tr>
-			<td style="width:80%">{_Only_Allow_Encrypted_Connections} :</td>
-			<td><input type="checkbox" name="crypto_only" {echo MakeDefault('crypto_only','checkbox')}  value="1"/></td>
 		</tr>
 		</table>
 		</fieldset>

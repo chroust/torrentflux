@@ -116,8 +116,8 @@ class lastRSS {
     // Don't use Parse() in your scripts - use Get($rss_file) instead.
     // -------------------------------------------------------------------
     function Parse ($rss_url) {
-        include_once( "db.php" );
-        include_once( "functions.php" );
+        include_once( "include/db.class.php" );
+        include_once( "include/functions.php" );
 
         // Open and load RSS file
         $rss_content = fetchHTML( $rss_url );
