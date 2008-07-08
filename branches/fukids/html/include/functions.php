@@ -955,7 +955,6 @@ function UpdateUserProfile($user_id, $pass1, $hideOffline, $theme, $language){
 	$rec['language_file'] = $language;
 	$sql = $db->GetUpdateSQL($rs, $rec);
 	$result = $db->Execute($sql);
-	showError($db,$sql);
 }
 
 
@@ -2615,6 +2614,10 @@ function showmessage($msg,$stop=0,$closewindow=0){
 			exit();
 		}
 
+}
+
+function JSReload(){
+	exit( 'window.location.reload();');
 }
 // ***************************************************************************
 // ***************************************************************************

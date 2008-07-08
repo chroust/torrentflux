@@ -154,7 +154,7 @@ include_once("include/BtControl_Tornado.class.php");
 					$_SESSION['user'] = md5($cfg["pagetitle"]);
 				}
 			UpdateUserProfile($cfg["user"], $pass1, $hideOffline, $theme, $language);
-			showmessage('_UPDATED_NEED_REFLESH',1);
+			JSReload();
 		}elseif($action=='Del_PM'){
 			$delete = getRequestVar('delete');
 			if(!empty($delete)){
