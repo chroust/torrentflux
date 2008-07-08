@@ -49,10 +49,13 @@ Class BtControl {
 		// check if home dir exist, if not, creat it 
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
-		//creat .stat file
+		//check if it is hung
 		CheckHung($this->torrent);
 			if(CheckRunning($this->pid)!==0){
-				showmessage($this->torrent.'is already running');
+				showmessage($this->torrent.'is already running',1);
+			}
+			if(!checkTransferLimit($this->owner)){
+				showmessage('_TRANSFER_LIMIT_OVERFLOW',1,0);
 			}
 		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($this->torrent), $this->owner);
 			if($af->downtotal || $af->uptotal)

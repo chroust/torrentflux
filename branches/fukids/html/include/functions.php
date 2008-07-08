@@ -136,7 +136,7 @@ function Authenticate(){
 		exit();
 	}
 
-	$sql = "SELECT uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
+	$sql = "SELECT uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent,transferlimit_period,transferlimit_number FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
 
@@ -147,7 +147,7 @@ function Authenticate(){
 		exit();
 	}
 
-	list($uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file'],$allow_view_other_torrent) = $recordset->FetchRow();
+	list($uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file'],$allow_view_other_torrent,$cfg['transferlimit_period'],$cfg['transferlimit_number']) = $recordset->FetchRow();
 	$cfg['uid']=$uid;
 	// Check for valid theme
 	if (!ereg('^[^./][^/]*$', $cfg['theme'])){
@@ -791,7 +791,7 @@ function DeleteThisUser($uid){
 
 // ***************************************************************************
 // Update User -- used by admin
-function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent,$torrentlimit_period,$torrentlimit_number){
+function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,$allow_view_other_torrent,$torrentlimit_period,$torrentlimit_number,$transferlimit_period,$transferlimit_number){
 	global $db,$cfg;
 	AdminCheck();
 		if(IsUser($user_id) && ($user_id != $org_user_id)){
@@ -807,6 +807,8 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 	$$allow_view_other_torrent=$allow_view_other_torrent?1:0;
 	$torrentlimit_period=intval($torrentlimit_period);
 	$torrentlimit_number=intval($torrentlimit_number);
+	$transferlimit_period=intval($transferlimit_period);
+	$transferlimit_number=intval($transferlimit_number);
 	$sql = 'select * from tf_users where user_id = '.$db->qstr($org_user_id);
 	$rs = $db->Execute($sql);
 	showError($db,$sql);
@@ -818,6 +820,8 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 	$rec['allow_view_other_torrent'] = $allow_view_other_torrent;
 	$rec['torrentlimit_period'] = $torrentlimit_period;
 	$rec['torrentlimit_number'] = $torrentlimit_number;
+	$rec['transferlimit_period'] = $transferlimit_period;
+	$rec['transferlimit_number'] = $transferlimit_number;
 
 	if ($pass1 != ""){
 		$rec['password'] = md5($pass1);
@@ -2527,7 +2531,7 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 function NewTorrentInjectDATA($filename,$options=''){
 	global $db,$cfg;
 	//check torrent limit
-		if(checkTorrentLimit($cfg['uid'])){
+		if(!checkTorrentLimit($cfg['uid'])){
 			showmessage('_Max_Torrent_Limit_Reached',1,1);
 		}
 	$basename=basename($filename);
@@ -2583,6 +2587,8 @@ function NewTorrentInjectDATA($filename,$options=''){
 }
 
 function checkTorrentLimit($uid){
+	//function for checking if the user reached torrent limit
+	// false is over limit
 	global $db;
 	$userinfo=GrabUserData($uid);
 		if($userinfo['torrentlimit_period']>0 && $userinfo['torrentlimit_number']>0){
@@ -2590,6 +2596,48 @@ function checkTorrentLimit($uid){
 		}else{
 			return true;
 		}
+}
+function checkTransferLimit($uid){
+	//function for checking if the user reached transfer limit
+	// false is over limit
+	global $cfg,$db;
+	$userinfo=GrabUserData($uid);
+	$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
+		if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
+			return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
+		}else{
+			return true;
+		}
+}
+function GetTransferCount($uid,$period){
+	//grab the transfer static in specific range
+	//$period is how many DAYS from current time
+	global $cfg,$db;
+	$total_speed=$total_up_speed=$total_down_speed=0;
+	$uid=intval($uid);
+	$torrentowner=Uid2Username($uid);
+	//get current active transfer static
+	$sql = "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id`='$uid'";
+	$result = $db->Execute($sql);
+	include_once("AliasFile.php");	
+	while(list($torrent) = $result->FetchRow()){
+		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($torrent), $torrentowner);
+		$total_up_speed+=$af->up_speed;
+		$total_down_speed+=$af->down_speed;
+	}
+	unset($af);
+	//get completed or stoped transfer static 
+	$targetDate=$db->DBDate(time()-85200*$period);
+	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid." and date > ".$db->qstr($targetDate);
+	list($thisdown,$thisup) = $db->GetRow($sql);
+	showError($db,$sql);
+	$total_up_speed+=$thisup;
+	$total_down_speed+=$thisdown;
+	$totalspeed=$total_up_speed+$total_down_speed;
+	return array(
+		'up'=>$total_up_speed,
+		'down'=>$total_down_speed,
+		'total'=>$totalspeed);
 }
 // ***************************************************************************
 // ***************************************************************************
@@ -2607,14 +2655,20 @@ function DelTorrentSQL($torrent_id){
 // ***************************************************************************
 // ***************************************************************************
 //function for controlling all torrent
-function All($action){
+function All($action,$uid=""){
 	global $cfg,$db;
 		if(!in_array($action,Array('Start','Kill'))){
 			showmessage('wrong_action',1);;
 		}
-	$sql = "SELECT `id` FROM `tf_torrents` ";
+	$sqladd='';
+		if($uid){
+			$sqladd=" AND owner_id='".intval($uid)."'";
+		}
+	$sql = "SELECT `id` FROM `tf_torrents` WHERE 1 ".$sqladd;
 	$result = $db->Execute($sql);
+	include_once(ENGINE_ROOT."include/BtControl_Tornado.class.php");
 	while(list($id) = $result->FetchRow()){
+	
 		$abd=new BtControl($id,'');
 		$abd->$action();
 	}

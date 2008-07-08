@@ -32,6 +32,21 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 
 
 	////////////////////////////////////////////////////////////////////////////////
+	// transfer limit
+	/////////////////////////////////////////////////////////////////////////////////
+	function check_Transfer_Limit(){
+		$userarray=GetUserList();
+			foreach($userarray as $index=>$user){
+					if(!checkTransferLimit($user['uid'])){
+						//if its transfer limit overflow
+						echo 'killall ';
+						All('Kill',$user['uid']);
+					}
+			}
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////
 	// rss
 	/////////////////////////////////////////////////////////////////////////////////
 	function checkrss(){
@@ -80,6 +95,7 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 		// the main loop
 		checkDieCall();
 		checkrss();
+		check_Transfer_Limit();
 	}
 	
 		function checkDieCall(){

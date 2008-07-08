@@ -196,7 +196,8 @@ function iframeLoad(url){
 		}
 		{/if}
 		Mainloading.show();
-		new Request.HTML({onComplete:function(data){
+		new Request.HTML({onComplete:function(a,b,c,d){
+		eval(c );
 			forceUpdate();
 		}
 		}).post('action.php?id=torrent&action='+action+'&usejs=1&torrentid='+id);
