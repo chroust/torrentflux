@@ -852,12 +852,38 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 
 function CheckPorts($minport,$maxport){
 		if($minport >$maxport) exit('port error');
-		if($maxport-$minport>300) exit('too many port');
+		//if($maxport-$minport>10000) exit('too many port');
+		$lastresult=CheckPort($minport);
+		$minport++;
+		echo "<table>";
 		for ($x=$minport;$x<=$maxport;$x++){
-			echo $x.':';
-			echo CheckPort($x)?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
-			echo '<br />';
+			$result=CheckPort($x);
+				if($lastresult==$result){
+					$first=$first;
+				}else{
+					$first=$first?$first:$minport-1;
+					$end=$x-1;
+					echo "<tr><td>";
+					echo $first==$end?"$first: ":"$first-$end: ";
+					echo "</td><td>";
+					echo $lastresult==1?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
+					echo "</td></tr>";
+					$first=$x;
+				}
+				$lastresult=$result;
+			//echo $x.':';
+			
+			//echo '<br />';
 		}
+			if($first!==$maxport){
+				$end=$x-1;
+				echo "<tr><td>";
+				echo $first==$end?"$first: ":"$first-$end: ";
+				echo "</td><td>";
+				echo $lastresult==1?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
+				echo "</td></tr>";
+			}
+			echo "</table>";
 }
 function CheckPort($port){
 	$port=intval($port);
