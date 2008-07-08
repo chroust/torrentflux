@@ -252,6 +252,7 @@ function GetDirectoryArray($dirName){
 				$shortname=substr($basename, 0, 20);
 				$file=Array('is_dir'=>'1',
 					'name'=>$basename,
+					'path'=>$filename,
 					'shortname'=>$shortname,
 					'icon'=>'images/folder.png',
 					'type'=>'folder',
