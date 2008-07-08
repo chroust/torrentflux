@@ -34,7 +34,7 @@ $usejs=getRequestVar('usejs');
 // Create Connection.
 $db = getdb();
 loadSettings();
-
+$cfg['toppath']=$cfg['path'];
 $cfg['path']=$cfg['force_dl_in_home_dir']?$cfg['path'].$cfg["user"].'/':$cfg['path'];
 
 // Free space in MB
@@ -1262,8 +1262,8 @@ function DisplayTorrentFluxLink()
 function saveXfer($user, $down, $up){
 	global $db;
 	//increase performance by saving bytes to MB
-	$down=$down/8000000;
-	$up=$up/8000000;
+	$down=$down/1000000;
+	$up=$up/1000000;
 	$sql = 'SELECT 1 FROM tf_xfer WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
 		if ($db->GetRow($sql)) {
 			$sql = 'UPDATE tf_xfer SET download = download+'.($down+0).', upload = upload+'.($up+0).' WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
@@ -2326,11 +2326,11 @@ function SecurityClean($string)
 //check if user home folder exist, if not  , creat it 
 function CheckHomeDir($owner){
 	global $owner;
-		if (!is_dir($cfg["path"]."/".$owner)){
-				if (is_writable($cfg["path"])){
-					mkdir($cfg["path"]."/".$owner, 0777);
+		if (!is_dir($cfg["toppath"]."/".$owner)){
+				if (is_writable($cfg["toppath"])){
+					mkdir($cfg["toppath"]."/".$owner, 0777);
 				}else{
-					AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
+					AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["toppath"] . " is not writable.");
 					showmessage("TorrentFlux settings are not correct (path is not writable) -- please contact an admin.");
 				}
 		}
