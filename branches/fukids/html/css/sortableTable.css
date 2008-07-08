@@ -184,3 +184,11 @@ margin: 10px 0px 10px 0px;
 legend{
 color:blue;
 }
+
+input.value{
+background:#C7FF91;
+border:1px solid #89FF19;
+}
+input.error{
+background:#FF5755;
+}

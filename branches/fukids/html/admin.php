@@ -523,38 +523,7 @@ function editRSS()
 
 }
 
-//****************************************************************************
-// validateFile -- Validates the existance of a file and returns the status image
-//****************************************************************************
-function validateFile($the_file)
-{
-    $msg = "<img src=\"images/red.gif\" align=\"absmiddle\" title=\"Path is not Valid\"><br><font color=\"#ff0000\">Path is not Valid</font>";
-    if (isFile($the_file))
-    {
-        $msg = "<img src=\"images/green.gif\" align=\"absmiddle\" title=\"Valid\">";
-    }
-    return $msg;
-}
 
-//****************************************************************************
-// validatePath -- Validates TF Path and Permissions
-//****************************************************************************
-function validatePath($path)
-{
-    $msg = "<img src=\"images/red.gif\" align=\"absmiddle\" title=\"Path is not Valid\"><br><font color=\"#ff0000\">Path is not Valid</font>";
-    if (is_dir($path))
-    {
-        if (is_writable($path))
-        {
-            $msg = "<img src=\"images/green.gif\" align=\"absmiddle\" title=\"Valid\">";
-        }
-        else
-        {
-            $msg = "<img src=\"images/red.gif\" align=\"absmiddle\" title=\"Path is not Writable\"><br><font color=\"#ff0000\">Path is not Writable -- make sure you chmod +w this path</font>";
-        }
-    }
-    return $msg;
-}
 
 //****************************************************************************
 // configSettings -- Config the Application Settings
@@ -1771,7 +1740,12 @@ switch ($op)
     case "updateSearchSettings":
         updateSearchSettings();
     break;
-
+	case "checkpath":
+		echo validatePath( getRequestVar('path'));
+	break;
+	case "checkfile":
+		echo validateFile( getRequestVar('file'));
+	break;
 }
 //****************************************************************************
 //****************************************************************************

@@ -857,7 +857,19 @@ function changeUserLevel($user_id, $level)
 	$result = $db->Execute($sql);
 	showError($db,$sql);
 }
+//****************************************************************************
+// validateFile -- Validates the existance of a file and returns the status image
+//****************************************************************************
+function validateFile($the_file){
+	return isFile($the_file)?1:0;
+}
 
+//****************************************************************************
+// validatePath -- Validates TF Path and Permissions
+//****************************************************************************
+function validatePath($path){
+	return is_dir($path) && is_writable($path)?1:0;
+}
 // ***************************************************************************
 // Mark Message as Read
 function MarkMessageRead($mid)

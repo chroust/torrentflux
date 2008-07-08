@@ -149,19 +149,19 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Python_Path} :</td>
-			<td><input type="text" size="20" name="pythonCmd" value="{$cfg['pythonCmd']}" /></td>
+			<td><input type="text" size="20" name="pythonCmd" value="{$cfg['pythonCmd']}"   class="path {if validateFile($cfg['pythonCmd'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btphptornado_Path} :</td>
-			<td><input type="text" size="20" name="btphpbin" value="{$cfg['btphpbin']}"/></td>
+			<td><input type="text" size="20" name="btphpbin" value="{$cfg['btphpbin']}"   class="path {if validateFile($cfg['btphpbin'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btmakemetafilepy_Path} :</td>
-			<td><input type="text" size="20" name="btshowmetainfo" value="{$cfg['btshowmetainfo']}"/></td>
+			<td><input type="text" size="20" name="btshowmetainfo" value="{$cfg['btshowmetainfo']}"   class="path {if validateFile($cfg['btshowmetainfo'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_loadavg_Path} :</td>
-			<td><input type="text" size="20" name="loadavg_path" value="{$cfg['loadavg_path']}"/></td>
+			<td><input type="text" size="20" name="loadavg_path" value="{$cfg['loadavg_path']}"  class="path {if validateFile($cfg['loadavg_path'])}value {else}error{/if}"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -194,7 +194,17 @@
 
 <script type="text/javascript">
 settingtab		=	new mootabs('setting_info', {'defaultPanel':'setting_display'});
-
+$$('input.path').each(function(input){
+	input.addEvent('keyup',function(e){
+		new Request({method: 'get', url: 'admin.php?op=checkfile',onSuccess:function(a){
+			if(a==1){
+				input.addClass('value').removeClass('error');
+			}else{
+				input.addClass('error').removeClass('value');
+			}
+		}}).send('file='+input.value);
+	});
+});
 </script>
 	<input type="Submit" value="{_UPDATE}">
 </form>

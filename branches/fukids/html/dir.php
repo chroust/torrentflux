@@ -46,7 +46,7 @@ if($moveinto){
 if($rename && $OldName){
 	checkpath($rename);
 	checkpath($OldName);
-	rename($cfg["path"].$OldName,$cfg["path"].$rename);
+	rename($cfg["path"].rawurldecode($OldName),$cfg["path"].rawurldecode($rename));
 	die('ok');
 }
 
