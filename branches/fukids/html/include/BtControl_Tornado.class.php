@@ -55,6 +55,9 @@ Class BtControl {
 				showmessage($this->torrent.'is already running');
 			}
 		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($this->torrent), $this->owner);
+			if($af->downtotal || $af->uptotal)
+				saveXfer($af->torrentowner,$af->downtotal,$af->uptotal);
+
 			if ($cfg["AllowQueing"] AND $queue == "1"){
 				$af->QueueTorrentFile();  // this only writes out the stat file (does not start torrent)
 			}else{
@@ -109,6 +112,8 @@ Class BtControl {
 		global $cfg;
 		// write the new state to .state
 		$af = new AliasFile($cfg["torrent_file_path"].$this->stat, $this->owner);
+			if($af->downtotal || $af->uptotal)
+				saveXfer($af->torrentowner,$af->downtotal,$af->uptotal);
 			if($af->percent_done < 100){
 				// The torrent is being stopped but is not completed dowloading
 				$af->running = "0";
@@ -121,11 +126,12 @@ Class BtControl {
 			}
 		$af->WriteFile();
 		// see if the torrent process is hung.
-		CheckHung($this->torrent);
         passthru("kill ".$this->pid);
 		sleep(1);
         // try to remove the pid file
         @unlink($cfg["torrent_file_path"].$this->pid);
+		sleep(1);
+		CheckHung($this->torrent);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 	}
 

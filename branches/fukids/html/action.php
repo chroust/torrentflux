@@ -61,8 +61,8 @@ include_once("include/BtControl_Tornado.class.php");
 		$minport=intval(getRequestVar('minport'));
 		$maxport=intval(getRequestVar('maxport'));
 		//fix max port and min port in admin specific range
-		$minport=$minport < $cfg['minport']? $cfg['minport']:$minport;
-		$maxport=$maxport > $cfg['maxport']? $cfg['maxport']:$maxport;
+		$minport=$minport < $cfg['limitminport']? $cfg['minport']:$minport;
+		$maxport=$maxport > $cfg['limitmaxport']? $cfg['maxport']:$maxport;
 		
 		$rerequest=intval(getRequestVar('rerequest'));
 		$sharekill=intval(getRequestVar('sharekill'));

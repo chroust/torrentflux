@@ -1245,6 +1245,28 @@ function DisplayTorrentFluxLink()
 }
 
 
+
+function saveXfer($user, $down, $up){
+	global $db;
+	//increase performance by saving bytes to MB
+	$down=$down/8000000;
+	$up=$up/8000000;
+	$sql = 'SELECT 1 FROM tf_xfer WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
+		if ($db->GetRow($sql)) {
+			$sql = 'UPDATE tf_xfer SET download = download+'.($down+0).', upload = upload+'.($up+0).' WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
+			$db->Execute($sql);
+			showError($db,$sql);
+		} else {
+			showError($db,$sql);
+			$sql = 'INSERT INTO tf_xfer SET user = "'.$user.'", date = '.$db->DBDate(time()).', download = '.($down+0).', upload = '.($up+0);
+			$db->Execute($sql);
+			showError($db,$sql);
+		}
+}
+
+
+
+
 // ***************************************************************************
 // ***************************************************************************
 // Dipslay Title Bar
@@ -2306,14 +2328,12 @@ function CheckHomeDir($owner){
 function CheckHung($torrent){
 	global $cfg;
 	include_once(ENGINE_ROOT."include/BtControl/RunningTorrent.php");
-		if (!is_file($cfg["torrent_file_path"].torrent2pid($torrent))){
-			$runningTorrents = getRunningTorrents();
-				foreach ($runningTorrents as $key => $value){
-					$rt = new RunningTorrent($value);
-						if ($rt->statFile == torrent2stat($torrent)) {
-							AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
-							$result = exec("kill ".$rt->processId);
-						}
+	$runningTorrents = getRunningTorrents();
+		foreach ($runningTorrents as $key => $value){
+			$rt = new RunningTorrent($value);
+				if ($rt->statFile == torrent2stat($torrent)) {
+					AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
+					$result = exec("kill ".$rt->processId);
 				}
 		}
 }

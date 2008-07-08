@@ -27,15 +27,31 @@ include_once("include/functions.php");
 checkUserPath();
 
 // Setup some defaults if they are not set.
-$del = html_entity_decode(getRequestVar('del'), ENT_QUOTES);
-$down = html_entity_decode(getRequestVar('down'), ENT_QUOTES);
-$tar = html_entity_decode(getRequestVar('tar'), ENT_QUOTES);
-$dir = stripslashes(html_entity_decode(urldecode(getRequestVar('dir')), ENT_QUOTES));
-if (strpos(stripslashes($dir),"../")===false) {} else {echo "Can't go to parent directories!";exit;}
+$del = getRequestVar('del');
+$down = getRequestVar('down');
+$tar = getRequestVar('tar');
+$rename = getRequestVar('newname');
+$OldName = getRequestVar('rename');
+$moveinto = getRequestVar('moveinto');
+$dir = getRequestVar('dir');
+checkpath($dir);
+$dir =  rawurldecode(getRequestVar('dir'));
+if($moveinto){
+	checkpath($moveinto);
+	$target = getRequestVar('target');
+	checkpath($target);
+	rename($cfg["path"].$moveinto,$cfg["path"].$target.'/'.basename($moveinto));
+	die('ok');
+}
+if($rename && $OldName){
+	checkpath($rename);
+	checkpath($OldName);
+	rename($cfg["path"].$OldName,$cfg["path"].$rename);
+	die('ok');
+}
 
 // Are we to delete something?
-if ($del != "")
-{
+if ($del != ""){
     $current = "";
     // The following lines of code were suggested by Jody Steele jmlsteele@stfu.ca
     // this is so only the owner of the file(s) or admin can delete
@@ -73,8 +89,6 @@ if ($del != "")
     {
         AuditAction($cfg["constants"]["error"], "ILLEGAL DELETE: ".$cfg['user']." tried to delete ".$del);
     }
-
-    header("Location: dir.php?dir=".urlencode($current));
 }
 
 // Are we to download something?
@@ -135,9 +149,7 @@ if ($down != "" && $cfg["enable_file_download"])
     {
         AuditAction($cfg["constants"]["error"], "ILLEGAL DOWNLOAD: ".$cfg['user']." tried to download ".$down);
     }
-    header("Location: dir.php?dir=".urlencode($current));
 }
-
 // Are we to download something?
 if ($tar != "" && $cfg["enable_file_download"])
 {
@@ -213,274 +225,63 @@ if ($tar != "" && $cfg["enable_file_download"])
     {
         AuditAction($cfg["constants"]["error"], "ILLEGAL TAR DOWNLOAD: ".$cfg['user']." tried to download ".$tar);
     }
-    header("Location: dir.php?dir=".urlencode($current));
-}
-
-if ($dir == "")
-{
-    unset($dir);
-}
-
-if (isset($dir))
-{
-    if (ereg("(\.\.)", $dir))
-    {
-        unset($dir);
-    }
-    else
-    {
-        $dir = $dir."/";
-    }
-}
-
-?>
-
-<script language="JavaScript">
-function MakeTorrent(name_file)
-{
-    window.open (name_file,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,width=600,height=430')
-}
-
-function ConfirmDelete(file)
-{
-    return confirm("<?php echo _ABOUTTODELETE ?>: " + file)
-}
-
-function checkCheck(thisIn)
-{
-    var form = thisIn.form, i = 0;
-    for(i=0; i < form.length; i++)
-    {
-        if(form[i].type == 'checkbox' && form[i].name != 'checkall')
-        {
-            form[i].checked = thisIn.checked;
-        }
-    }
-}
-
-</script>
-
-<?php
-
-displayDriveSpaceBar(getDriveSpace($cfg["path"]));
-echo "<br />";
-
-if(!isset($dir)) $dir = "";
-
-if (!file_exists($cfg["path"].$dir))
-{
-    echo "<strong>".htmlentities($dir)."</strong> could not be found or is not valid.";
-}
-else
-{
-    ListDirectory($cfg["path"].$dir);
+	exit();
+  //  header("Location: dir.php?dir=".urlencode($current));
 }
 
 
-//**************************************************************************
-// ListDirectory()
-// This method reads files and directories in the specified path and
-// displayes them.
-function ListDirectory($dirName)
-{
-    global $dir, $cfg;
-    $bgLight = $cfg["bgLight"];
-    $bgDark = $cfg["bgDark"];
-    $entrys = array();
+$dir = $dir."/";
 
-    $bg = $bgLight;
+if (!file_exists($cfg["path"].$dir)){
+    echo "<strong>".$dir."</strong> could not be found or is not valid.";
+}else{
+	$DirList=GetDirectoryArray($cfg["path"].$dir);
+	include template('dir');
+}
 
-    $dirName = stripslashes($dirName);
+function GetDirectoryArray($dirName){
 
-    if (isset($dir))
-    {
-        //setup default parent directory URL
-        $parentURL = "dir.php";
-
-        //get the real parentURL
-        if (preg_match("/^(.+)\/.+$/",$dir,$matches) == 1)
-        {
-            $parentURL="dir.php?dir=" . urlencode($matches[1]);
-        }
-
-        echo "<table cellpadding=2 width=740>";
-        echo '<form action="multi.php" method="post" name="multidir">';
-        echo '<input type="hidden" name="action" value="fileDelete" />';
-        echo '<tr><td colspan="3">';
-        echo "<a href=\"" . $parentURL . "\"><img src=\"images/up_dir.gif\" width=16 height=16 title=\""._BACKTOPARRENT."\" border=0>["._BACKTOPARRENT."]</a>";
-        echo '</td>';
-        echo '<td align="right"><a href="javascript:document.multidir.submit()" onclick="return ConfirmDelete(\'Multiple Files\')">';
-        echo '<img src="images/delete_on.gif" title="Delete Multiple Files" border="0" height="16" width="16"></a>';
-        echo '<input type="checkbox" onclick="checkCheck(this);" /></td></tr>';
-    }
-
-    $handle = opendir($dirName);
-    while($entry = readdir($handle))
-    {
-        $entrys[] = $entry;
-    }
-    natsort($entrys);
-
-    foreach($entrys as $entry)
-    {
-        if ($entry != "." && $entry != ".." && substr($entry, 0, 1) != ".")
-        {
-            if (@is_dir($dirName.$entry))
-            {
-                echo "<tr bgcolor=\"".$bg."\"><td><a href=\"dir.php?dir=".urlencode($dir.$entry)."\"><img src=\"images/folder2.gif\" width=\"16\" height=\"16\" title=\"".$entry."\" border=\"0\" align=\"absmiddle\">".$entry."</a></td>";
-                echo "<td>&nbsp;</td>";
-                echo "<td>&nbsp;</td>";
-                echo "<td align=\"right\">";
-
-                if ($cfg["enable_maketorrent"])
-                {
-                    echo "<a href=\"JavaScript:MakeTorrent('maketorrent.php?path=".urlencode($dir.$entry)."')\"><img src=\"images/make.gif\" width=16 height=16 title=\"Make Torrent\" border=0></a>";
-                }
-
-                if ($cfg["enable_file_download"])
-                {
-                    echo "<a href=\"dir.php?tar=".urlencode($dir.$entry)."\"><img src=\"images/tar_down.gif\" width=16 height=16 title=\"Download as ".$cfg["package_type"]."\" border=0></a>";
-                }
-
-                // The following lines of code were suggested by Jody Steele jmlsteele@stfu.ca
-                // this is so only the owner of the file(s) or admin can delete
-                // only give admins and users who "own" this directory
-                // the ability to delete sub directories
-                if(IsAdmin($cfg["user"]) || preg_match("/^" . $cfg["user"] . "/",$dir))
-                {
-                    echo "<a href=\"dir.php?del=".urlencode($dir.$entry)."\" onclick=\"return ConfirmDelete('".addslashes($entry)."')\"><img src=\"images/delete_on.gif\" width=16 height=16 title=\""._DELETE."\" border=0></a>";
-                    echo "<input type=\"checkbox\" name=\"file[]\" value=\"".urlencode($dir.$entry)."\">";
-                }
-                else
-                {
-                    echo "&nbsp;";
-                }
-                echo "</td></tr>\n";
-                if ($bg == $bgLight)
-                {
-                    $bg = $bgDark;
-                }
-                else
-                {
-                    $bg = $bgLight;
-                }
-            }
-            else
-            {
-                // Do nothing
-            }
-        }
-    }
-    closedir($handle);
-
-    $entrys = array();
-    $handle = opendir($dirName);
-    while($entry = readdir($handle))
-    {
-        $entrys[] = $entry;
-    }
-    natsort($entrys);
-
-    foreach($entrys as $entry)
-    {
-        if ($entry != "." && $entry != "..")
-        {
-            if (@is_dir($dirName.$entry))
-            {
-                // Do nothing
-            }
-            else
-            {
-                $arStat = @lstat($dirName.$entry);
-                $arStat[7] = ( $arStat[7] == 0 )? file_size( $dirName . $entry ) : $arStat[7];
-                if (array_key_exists(10,$arStat))
-                {
-                        $timeStamp = $arStat[10];
-                }
-                else
-                {
-                    $timeStamp = "";
-                }
-                $fileSize = number_format(($arStat[7])/1024);
-                // Code added by Remko Jantzen to assign an icon per file-type. But when not
-                // available all stays the same.
+	//get the list
+	$dirLIST=glob(preg_quote( $dirName, DIRECTORY_SEPARATOR).'*');
+	$dirlist=$filelist=array();
+	foreach ($dirLIST as $filename) {
+		$file=Array('is_dir','filesize','name','shortname');
+		//get the detail
+			if(is_dir($filename)){
+				$basename=basename($filename);
+				$shortname=substr($basename, 0, 20);
+				$file=Array('is_dir'=>'1',
+					'name'=>$basename,
+					'shortname'=>$shortname,
+					'icon'=>'images/folder.png',
+					'type'=>'folder',
+				);
+				$dirlist[]=$file;
+			}else{
+				$basename=basename($filename);
+				$filesize=formatBytesToKBMGGB(filesize ($filename));
+				$shortname=substr($basename, 0, 20);
+				$type=getExtension($filename);
                 $image="images/time.gif";
-                $imageOption="images/files/".getExtension($entry).".png";
-                if (file_exists("./".$imageOption))
-                {
-                    $image = $imageOption;
-                }
-
-                echo "<tr bgcolor=\"".$bg."\">";
-                echo "<td>";
-
-                // Can users download files?
-                if ($cfg["enable_file_download"])
-                {
-                    // Yes, let them download
-                    echo "<a href=\"dir.php?down=".urlencode($dir.$entry)."\" >";
-                    echo "<img src=\"".$image."\" width=\"16\" height=\"16\" alt=\"".$entry."\" border=\"0\"></a>";
-                    echo "<a href=\"dir.php?down=".urlencode($dir.$entry)."\" >".$entry."</a>";
-                }
-                else
-                {
-                    // No, just show the name
-                    echo "<img src=\"".$image."\" width=\"16\" height=\"16\" alt=\"".$entry."\" border=\"0\">";
-                    echo $entry;
-                }
-
-                echo "</td>";
-                echo "<td align=\"right\">".$fileSize." KB</td>";
-                echo "<td>".date("m-d-Y g:i a", $timeStamp)."</td>";
-                echo "<td align=\"right\">";
-
-                if( $cfg["enable_view_nfo"] && (( substr( strtolower($entry), -4 ) == ".nfo" ) || ( substr( strtolower($entry), -4 ) == ".txt" ))  )
-                {
-                    echo "<a href=\"viewnfo.php?path=".urlencode(addslashes($dir.$entry))."\"><img src=\"images/view_nfo.gif\" width=16 height=16 title=\"View '$entry'\" border=0></a>";
-                }
-
-                if ($cfg["enable_maketorrent"])
-                {
-                    echo "<a href=\"JavaScript:MakeTorrent('maketorrent.php?path=".urlencode($dir.$entry)."')\"><img src=\"images/make.gif\" width=16 height=16 title=\"Make Torrent\" border=0></a>";
-                }
-
-                if ($cfg["enable_file_download"])
-                {
-                    // Show the download button
-                    echo "<a href=\"dir.php?down=".urlencode($dir.$entry)."\" >";
-                    echo "<img src=\"images/download_owner.gif\" width=16 height=16 title=\"Download\" border=0>";
-                    echo "</a>";
-                }
-
-                // The following lines of code were suggested by Jody Steele jmlsteele@stfu.ca
-                // this is so only the owner of the file(s) or admin can delete
-                // only give admins and users who "own" this directory
-                // the ability to delete files
-                if(IsAdmin($cfg["user"]) || preg_match("/^" . $cfg["user"] . "/",$dir))
-                {
-                    echo "<a href=\"dir.php?del=".urlencode($dir.$entry)."\" onclick=\"return ConfirmDelete('".addslashes($entry)."')\"><img src=\"images/delete_on.gif\" width=16 height=16 title=\""._DELETE."\" border=0></a>";
-                    echo "<input type=\"checkbox\" name=\"file[]\" value=\"".urlencode($dir.$entry)."\">";
-                }
-                else
-                {
-                    echo "&nbsp;";
-                }
-                echo "</td></tr>\n";
-
-                if ($bg == $bgLight)
-                {
-                    $bg = $bgDark;
-                }
-                else
-                {
-                    $bg = $bgLight;
-                }
-            }
-        }
-    }
-    closedir($handle);
-    echo "</table>";
+                $imageOption="images/files/$type.png";
+					if (file_exists("./".$imageOption)){
+						$image = $imageOption;
+					}
+				$file=Array('is_dir'=>'0',
+					'size'=>$filesize,
+					'name'=>$basename,
+					'shortname'=>$shortname,
+					'icon'=>$image,
+					'type'=>$type,
+				);
+				$filelist[]=$file;
+			}
+	}
+		//put it in to an array 
+		$result=array_merge($dirlist,$filelist);
+	return $result;
 }
+
 
 // ***************************************************************************
 // ***************************************************************************
@@ -524,5 +325,11 @@ function getExtension($fileName)
     //Return the extension
     return strtolower($ext);
 }
-
+function checkpath($path){
+	if(strpos(stripslashes($path),"../")===false){
+		return true;
+	}else{
+		exit('wrong path');
+	}
+}
 ?>
