@@ -57,10 +57,6 @@
 			<td style="width:80%">{_Allow_pic_Preview} :</td>
 			<td><input type="checkbox" name="allow_pic_preview" {echo MakeDefault('allow_pic_preview','checkbox')} value="1"/></td>
 		</tr>
-		<tr>
-			<td style="width:80%">{_Allow_video_Preview} :</td>
-			<td><input type="checkbox" name="allow_video_preview" {echo MakeDefault('allow_video_preview','checkbox')} value="1"/></td>
-		</tr>
 		</table>
 		</fieldset>
 	</div>
@@ -79,6 +75,10 @@
 		<fieldset>
 		<legend>{_BitTorrent}</legend>
 		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_Download_Path} :</td>
+			<td><input type="text" size="20" name="path" value="{$cfg['path']}"   class="path {if validatePath($cfg['path'])}value {else}error{/if}"/></td>
+		</tr>
 		<tr>
 			<td style="width:80%">{_Force_Download_In_Home_Dir} :</td>
 			<td><input type="checkbox" name="force_dl_in_home_dir" {echo MakeDefault('force_dl_in_home_dir','checkbox')} value="1"/></td>
@@ -149,19 +149,19 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Python_Path} :</td>
-			<td><input type="text" size="20" name="pythonCmd" value="{$cfg['pythonCmd']}"   class="path {if validateFile($cfg['pythonCmd'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="pythonCmd" value="{$cfg['pythonCmd']}"   class="checkfile {if validateFile($cfg['pythonCmd'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btphptornado_Path} :</td>
-			<td><input type="text" size="20" name="btphpbin" value="{$cfg['btphpbin']}"   class="path {if validateFile($cfg['btphpbin'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="btphpbin" value="{$cfg['btphpbin']}"   class="checkfile {if validateFile($cfg['btphpbin'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_btmakemetafilepy_Path} :</td>
-			<td><input type="text" size="20" name="btshowmetainfo" value="{$cfg['btshowmetainfo']}"   class="path {if validateFile($cfg['btshowmetainfo'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="btshowmetainfo" value="{$cfg['btshowmetainfo']}"   class="checkfile {if validateFile($cfg['btshowmetainfo'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_loadavg_Path} :</td>
-			<td><input type="text" size="20" name="loadavg_path" value="{$cfg['loadavg_path']}"  class="path {if validateFile($cfg['loadavg_path'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="loadavg_path" value="{$cfg['loadavg_path']}"  class="checkfile {if validateFile($cfg['loadavg_path'])}value {else}error{/if}"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -194,7 +194,7 @@
 
 <script type="text/javascript">
 settingtab		=	new mootabs('setting_info', {'defaultPanel':'setting_display'});
-$$('input.path').each(function(input){
+$$('input.checkfile').each(function(input){
 	input.addEvent('keyup',function(e){
 		new Request({method: 'get', url: 'admin.php?op=checkfile',onSuccess:function(a){
 			if(a==1){
@@ -203,6 +203,17 @@ $$('input.path').each(function(input){
 				input.addClass('error').removeClass('value');
 			}
 		}}).send('file='+input.value);
+	});
+});
+$$('input.path').each(function(input){
+	input.addEvent('keyup',function(e){
+		new Request({method: 'get', url: 'admin.php?op=checkpath',onSuccess:function(a){
+			if(a==1){
+				input.addClass('value').removeClass('error');
+			}else{
+				input.addClass('error').removeClass('value');
+			}
+		}}).send('path='+input.value);
 	});
 });
 </script>
