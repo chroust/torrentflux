@@ -31,6 +31,20 @@ $thispid=$cfg['torrent_file_path'].'.cronwork';
 $dieCall=$cfg['torrent_file_path'].'.Killcron';
 
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// CheckHung
+	/////////////////////////////////////////////////////////////////////////////////
+	function CheckAllHung(){
+		global $db;
+		$sql = "SELECT `torrent` FROM `tf_torrents`";
+		$result = $db->Execute($sql);
+		while(list($torrent) = $result->FetchRow()){
+			CheckHung($torrent);
+		}
+	}
+
+
 	////////////////////////////////////////////////////////////////////////////////
 	// transfer limit
 	/////////////////////////////////////////////////////////////////////////////////
@@ -96,9 +110,11 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 		checkDieCall();
 		checkrss();
 		check_Transfer_Limit();
+		CheckAllHung();
 	}
 	
 		function checkDieCall(){
+			global $dieCall,$thispid;
 		echo 'checking diecall';
 		//Check if any die call
 			if(file_exists($dieCall)){

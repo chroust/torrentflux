@@ -1,3 +1,9 @@
+	<table style="width:100%;border:1">
+	<tr>
+		<td style="width:50%">{_DownloadLocation} :</td>
+		<td><input type="hidden" name="location" class="tf_file" size="5" value="{$Default_location}" /></td>
+	</tr>
+	</table>
 	<fieldset>
 	<legend accesskey="d">{_TRAFFIC_SETTING}</legend>
 	<table style="width:100%;border:1">
@@ -15,7 +21,6 @@
 	</tr>
 	</table>
 	</fieldset>
-	
 	<fieldset>
 	<legend accesskey="d">{_SEEDING_SETTING}</legend>
 	<table style="width:100%;border:1">
@@ -33,7 +38,7 @@
 	<table style="width:100%;border:1">
 	<tr>
 		<td>{_Port} :</td>
-		<td><input type="text" name="minport" class="num" size="5" value="{$Default_minport}" /> -<input type="text" name="maxport" class="num" size="5" value="{$Default_maxport}" /></td>
+		<td><input type="text" name="minport" id="minport" class="num" size="5" value="{$Default_minport}" /> -<input type="text" name="maxport" id="maxport" class="num" size="5" value="{$Default_maxport}" /><button class="checkport">[{_Check_Ports}]</button></td>
 	</tr>
 	<tr>
 		<td>{_Rerequest_Interval} :</td>
@@ -41,3 +46,15 @@
 	</tr>
 	</table>
 	</fieldset>
+	
+	
+	<script type="text/javascript">
+		$$('input.tf_file').each(function(input){
+			
+		});
+		$$('button.checkport').addEvent('click',function(e){
+	e = new Event(e); 
+	e.stop();
+	CheckPort($('minport').value,$('maxport').value);
+});
+	</script>

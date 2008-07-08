@@ -10,17 +10,17 @@ Class BtControl {
 		GLOBAL $cfg,$db;
 		$this->torrentid=intval($torrentid);
 		// grab torrent config from database
-		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio,location FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
 		$recordset = $db->Execute($sql);
 		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
 		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
-		$this->rerequest,$this->sharekill,$this->owner,$this->prio
+		$this->rerequest,$this->sharekill,$this->owner,$this->prio,$this->location
 		) = $recordset->FetchRow();
 		showError($db,$sql);
 		//check if torrent is ok or not
 		$this->CheckTorrent($this->torrent);
 		//grab the options to variables
-		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue','prio')),  EXTR_OVERWRITE);
+		extract(Options2Vars($options,Array('rate','drate','superseeder','runtime','maxuploads','minport','maxport','rerequest','sharekill','queue','prio','location')),  EXTR_OVERWRITE);
 		//use default in database if no options are set
 		$this->rate = empty($rate)?$this->rate:intval($rate);
 		$this->drate = empty($drate)?$this->drate:intval($drate);
@@ -33,11 +33,12 @@ Class BtControl {
 		$this->sharekill= (empty($sharekill) OR $sharekill == o) ? $this->sharekill: intval($sharekill);
 		$this->prio=empty($prio)?$this->prio:str_replace('\'','',$prio);
 		$this->alias = getAliasName($torrent);
+		$this->location = empty($location)?'/':$location.'/';
 		$this->queue= (IsAdmin() AND $queue == 'on')?"1":"0";
 		// update the torrent config to the database
 		$sql = 'UPDATE `tf_torrents`  SET `rate`=\''.$this->rate.'\',`drate`=\''.$this->drate.'\',`superseeder`=\''.$this->superseeder.'\',
 		`runtime`=\''.$this->runtime.'\',`maxuploads`=\''.$this->maxuploads.'\',`minport`=\''.$this->minport.'\',
-		`maxport`=\''.$this->maxport.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\',`sharekill`=\''.$this->sharekill.'\',`prio`=\''.$this->prio.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
+		`maxport`=\''.$this->maxport.'\',`location`=\''.$this->location.'\',`rerequest`=\''.$this->rerequest.'\',`sharekill`=\''.$this->sharekill.'\',`sharekill`=\''.$this->sharekill.'\',`prio`=\''.$this->prio.'\' WHERE `id`=\''.$torrentid.'\' LIMIT 1';
 		$recordset = $db->Execute($sql);
 		showError($db,$sql);
 		$this->pid=torrent2pid($this->torrent);
@@ -78,8 +79,9 @@ Class BtControl {
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
 				//change to download DIR
-				$command.= "cd " . $cfg["path"].$owner . ";";
-				$command.= " HOME=".$cfg["path"].";";
+					$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].DIRECTORY_SEPARATOR.Uid2Username($this->owner)):($cfg["path"]);
+				$command.= "cd " . $cfg["path"].Uid2Username($this->owner) . ";";
+				$command.= " HOME=".$dlpath."; ";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
 				$command.= escapeshellarg($this->runtime).' '.escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->stat.'\'' .' '.$this->owner;
@@ -98,6 +100,7 @@ Class BtControl {
 				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
 				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;
 				$command .=" &";
+				showmessage($command);
 					// insert setting if it is not set yet
 					if (! array_key_exists("pythonCmd", $cfg)){
 						insertSetting("pythonCmd","/usr/bin/python");

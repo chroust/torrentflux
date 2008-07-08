@@ -66,7 +66,7 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td>{_Port_LIMIT} :</td>
-			<td><input type="text" name="limitminport" class="num" size="5" {echo MakeDefault('limitminport','text')} /> -<input type="text" name="limitmaxport" class="num" size="5" {echo MakeDefault('limitmaxport','text')}  /></td>
+			<td><input type="text" name="limitminport" id="limitminport" class="num" size="5" {echo MakeDefault('limitminport','text')} /> -<input type="text" name="limitmaxport" id="limitmaxport" class="num" size="5" {echo MakeDefault('limitmaxport','text')}  /> <button class="checkport">[{_Check_Ports}]</button></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -90,7 +90,7 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Download_Path} :</td>
-			<td><input type="text" size="20" name="path" value="{$cfg['toppath']}"   class="path {if validatePath($cfg['toppath'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="path" value="{$cfg['path']}"   class="path {if validatePath($cfg['path'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Force_Download_In_Home_Dir} :</td>
@@ -215,6 +215,11 @@ $$('input.path').each(function(input){
 			}
 		}}).send('path='+input.value);
 	});
+});
+$$('button.checkport').addEvent('click',function(e){
+	e = new Event(e); 
+	e.stop();
+	CheckPort($('limitminport').value,$('limitmaxport').value);
 });
 </script>
 	<input type="Submit" value="{_UPDATE}">

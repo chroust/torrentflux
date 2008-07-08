@@ -34,8 +34,6 @@ $usejs=getRequestVar('usejs');
 // Create Connection.
 $db = getdb();
 loadSettings();
-$cfg['toppath']=$cfg['path'];
-$cfg['path']=$cfg['force_dl_in_home_dir']?$cfg['path'].$cfg["user"].'/':$cfg['path'];
 
 // Free space in MB
 $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
@@ -850,6 +848,22 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 		showError($db,$sql);
 	}
         AuditAction($cfg["constants"]["admin"], _EDITUSER.": ".$user_id);
+}
+
+function CheckPorts($minport,$maxport){
+		if($minport >$maxport) exit('port error');
+		if($maxport-$minport>300) exit('too many port');
+		for ($x=$minport;$x<=$maxport;$x++){
+			echo $x.':';
+			echo CheckPort($x)?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
+			echo '<br />';
+		}
+}
+function CheckPort($port){
+	$port=intval($port);
+		if($port <=0) return false;
+	$binding =  @fsockopen($_SERVER["SERVER_ADDR"], $port, $errno, $errstr, 10);
+	return $binding?1:0;
 }
 
 // ***************************************************************************
@@ -2336,11 +2350,11 @@ function SecurityClean($string)
 //check if user home folder exist, if not  , creat it 
 function CheckHomeDir($owner){
 	global $owner;
-		if (!is_dir($cfg["toppath"]."/".$owner)){
-				if (is_writable($cfg["toppath"])){
-					mkdir($cfg["toppath"]."/".$owner, 0777);
+		if (!is_dir($cfg["path"]."/".$owner)){
+				if (is_writable($cfg["path"])){
+					mkdir($cfg["path"]."/".$owner, 0777);
 				}else{
-					AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["toppath"] . " is not writable.");
+					AuditAction($cfg["constants"]["error"], "Error -- " . $cfg["path"] . " is not writable.");
 					showmessage("TorrentFlux settings are not correct (path is not writable) -- please contact an admin.");
 				}
 		}
@@ -2572,13 +2586,14 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$maxport = empty($maxport)?$cfg["maxport"]:intval($maxport);
 	$rerequest = empty($rerequest)? $cfg["rerequest_interval"]:intval($rerequest);
 	$sharekill= ($sharekill == "0")? "-1": intval($sharekill);
+	$location='/';
 	//injecting sql
 	$sql = 'INSERT INTO `tf_torrents` 
 	(`file_name`,`torrent` ,`hash` ,`owner_id`,
-	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`maxport`,`rerequest`,`sharekill`,`prio`) VALUES 
+	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`location`,`maxport`,`rerequest`,`sharekill`,`prio`) VALUES 
 	(\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\'
 	, \''.$rate.'\', \''.$drate.'\', \''.$superseeder.'\'
-	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\'
+	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\', \''.$location.'\'
 	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\', \''.$prio.'\');';
 	$recordset = $db->Execute($sql);
 	$torrentID=$db->Insert_ID();

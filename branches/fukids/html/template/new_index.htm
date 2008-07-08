@@ -202,6 +202,17 @@ function iframeLoad(url){
 		}
 		}).post('action.php?id=torrent&action='+action+'&usejs=1&torrentid='+id);
 	}
+	CheckPort=function(minport,maxport){
+		new MochaUI.Window({
+			id: 'portcheck',
+			title: 'port check',
+			resizable:0,
+			loadMethod: 'xhr',
+			contentURL: 'ajax.php?action=tips&id=checkport&minport='+minport+'&maxport='+maxport,
+			width: 150,
+			height: 300
+		});
+	}
 	OpenWindow=function(id,title,action,extraurl,width,height){
 				var extraurl=$defined(extraurl)?'&'+extraurl:'';
 				var wwidth=width?width:500;

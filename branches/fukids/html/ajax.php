@@ -8,11 +8,15 @@ $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'
 if($action=='listtorrent'){
 	include(ENGINE_ROOT.'include/ajax/list_torrent.php');
 }elseif($action=='tips'){
-	$id = getRequestVar('id',Array('user_profile'));
+	$id = getRequestVar('id',Array('user_profile','checkport'));
 		if($id=='user_profile'){
 			$uid=intval(getRequestVar('uid'));
 			$UsrData=GrabUserData($uid);
 			include template('ajax_Tips_user_profile');
+		}elseif($id=='checkport'){
+			$minport=intval(getRequestVar('minport'));
+			$maxport=intval(getRequestVar('maxport'));
+			CheckPorts($minport,$maxport);
 		}
 }elseif($action=='rightclick'){
 	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER','_ADMIN_VIEW_HISTORY'));
@@ -63,6 +67,7 @@ if($action=='listtorrent'){
 			$Default_maxport=$cfg['maxport'];
 			$Default_minport=$cfg['minport'];
 			$Default_rerequest_interval=$cfg['rerequest_interval'];
+			$Default_location=DIRECTORY_SEPARATOR;
 			include template('ajax_Upload_Torrent');
 		}elseif($id=='Url_Torrent'){
 			$Default_max_upload_rate=$cfg['max_upload_rate'];
@@ -71,6 +76,7 @@ if($action=='listtorrent'){
 			$Default_maxport=$cfg['maxport'];
 			$Default_minport=$cfg['minport'];
 			$Default_rerequest_interval=$cfg['rerequest_interval'];
+			$Default_location=DIRECTORY_SEPARATOR;
 			include template('ajax_Url_Torrent');
 		}elseif($id=='Creat_Torrent'){
 			die('building.....');
@@ -92,6 +98,7 @@ if($action=='listtorrent'){
 			$Default_minport=$Bt->minport;
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
+			$Default_location=$Bt->location;
 			// grub the file details
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),'remove padding');
 			$filearray=formatTorrentInfoFilesList($info['info']['files']);
