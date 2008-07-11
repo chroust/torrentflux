@@ -79,8 +79,12 @@ background: url(../images/icon/status/tstatus.bmp) no-repeat 0px 0px
 	height:92%;
 }
 #th_container{
+	background-color: #eee;
 	width:100%;
 	overflow:hidden;
+}
+#th{
+	width:2020px;
 }
 .th div{
 	/**
@@ -131,7 +135,7 @@ div.tbody{
 	width:100%;
 	cursor:default;
 	height:80%;
-	overflow:auto;
+	overflow:scroll;
 	height:100%;
 }
 

@@ -25,7 +25,7 @@ tableSoort = new Class({
 					if( cell.getStyle('width')< 10 ) {
 						cell.setStyle('width', '10px');
 					}
-					listwidth.set(cell.id,cell.getStyle('width'));
+				//	listwidth.set(cell.id,cell.getStyle('width'));
 				}.bind(this),
 				onStart: function(ele){
 					rowslength=$$('#'+this.options.table+' .tbody div').length;
@@ -41,10 +41,11 @@ tableSoort = new Class({
 		}.bind(this));
 	},
 	reesize: function(iii,rowslength,width){
+		iii--;
 		var rows = $$('#'+this.options.table+' .tbody div.rows');
 		for (var i = 0; i < rowslength; i++) {
 				if($defined(rows[i]))
-    		rows[i].getElementsByTagName("div")[iii].setStyle('width', width);
+					rows[i].getElementsByTagName("div")[iii].setStyle('width', width);
     	}
 	},
 	sort: function(cell) {       
