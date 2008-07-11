@@ -79,8 +79,9 @@ Class BtControl {
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
 				//change to download DIR
-					$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].DIRECTORY_SEPARATOR.Uid2Username($this->owner)):($cfg["path"]);
-				$command.= "cd " . $cfg["path"].Uid2Username($this->owner) . ";";
+				$cfg['checkhash']=0;
+				$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
+				$command.= "cd " . $dlpath. ";";
 				$command.= " HOME=".$dlpath."; ";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
@@ -88,6 +89,8 @@ Class BtControl {
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
 				//update stat interval
 				$command.= " --display_interval 2 ";
+				//hashcheck
+				//$command.=' --check_hashes '.$cfg['checkhash'];
 				$command.= " --max_download_rate ". escapeshellarg($this->drate) ;
 				$command.= " --max_upload_rate ".escapeshellarg($this->rate);
 				$command.= " --max_uploads ".escapeshellarg($this->maxuploads);
@@ -100,7 +103,6 @@ Class BtControl {
 				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
 				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;
 				$command .=" &";
-				showmessage($command);
 					// insert setting if it is not set yet
 					if (! array_key_exists("pythonCmd", $cfg)){
 						insertSetting("pythonCmd","/usr/bin/python");
@@ -108,6 +110,7 @@ Class BtControl {
 					if (! array_key_exists("debugTorrents", $cfg)){
 						insertSetting("debugTorrents", "0");
 					}
+				//showmessage($command,1,1);
 				passthru($command);
 			}
 		sleep(1);

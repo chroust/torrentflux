@@ -29,14 +29,15 @@ $maxdietime=5;
 $interval=5;
 $thispid=$cfg['torrent_file_path'].'.cronwork';
 $dieCall=$cfg['torrent_file_path'].'.Killcron';
-
-
-
+$cfg['cronwork_log']=$cfg['torrent_file_path'].'.cronwork.log';
+CronworkLog('');
+CronworkLog('Started Cron Work');
 	////////////////////////////////////////////////////////////////////////////////
 	// CheckHung
 	/////////////////////////////////////////////////////////////////////////////////
 	function CheckAllHung(){
 		global $db;
+		CronworkLog("checking if any hung process");
 		$sql = "SELECT `torrent` FROM `tf_torrents`";
 		$result = $db->Execute($sql);
 		while(list($torrent) = $result->FetchRow()){
@@ -49,11 +50,12 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 	// transfer limit
 	/////////////////////////////////////////////////////////////////////////////////
 	function check_Transfer_Limit(){
+		CronworkLog("checking if any user overflow transfer limit");
 		$userarray=GetUserList();
 			foreach($userarray as $index=>$user){
 					if(!checkTransferLimit($user['uid'])){
 						//if its transfer limit overflow
-						echo 'killall ';
+						CronworkLog("uid: ".$user['uid']." overflow his transfer limit");
 						All('Kill',$user['uid']);
 					}
 			}
@@ -68,6 +70,7 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 		global $db;
 		//check if rss have new feed
 		// Initialize new feed
+		CronworkLog("checking if any new rss update");
 		$feed = new SimplePie();
 		$sql = 'select url,timestamp,uid from tf_rss';
 		$result = $db->Execute($sql);
@@ -92,6 +95,7 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 		//title: $item->get_title()
 		//time: $item->get_date('j M Y, H:i:s O') 
 		//description : $item->get_description()
+		CronworkLog("new torrent from the rss, uid: $uid,url: $item");
 		$GLOBALS['cfg']['uid']=$uid;
 		$torrentid=UrlTorrent($item->get_title());
 			if($cfg['rssautostart']){
@@ -113,31 +117,30 @@ $dieCall=$cfg['torrent_file_path'].'.Killcron';
 		CheckAllHung();
 	}
 	
-		function checkDieCall(){
-			global $dieCall,$thispid;
-		echo 'checking diecall';
+	function checkDieCall(){
+		global $dieCall,$thispid;
+		CronworkLog('checking if there is any diecall');
 		//Check if any die call
 			if(file_exists($dieCall)){
 				unlink($thispid);
 				unlink($dieCall);
-				exit('Die Call Received');
+				CronworkLog('Die Call Received');
+				exit();
 			}
 	}
 	
-	
-	
-	
+
 //check if the pid file exist, 
 	if(file_exists($thispid)){
 		$lastupdate=filemtime($thispid);
 			if((time()-$lastupdate) <$maxdietime){
-				exit('running');
+				CronworkLog('another instant is running');
+				exit();
 			}
 	}
 touch($thispid);
 //MainLoop
-
-		echo 'running main loop';
+	CronworkLog('Start running main loop');
 	while(1){
 		RunLoop();
 		touch($thispid);
@@ -145,4 +148,11 @@ touch($thispid);
 	}
 unlink($thispid);
 unlink($dieCall);
+
+function CronworkLog($msg){
+	global $cfg;
+	$timestamp=date("Y-m-d H:i:s");
+	$msg=$timestamp.' :'.$msg."\n";
+	echo $msg;
+}
 ?>

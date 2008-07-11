@@ -38,6 +38,7 @@ loadSettings();
 // Free space in MB
 $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 
+
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
 $cfg["torrent_file_path"] = $cfg["path"].".torrents/";
@@ -53,7 +54,9 @@ PruneDB();
 
 // is there a stat and torrent dir?  If not then it will create it.
 checkTorrentPath();
-
+$thispid=$cfg['torrent_file_path'].'.cronwork';
+$dieCall=$cfg['torrent_file_path'].'.Killcron';
+$maxdietime=300;
 //**********************************************************************************
 // START FUNCTIONS HERE
 //**********************************************************************************
@@ -849,40 +852,44 @@ function updateThisUser($user_id, $org_user_id, $pass1, $userType, $hideOffline,
 	}
         AuditAction($cfg["constants"]["admin"], _EDITUSER.": ".$user_id);
 }
+function CheckCronRobot(){
+	global $thispid,$cfg,$maxdietime;
+	$thispid=$cfg['torrent_file_path'].'.cronwork';
+		if(file_exists($thispid)){
+			$lastupdate=filemtime($thispid);
+				if((time()-$lastupdate) <$maxdietime){
+					return true;
+				}
+		}
+	return false;
+}
+function is_url($url){
+    $url = substr($url,-1) == "/" ? substr($url,0,-1) : $url;
+    if ( !$url || $url=="" ) return false;
+    if ( !( $parts = @parse_url( $url ) ) ) return false;
+    else {
+        if ( $parts[scheme] != "http" && $parts[scheme] != "https" && $parts[scheme] != "ftp" && $parts[scheme] != "gopher" ) return false;
+        else if ( !eregi( "^[0-9a-z]([-.]?[0-9a-z])*.[a-z]{2,4}$", $parts[host], $regs ) ) return false;
+        else if ( !eregi( "^([0-9a-z-]|[_])*$", $parts[user], $regs ) ) return false;
+        else if ( !eregi( "^([0-9a-z-]|[_])*$", $parts[pass], $regs ) ) return false;
+        else if ( !eregi( "^[0-9a-z/_.@~-]*$", $parts[path], $regs ) ) return false;
+        else if ( !eregi( "^[0-9a-z?&=#,]*$", $parts[query], $regs ) ) return false;
+    }
+    return true;
+}
 
 function CheckPorts($minport,$maxport){
 		if($minport >$maxport) exit('port error');
-		//if($maxport-$minport>10000) exit('too many port');
-		$lastresult=CheckPort($minport);
-		$minport++;
+		if($maxport-$minport>10000) exit('too many port');
 		echo "<table>";
 		for ($x=$minport;$x<=$maxport;$x++){
 			$result=CheckPort($x);
-				if($lastresult==$result){
-					$first=$first;
-				}else{
-					$first=$first?$first:$minport-1;
-					$end=$x-1;
 					echo "<tr><td>";
-					echo $first==$end?"$first: ":"$first-$end: ";
+					echo $x.':';
 					echo "</td><td>";
-					echo $lastresult==1?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
+					echo $result==0?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
 					echo "</td></tr>";
-					$first=$x;
-				}
-				$lastresult=$result;
-			//echo $x.':';
-			
-			//echo '<br />';
 		}
-			if($first!==$maxport){
-				$end=$x-1;
-				echo "<tr><td>";
-				echo $first==$end?"$first: ":"$first-$end: ";
-				echo "</td><td>";
-				echo $lastresult==1?'<img src="images/green.gif" />':'<img src="images/yellow.gif" />';
-				echo "</td></tr>";
-			}
 			echo "</table>";
 }
 function CheckPort($port){
@@ -2467,6 +2474,10 @@ function UrlTorrent($url,$options=''){
 	global $cfg;
 		if(!function_exists('curl_init')){
 			showmessage('please install php curl first',1);
+		}
+		if(!is_url($url)){
+			showmessage('it is not a url');
+			return;
 		}
 	// download by curl
 	$ch = curl_init();

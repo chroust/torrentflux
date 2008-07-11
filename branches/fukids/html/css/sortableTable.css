@@ -193,3 +193,9 @@ input.error{
 background:#FF5755;
 border:1px solid #BE0200;
 }
+.online{
+	color:#19FF1C;
+}
+.offline{
+	color:#FF1C19;
+}

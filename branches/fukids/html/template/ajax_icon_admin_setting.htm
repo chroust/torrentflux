@@ -116,29 +116,44 @@
 		</table>
 		</fieldset>
 	</div>
+	<div id="setting_CronRobot" class="mootabs_panel">
+		<fieldset>
+		<legend>{_CronRobot_Setting}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%">{_CronRobot_Stat} :</td>
+			<td><span id="cronstat"></span></td>
+		</tr>
+		<tr>
+			<td style="width:80%">{_CronRobot_Control} :</td>
+			<td><button id="CronRobot_start">{_CronRobot_Start}</button><button id="CronRobot_stop">{_CronRobot_Stop}</button></td>
+		</tr>
+		</table>
+		</fieldset>
+	</div>
 	<div id="setting_Queueing" class="mootabs_panel">
 		<fieldset>
 		<legend>{_Queueing_Setting}</legend>
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{Enable_Queue_Manager} :</td>
-			<td><input type="checkbox" name="auto_start"/></td>
+			<td><input type="checkbox" name="aaa"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{tfQManager_Path} :</td>
-			<td><input type="text" size="20" name="auto_start"/></td>
+			<td><input type="text" size="20" name="bbb"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{Max_Server_Threads} :</td>
-			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+			<td><input type="text" size="3" class="num" name="ccc"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{Max_User_Threads} :</td>
-			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+			<td><input type="text" size="3" class="num" name="ddd"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{Polling_Interval} :</td>
-			<td><input type="text" size="3" class="num" name="auto_start"/></td>
+			<td><input type="text" size="3" class="num" name="eee"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -186,6 +201,7 @@
 		<li title="setting_Directories"><div>{_Directories}</div></li>
 		<li title="setting_Connection"><div>{_Connection}</div></li>
 		<li title="setting_BitTorrent"><div>{_BitTorrent}</div></li>
+		<li title="setting_CronRobot"><div>{_CronRobot}</div></li>
 		<li title="setting_Queueing"><div>{_Queueing}</div></li>
 		<li title="setting_Advanced"><div>{_Advanced}</div></li>
 	</ul>
@@ -221,6 +237,40 @@ $$('button.checkport').addEvent('click',function(e){
 	e.stop();
 	CheckPort($('limitminport').value,$('limitmaxport').value);
 });
+$('cronstat').addEvents({
+	'mouseenter':function(){
+		this.setStyle('cursor','pointer');
+	},'mouseleave':function(){
+		this.setStyle('cursor','default');
+	},'click':function(){
+		update_CronRobot_Stat();
+	}
+});
+$('CronRobot_start').addEvent('click',function(e){
+	e = new Event(e); 
+	e.stop();
+	CronRobotControl('start');
+});
+$('CronRobot_stop').addEvent('click',function(e){
+	e = new Event(e); 
+	e.stop();
+	CronRobotControl('stop');
+});
+var update_CronRobot_Stat=function(){
+	$('cronstat').set('html','Loading..').load('ajax.php?action=tips&id=robotstat');
+}
+var CronRobotControl=function(action){
+	$('cronstat').set('html','Loading..');
+	new Request({
+		method: 'get', 
+		url: 'croncontrol.php',
+		onSuccess:function(){
+			update_CronRobot_Stat();
+		}
+	}).send('op='+action);
+}
+
+update_CronRobot_Stat();
 </script>
 	<input type="Submit" value="{_UPDATE}">
 </form>

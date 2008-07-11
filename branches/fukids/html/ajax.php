@@ -8,7 +8,7 @@ $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'
 if($action=='listtorrent'){
 	include(ENGINE_ROOT.'include/ajax/list_torrent.php');
 }elseif($action=='tips'){
-	$id = getRequestVar('id',Array('user_profile','checkport'));
+	$id = getRequestVar('id',Array('user_profile','checkport','robotstat'));
 		if($id=='user_profile'){
 			$uid=intval(getRequestVar('uid'));
 			$UsrData=GrabUserData($uid);
@@ -17,6 +17,8 @@ if($action=='listtorrent'){
 			$minport=intval(getRequestVar('minport'));
 			$maxport=intval(getRequestVar('maxport'));
 			CheckPorts($minport,$maxport);
+		}elseif($id=='robotstat'){
+			echo CheckCronRobot()?'<span class="online">'._ONLINE.'</span>':'<span class="offline">'._OFFLINE.'</span>';
 		}
 }elseif($action=='rightclick'){
 	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER','_ADMIN_VIEW_HISTORY'));

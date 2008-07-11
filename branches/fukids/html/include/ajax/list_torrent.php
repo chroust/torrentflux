@@ -150,6 +150,7 @@ $result = $db->SelectLimit($sql, 50,0);
 			$usronline_str=$comma.$userid.':'.$value;
 			$comma=',';
 		}
+		$cronworking=CheckCronRobot()?1:0;
 		$output['global']=array(
 			'totalUpSpeed'=>$totalUpSpeed,
 			'totalDownSpeed'=>$totalDownSpeed,
@@ -159,6 +160,7 @@ $result = $db->SelectLimit($sql, 50,0);
 			'totalinactive'=>$totalinactive,
 			'usrtotal_str'=>$usrtotal_str,
 			'useronline'=>$usronline_str,
+			'cronworking'=>$cronworking
 		);
 	}
 echo json_encode($output);
