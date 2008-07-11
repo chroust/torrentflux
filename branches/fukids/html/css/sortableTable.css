@@ -76,9 +76,12 @@ background: url(../images/icon/status/tstatus.bmp) no-repeat 0px 0px
 **************************************************************/
 
 #list_torrent {
-	height:80%;
+	height:92%;
 }
-
+#th_container{
+	width:100%;
+	overflow:hidden;
+}
 .th div{
 	/**
 	th
@@ -105,6 +108,8 @@ div.rows{
 	overflow: hidden;
 	min-width:2000px;
 	height: 1.2em;
+	background-color: #eee;
+	border : 3px solid #eee;
 }
 div.rows div{
 	/**
@@ -116,22 +121,23 @@ div.rows div{
 	padding: 0 2px;
 	margin:2px;
 	overflow:hidden;
-  word-wrap: break-word;
-  
-white-space: pre-wrap; /* css-3 */
-white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-white-space: -pre-wrap; /* Opera 4-6 */
-white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word;
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
 }
 div.tbody{
 	width:100%;
 	cursor:default;
 	height:80%;
+	overflow:auto;
+	height:100%;
 }
 
 .torrent_list_clicked {
-	background-color: #AFD6FF;
-	border : 3px solid #6699cc; 
+	background-color: #AFD6FF !important;
+	border : 3px solid #6699cc !important;
 }
 
 .resize{
@@ -144,7 +150,7 @@ div.tbody{
 	float: right;
 }
 #torrent_list_div{
-	overflow:auto;
+	#overflow:auto;
 	width: 100%;
 	border:1px solid #ddccdd
 }

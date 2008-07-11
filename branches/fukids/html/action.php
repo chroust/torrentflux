@@ -15,24 +15,29 @@ include_once("include/BtControl_Tornado.class.php");
 			if(is_numeric($torrentid)){
 				$Bt= new BtControl($torrentid);
 				$Bt->Kill();
+				sleep(1);
 				showmessage('',1,1);
 			}elseif($torrentid=='all'){
 				all('Kill');
+				sleep(1);
 			}
 	}elseif($action=='Del'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete();
+		sleep(1);
 		showmessage('',1,1);
 	}elseif($action=='_Del_n_Remove_Torrent'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete(1);
+		sleep(1);
 		showmessage('',1,1);
 	}elseif($action=='_Del_n_Remove_Torrent_And_Files'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
 		$Bt->Delete(1,1);
+		sleep(1);
 		showmessage('',1,1);
 	}elseif($action=='_Del_n_Remove_Files'){
 		//if user want delet the torrent
@@ -40,16 +45,15 @@ include_once("include/BtControl_Tornado.class.php");
 		$Bt->Delete(0,1);
 		showmessage('',1,1);
 	}elseif($action=='Start'){
-	// if user what kill the process
+	// if user what start the process
 			if(is_numeric($torrentid)){
 				$Bt= new BtControl($torrentid);
 				$Bt->Start();
+				sleep(1);
 			}elseif($torrentid=='all'){
 				all('Start');
+				sleep(1);
 			}
-		//if user want start the process
-		$Bt= new BtControl($torrentid);
-		$Bt->Start();
 		showmessage('',1,1);
 	}elseif($action=='Edit_Torrent'){
 		//if user want edit the torrent
@@ -80,6 +84,7 @@ include_once("include/BtControl_Tornado.class.php");
 		$Bt= new BtControl($torrentid,"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime;prio:$prio");
 		$Bt->Kill();
 		$Bt->Start();
+		sleep(1);
 		showmessage('',1,1);
 	}elseif($action=='Upload'){
 		//if user want upload the torrent from file

@@ -71,7 +71,13 @@ Class BtControl {
 				//  This file is being queued.
 			}else{
 					@unlink($cfg["torrent_file_path"].$this->log);
-
+					// insert setting if it is not set yet
+					if (! array_key_exists("pythonCmd", $cfg)){
+						insertSetting("pythonCmd","/usr/bin/python");
+					}
+					if (! array_key_exists("debugTorrents", $cfg)){
+						insertSetting("debugTorrents", "0");
+					}
 		// build the command
 					if (!$cfg["debugTorrents"]){
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]) . " -OO";
@@ -79,7 +85,6 @@ Class BtControl {
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
 				//change to download DIR
-				$cfg['checkhash']=0;
 				$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
 				$command.= "cd " . $dlpath. ";";
 				$command.= " HOME=".$dlpath."; ";
@@ -89,8 +94,6 @@ Class BtControl {
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
 				//update stat interval
 				$command.= " --display_interval 2 ";
-				//hashcheck
-				//$command.=' --check_hashes '.$cfg['checkhash'];
 				$command.= " --max_download_rate ". escapeshellarg($this->drate) ;
 				$command.= " --max_upload_rate ".escapeshellarg($this->rate);
 				$command.= " --max_uploads ".escapeshellarg($this->maxuploads);
@@ -103,17 +106,10 @@ Class BtControl {
 				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
 				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;
 				$command .=" &";
-					// insert setting if it is not set yet
-					if (! array_key_exists("pythonCmd", $cfg)){
-						insertSetting("pythonCmd","/usr/bin/python");
-					}
-					if (! array_key_exists("debugTorrents", $cfg)){
-						insertSetting("debugTorrents", "0");
-					}
+
 				//showmessage($command,1,1);
 				passthru($command);
 			}
-		sleep(1);
 	}
 	
 	// function for Killing the process, but not the file 
@@ -167,13 +163,13 @@ Class BtControl {
 			if($delFile){
 			}
 		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
-		sleep(1);
 	}
 	
 	function CheckTorrent($torrent){
 		Global $cfg;
 			if(!is_file($cfg["torrent_file_path"].$this->torrent)){
 				showmessage('torrent: '.$this->torrent.' not exist');
+				return 1;
 			}
 	}
 }
