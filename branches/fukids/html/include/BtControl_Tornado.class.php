@@ -104,7 +104,7 @@ Class BtControl {
 				$command.= " --priority ".escapeshellarg($this->prio);
 		//		$command.= " --check_hashes 0 ";
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
-				$command .="  > /dev/null &";
+				$command .="  > ".$cfg["torrent_file_path"].$this->log." &";
 				//showmessage($command,1,1);
 				passthru($command);
 				

@@ -539,6 +539,11 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 				selecting=$('tbody').getLast('div.rows').id;
 				$(selecting).addClass('torrent_list_clicked');
 				$('tbody').scrollTo(0,$('tbody').getScrollSize().y);
+			}else if(e.code==46){
+				//del
+					if(selecting){
+						torrentControl('Del',selecting);
+					}
 			}
 	}).addEvent('dblclick',function(e){
 		e.preventDefault();

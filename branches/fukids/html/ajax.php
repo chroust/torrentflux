@@ -150,15 +150,19 @@ if($action=='listtorrent'){
 		}elseif($tab=='tab6'){
 		//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));
-			$fh = fopen($logfile, 'r');
-				if ($fh) {
-					while (!feof($fh)){
-						$buffer = fgets($fh, 4096); // Read a line.
-						echo $buffer.'<br />';
-					}
-					fclose($fh);
+				if(!is_file($logfile) || is_readable($logfile)){
+					// if there is no log file or not readable
+					echo '('._Current_No_Log.')';
 				}else{
-					echo _Current_No_Log;
+					$fh = fopen($logfile, 'r');
+						if ($fh) {
+								while (!feof($fh)){
+									$buffer = fgets($fh, 4096); // Read a line.
+									$output= $buffer.'<br />';
+								}
+							fclose($fh);
+						}
+					echo $output?$output :'('._Current_No_Log.')';
 				}
 		}
 }elseif($action=='form'){

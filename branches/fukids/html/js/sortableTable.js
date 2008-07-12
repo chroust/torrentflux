@@ -12,7 +12,7 @@ tableSoort = new Class({
 	initialize: function (table) {
 		this.options.table = table;
 		// prepare table header cells
-		this.titles = $$('#'+table+' div div');
+		this.titles = $$('#'+table+' div div div');
 		i=0;
   	this.titles.each(function(cell) {
 		// drag resize
@@ -46,41 +46,44 @@ tableSoort = new Class({
 		for (var i = 0; i < rowslength; i++) {
 				if($defined(rows[i]))
 					rows[i].getElementsByTagName("div")[iii].setStyle('width', width);
-    	}
+		}
 	},
-	sort: function(cell) {       
+	sort: function(cell) {
 		var column = cell.getProperty('column');
 		var rows = $$('#'+this.options.table+' .tbody div.rows');		
-		if(!rows[0].childNodes[column]) return; //table is empty
-    // Fill array with - values and IDs *fast*
-    var values = new Array;
-    var rowslength= rows.length;
-    for (var i = 0; i < rowslength; i++) {
-       	values.push(rows[i].getElementsByTagName("div")[column].innerHTML+"|"+i);
-    }
-    this.asc = (cell.hasClass('desc')) ?  false : true;
+			if(!rows[0].childNodes[column]){
+				//table is empty
+				return;
+			}
+	// Fill array with - values and IDs *fast*
+	var values = new Array;
+	var rowslength= rows.length;
+		for (var i = 0; i < rowslength; i++) {
+			values.push(rows[i].getElementsByTagName("div")[column].innerHTML+"|"+i);
+		}
+	this.asc = (cell.hasClass('desc')) ?  false : true;
 	this.titles.removeClass('desc').removeClass('asc');
-    // reverse only if already sorted
-    if (column==this.options.column) { 
-   	   	   values.reverse();
-    } else {
-      // use internal array sort -  special handling for numeric values
-      switch (cell.getProperty('axis')) {
-       	case 'string': values.sort(); break;       	     
-       	case 'number': values.sort(this.numsort); break;       	     
-      }
-	   }
-     // rebuild table body into tbody element
-     var tBody = $$('#'+this.options.table+' .tbody')[0];
-  	 for (var i = 0; i < values.length; i++) {
-        	n = values[i].split("|").pop(); // get index;
-        	tBody.appendChild(rows[n])
-	}
-    /* IE doesnt allow replace table innerHTML... therefore we use a trick */
-    $(this.options.table).replaceChild(tBody,$(this.options.table).lastChild);
-			this.options.column = column;
-    // Change table header class
-    	if(this.asc){
+	// reverse only if already sorted
+		if (column==this.options.column) { 
+			values.reverse();
+		} else {
+			// use internal array sort -  special handling for numeric values
+				switch (cell.getProperty('axis')) {
+					case 'string': values.sort(); break;	   		 
+					case 'number': values.sort(this.numsort); break;	   		 
+				}
+		}
+	// rebuild table body into tbody element
+	var tBody = $$('#'+this.options.table+' .tbody')[0];
+		for (var i = 0; i < values.length; i++) {
+			n = values[i].split("|").pop(); // get index;
+			tBody.appendChild(rows[n])
+		}
+	/* IE doesnt allow replace table innerHTML... therefore we use a trick */
+	$(this.options.table).replaceChild(tBody,$(this.options.table).lastChild);
+	this.options.column = column;
+	// Change table header class
+		if(this.asc){
 			cell.removeClass('asc').addClass('desc');
 		}else{
 			cell.removeClass('desc').addClass('asc');
@@ -96,5 +99,5 @@ tableSoort = new Class({
 
 /** init on screen keyboard on load */
 window.addEvent('domready', function() {
-    $$('table.sortTable').each(function(sort) { new tableSoort(sort.id);});
+	$$('table.sortTable').each(function(sort) { new tableSoort(sort.id);});
 });
