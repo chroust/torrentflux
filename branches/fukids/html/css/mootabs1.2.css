@@ -38,19 +38,16 @@ color:#666;
 	border-top:2px solid #fff;
 }
 
-#torrent_info .mootabs_panel {
-	display: none;
-	background-color: #ddd;
+#mootabs_panel {
 	position: relative;
 	width: 100%;
 	clear: both;
-	overflow: auto;
 	height:100%;
 	max-height: 200px !IMPORTANT;
 	overflow:auto;
 	padding: 2px;
 }
-#torrent_info .mootabs_panel.active {
+#mootabs_panel.active {
 	background-color: #fff;
 	border:2px solid #DDCCDD;
 	display: block;
@@ -87,10 +84,4 @@ color:#666;
 	cursor:pointer;
 	font-weight: bold; 
 	font-size:120%;
-}
-#setting_info .mootabs_panel {
-	display: none;
-}
-#setting_info .mootabs_panel.active {
-	display: block;
 }

@@ -23,10 +23,8 @@ var mootabs = new Class({
 			height: this.options.height,
 			width: this.options.width
 		});
-		this.titles = $$('#' + this.elid + ' ul.'+this.options.ultitle+' li');
+		this.titles = $$('#'+this.elid+' div ul.'+this.options.ultitle+' li');
 		this.panelHeight = (this.options.height);
-		this.panels = $$('#' + this.elid + ' .'+this.options.panelsclass);
-		this.panels.setStyle('height', this.panelHeight);
 
 		this.titles.each(function(item) {
 			item.addEvent('click', function(e){
@@ -53,35 +51,27 @@ var mootabs = new Class({
 			}
 	},
 	activate: function(tab, skipAnim){
-		if(!$defined(selecting) && this.elid =='torrent_info')
+		if(!selecting && this.elid =='torrent_info')
 				return false;
 		window.fireEvent('TabExit');
 		window.removeEvents('TabExit').removeEvents('TabReady');	
-		if(! $defined(skipAnim))
-		{
+		if(! $defined(skipAnim)){
 			skipAnim = false;
 		}
-		if($type(tab) == 'string') 
-		{
-			myTab = $$('#' + this.elid + ' ul li').filterByAttribute('title', '=', tab)[0];
+		if($type(tab) == 'string'){
+			myTab = $$('#'+this.elid+' div ul li').filterByAttribute('title', '=', tab)[0];
 			tab = myTab;
 		}
-		
-		if($type(tab) == 'element')
-		{
+		if($type(tab) == 'element'){
 			down_selecting_tab = tab;
-			var newTab = tab.getProperty('title');
-			this.panels.removeClass('active');
-			this.activePanel = this.panels.filter('#'+newTab)[0];
-				if($defined(this.activePanel))
-					this.activePanel.addClass('active');
-			$$('#' + this.elid + ' ul.mootabs_title li').removeClass('active');
 			tab.addClass('active');
 			this.activeTitle = tab;
+			$$('#' + this.elid + ' div ul.mootabs_title li').removeClass('active');
+			tab.addClass('active');
 				if(this.elid =='torrent_info'){
 					new Request.HTML({
 						evalScripts:true,
-						update:this.activePanel,
+						update:$('mootabs_panel'),
 						onComplete:function(data){
 							window.fireEvent('TabReady');
 						}
