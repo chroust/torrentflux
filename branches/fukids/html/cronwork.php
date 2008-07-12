@@ -33,20 +33,6 @@ $cfg['cronwork_log']=$cfg['torrent_file_path'].'.cronwork.log';
 CronworkLog('');
 CronworkLog('Started Cron Work');
 	////////////////////////////////////////////////////////////////////////////////
-	// CheckHung
-	/////////////////////////////////////////////////////////////////////////////////
-	function CheckAllHung(){
-		global $db;
-		CronworkLog("checking if any hung process");
-		$sql = "SELECT `torrent` FROM `tf_torrents`";
-		$result = $db->Execute($sql);
-		while(list($torrent) = $result->FetchRow()){
-			CheckHung($torrent);
-		}
-	}
-
-
-	////////////////////////////////////////////////////////////////////////////////
 	// transfer limit
 	/////////////////////////////////////////////////////////////////////////////////
 	function check_Transfer_Limit(){
@@ -114,7 +100,7 @@ CronworkLog('Started Cron Work');
 		checkDieCall();
 		checkrss();
 		check_Transfer_Limit();
-		CheckAllHung();
+		checkHung();
 	}
 	
 	function checkDieCall(){

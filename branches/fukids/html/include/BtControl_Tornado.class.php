@@ -51,7 +51,7 @@ Class BtControl {
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
 		//check if it is hung
-		CheckHung($this->torrent);
+		ForceKillProcess($this->torrent);
 			if(CheckRunning($this->pid)!==0){
 				showmessage($this->torrent.'is already running',1);
 			}
@@ -137,7 +137,7 @@ Class BtControl {
 			while(is_file($cfg["torrent_file_path"].$this->pid)){
 				usleep(100);
 			}
-		CheckHung($this->torrent);
+		ForceKillProcess($this->torrent);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 	}
 

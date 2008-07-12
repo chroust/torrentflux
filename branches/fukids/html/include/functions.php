@@ -2394,18 +2394,36 @@ function CheckHomeDir($owner){
 }
 // ***************************************************************************
 // ***************************************************************************
-// check if any hung , whiah have no pid file but running process
-function CheckHung($torrent){
+// Force Kill a process
+function ForceKillProcess($torrent){
 	global $cfg;
 	include_once(ENGINE_ROOT."include/BtControl/RunningTorrent.php");
+	$torrentArray=split(',',$torrent);
+		foreach($torrentArray as $index => $torrent){
+			$torrentArray[$index]=torrent2stat($torrent);
+		}
 	$runningTorrents = getRunningTorrents();
 		foreach ($runningTorrents as $key => $value){
 			$rt = new RunningTorrent($value);
-				if ($rt->statFile == torrent2stat($torrent)) {
-					AuditAction($cfg["constants"]["error"], "Posible Hung Process " . $rt->processId);
+				if (in_array($rt->statFile,$torrentArray)) {
+					AuditAction($cfg["constants"]["error"], "Force Kill Process " . $rt->processId);
 					$result = exec("kill ".$rt->processId);
 				}
 		}
+}
+// ***************************************************************************
+// ***************************************************************************
+// Check if a process still running even if no pid
+function checkHung(){
+	global $db,$cfg;
+	$sql = "SELECT `torrent` FROM `tf_torrents`";
+	$result = $db->Execute($sql);
+	while(list($torrent) = $result->FetchRow()){
+			if(!is_file($cfg["torrent_file_path"].torrent2pid($torrent))){
+				AuditAction($cfg["constants"]["error"], "Posible Hung Process" . $torrent);
+				ForceKillProcess($torrent);
+			}
+	}
 }
 // ***************************************************************************
 // ***************************************************************************

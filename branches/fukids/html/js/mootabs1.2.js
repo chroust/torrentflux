@@ -47,7 +47,7 @@ var mootabs = new Class({
 		}.bind(this));
 	},
 	activate: function(tab, skipAnim){
-			if(!selecting && this.elid =='torrent_info')
+			if((!selecting) && this.elid =='torrent_info')
 					return false;
 		window.fireEvent('TabExit');
 		window.removeEvents('TabExit').removeEvents('TabReady');	
@@ -58,6 +58,9 @@ var mootabs = new Class({
 				tab = $$('#'+this.elid+' div ul li').filter(function(item){
 					return item.getProperty('title')==tab;
 				});
+			}
+			if(!$defined(tab)){
+				return false;
 			}
 		down_selecting_tab = tab;
 		this.activeTitle = tab;
