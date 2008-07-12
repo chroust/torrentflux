@@ -506,6 +506,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 									}
 							}
 						$(selecting).addClass('torrent_list_clicked');
+						myTabs1.activate(down_selecting_tab);
 					}
 			}else if(e.code==33){
 				//page up
@@ -522,6 +523,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 									}
 							}
 						$(selecting).addClass('torrent_list_clicked');
+						myTabs1.activate(down_selecting_tab);
 					}
 			}else if(e.code==36){
 				//home
@@ -530,6 +532,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 					}
 				selecting=$('tbody').getElement('div.rows').id;
 				$(selecting).addClass('torrent_list_clicked');
+				myTabs1.activate(down_selecting_tab);
 				$('tbody').scrollTo(0,0);
 			}else if(e.code==35){
 				//end
@@ -538,6 +541,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 					}
 				selecting=$('tbody').getLast('div.rows').id;
 				$(selecting).addClass('torrent_list_clicked');
+				myTabs1.activate(down_selecting_tab);
 				$('tbody').scrollTo(0,$('tbody').getScrollSize().y);
 			}else if(e.code==46){
 				//del

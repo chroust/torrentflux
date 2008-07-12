@@ -14,8 +14,7 @@ var mootabs = new Class({
 			ajaxOptions: 		{method:'get'},
 			ajaxLoadingText: 	'Loading...',
 			ultitle:			'mootabs_title',
-			panelsclass:		'mootabs_panel',
-			defaultPanel:		false
+			panelsclass:		'mootabs_panel'
 		}, options || {});
 		this.el = $(element);
 		this.elid = element;
@@ -46,37 +45,36 @@ var mootabs = new Class({
 				}
 			}.bind(this));
 		}.bind(this));
-			if($$('#' + this.elid + ' .'+this.options.panelsclass+'#'+this.options.defaultPanel)){
-				this.activate(this.options.defaultPanel);
-			}
 	},
 	activate: function(tab, skipAnim){
-		if(!selecting && this.elid =='torrent_info')
-				return false;
+			if(!selecting && this.elid =='torrent_info')
+					return false;
 		window.fireEvent('TabExit');
 		window.removeEvents('TabExit').removeEvents('TabReady');	
-		if(! $defined(skipAnim)){
-			skipAnim = false;
-		}
-		if($type(tab) == 'string'){
-			myTab = $$('#'+this.elid+' div ul li').filterByAttribute('title', '=', tab)[0];
-			tab = myTab;
-		}
-		if($type(tab) == 'element'){
-			down_selecting_tab = tab;
-			tab.addClass('active');
-			this.activeTitle = tab;
-			$$('#' + this.elid + ' div ul.mootabs_title li').removeClass('active');
-			tab.addClass('active');
-				if(this.elid =='torrent_info'){
-					new Request.HTML({
-						evalScripts:true,
-						update:$('mootabs_panel'),
-						onComplete:function(data){
-							window.fireEvent('TabReady');
-						}
-					}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
+			if(! $defined(skipAnim)){
+				skipAnim = false;
 			}
-		}
+			if($type(tab) == 'string'){
+				tab = $$('#'+this.elid+' div ul li').filter(function(item){
+					return item.getProperty('title')==tab;
+				});
+			}
+		down_selecting_tab = tab;
+		this.activeTitle = tab;
+		$$('#' + this.elid + ' div ul.mootabs_title li').removeClass('active');
+		tab.addClass('active');
+		$$('#'+this.elid+' .mootabs_panel').removeClass('active');
+			if(this.elid =='torrent_info'){
+				new Request.HTML({
+					evalScripts:true,
+					update:$('mootabs_panel'),
+					onComplete:function(data){
+						window.fireEvent('TabReady');
+					}
+				}).get('ajax.php?action=tabs&tab='+this.activeTitle.getProperty('title')+'&torrentId='+selecting);
+			}
+			if($defined($(this.elid).getElement('div div#'+tab.getProperty('title')))){
+				$(this.elid).getElement('div#'+tab.getProperty('title')).addClass('active');
+			}
 	}
 });

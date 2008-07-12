@@ -196,6 +196,7 @@
 	</div>
 </div>
 <div id="setting_left">
+	<div>
 	<ul class="mootabs_title">
 		<li title="setting_Display"><div>{_Display}</div></li>
 		<li title="setting_Directories"><div>{_Directories}</div></li>
@@ -205,11 +206,13 @@
 		<li title="setting_Queueing"><div>{_Queueing}</div></li>
 		<li title="setting_Advanced"><div>{_Advanced}</div></li>
 	</ul>
+	</div>
 </div>
 </div>
 
 <script type="text/javascript">
-settingtab		=	new mootabs('setting_info', {'defaultPanel':'setting_display'});
+settingtab	=	new mootabs('setting_info');
+settingtab.activate('setting_Display');
 $$('input.checkfile').each(function(input){
 	input.addEvent('keyup',function(e){
 		new Request({method: 'get', url: 'admin.php?op=checkfile',onSuccess:function(a){

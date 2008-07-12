@@ -85,3 +85,9 @@ color:#666;
 	font-weight: bold; 
 	font-size:120%;
 }
+#setting_info .mootabs_panel.active{
+	display:block !important;
+}
+#setting_info .mootabs_panel{
+	display:none;
+}
