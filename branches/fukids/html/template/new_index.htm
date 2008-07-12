@@ -441,12 +441,82 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 				e.setStyle('width',listwidth.get(e.id));
 			}
 	});
-	var eachHeight=$('th').getStyle('height');
+	var eachHeight=$('th').getSize().y.toInt();
+	var tbodyHeight=$('tbody').getSize().y.toInt();
 	$('tbody').addEvent('scroll',function(e){
 		// sync scroller
 		x=this.getScrollLeft();
 		y=this.getScrollLeft();
 		$('th_container').scrollTo(x,0);
+	});
+	// key watcher
+	$$('html').addEvent('keypress',function(e){
+		console.log(e.code);
+			if(e.code==40){
+				//arrow down
+					if(selecting){
+						e.preventDefault();
+						$(selecting).removeClass('torrent_list_clicked');
+						newselecting=$(selecting).getNext();
+							if(newselecting){
+								newselecting.addClass('torrent_list_clicked');
+								selecting=newselecting.id;
+								myTabs1.activate(down_selecting_tab);
+								//custom scroll
+								$('tbody').scrollTo(0,$('tbody').getScroll().y+eachHeight);
+							}else{
+								$(selecting).addClass('torrent_list_clicked');
+							}
+					}
+			}else if(e.code==38){
+				//arrow up
+					if(selecting){
+						e.preventDefault();
+						$(selecting).removeClass('torrent_list_clicked');
+						newselecting=$(selecting).getPrevious();
+							if(newselecting){
+								newselecting.addClass('torrent_list_clicked');
+								selecting=newselecting.id;
+								myTabs1.activate(down_selecting_tab);
+								//custom scroll
+								$('tbody').scrollTo(0,$('tbody').getScroll().y-eachHeight);
+							}else{
+								$(selecting).addClass('torrent_list_clicked');
+							}
+					}
+			}else if(e.code==34){
+				//page down
+					if(selecting){
+						$(selecting).removeClass('torrent_list_clicked');
+						var skipnum=(tbodyHeight/eachHeight).toInt();
+							while (skipnum > 0){
+								newselecting=$(selecting).getNext();
+									if(newselecting){
+										selecting=newselecting;
+										skipnum--;
+									}else{
+										skipnum=0;
+									}
+							}
+						$(selecting).addClass('torrent_list_clicked');
+					}
+			}else if(e.code==33){
+				//page up
+					if(selecting){
+						$(selecting).removeClass('torrent_list_clicked');
+						var skipnum=(tbodyHeight/eachHeight).toInt();
+							while (skipnum > 0){
+								newselecting=$(selecting).getPrevious();
+									if(newselecting){
+										selecting=newselecting;
+										skipnum--;
+									}else{
+										skipnum=0;
+									}
+							}
+						$(selecting).addClass('torrent_list_clicked');
+					}
+			}
 	});
 	//update data
 	get_data();

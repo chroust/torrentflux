@@ -87,7 +87,7 @@ Class BtControl {
 				//change to download DIR
 				$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
 				$command.= "cd " . $dlpath. ";";
-				$command.= " HOME=".$dlpath."; ";
+				$command.= " HOME=".$cfg["path"]."; ";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
 				$command.= escapeshellarg($this->runtime).' '.escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->stat.'\'' .' '.$this->owner;
@@ -101,14 +101,13 @@ Class BtControl {
 				$command.= " --maxport ".escapeshellarg($this->maxport);
 				$command.= " --rerequest_interval ".escapeshellarg($this->rerequest);
 				$command.= " --super_seeder ".escapeshellarg($this->superseeder);
-				$command .= " --priority ".escapeshellarg($this->prio);
+				$command.= " --priority ".escapeshellarg($this->prio);
+		//		$command.= " --check_hashes 0 ";
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
-				$command .= " 1>> ".$cfg["torrent_file_path"].$this->log;
-				$command .= " 2>> ".$cfg["torrent_file_path"].$this->log;
-				$command .=" &";
-
+				$command .="  > /dev/null &";
 				//showmessage($command,1,1);
 				passthru($command);
+				
 			}
 	}
 	
@@ -135,7 +134,9 @@ Class BtControl {
 		sleep(1);
         // try to remove the pid file
         @unlink($cfg["torrent_file_path"].$this->pid);
-		sleep(1);
+			while(is_file($cfg["torrent_file_path"].$this->pid)){
+				usleep(100);
+			}
 		CheckHung($this->torrent);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 	}
