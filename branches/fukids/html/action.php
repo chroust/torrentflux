@@ -6,21 +6,18 @@ $id=getRequestVar('id',array('torrent','user'));
 if($id=='torrent'){
 $action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files','torrent_download'));
 $torrentid=getRequestVar('torrentid');
-	if((in_array($action,array('Kill','Del','Start','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files')) && !is_numeric($torrentid)) && (in_array($action,array('Kill','Start')) && $torrentid!=='all')){
-		showmessage('no Variable: $torrent OR $torrent is not a intval : '.$torrentid,1);
-	}
 include_once("include/BtControl_Tornado.class.php");
 	if($action=='Kill'){
-	// if user what kill the process
+	// if user want kill the process
+		$torrentidArray=split(',',$torrentid);
+		foreach($torrentidArray as $torrentid ){
 			if(is_numeric($torrentid)){
 				$Bt= new BtControl($torrentid);
 				$Bt->Kill();
-				sleep(1);
-				showmessage('',1,1);
-			}elseif($torrentid=='all'){
-				all('Kill');
-				sleep(1);
 			}
+		}
+		sleep(1);
+		showmessage('',1,1);
 	}elseif($action=='Del'){
 		//if user want delet the torrent
 		$Bt= new BtControl($torrentid);
@@ -46,14 +43,14 @@ include_once("include/BtControl_Tornado.class.php");
 		showmessage('',1,1);
 	}elseif($action=='Start'){
 	// if user what start the process
+		$torrentidArray=split(',',$torrentid);
+		foreach($torrentidArray as $torrentid ){
 			if(is_numeric($torrentid)){
 				$Bt= new BtControl($torrentid);
 				$Bt->Start();
-				sleep(1);
-			}elseif($torrentid=='all'){
-				all('Start');
-				sleep(1);
 			}
+		}
+		sleep(1);
 		showmessage('',1,1);
 	}elseif($action=='Edit_Torrent'){
 		//if user want edit the torrent

@@ -57,7 +57,7 @@ function iframeLoad(url){
 				update_data(data['torrents']);
 				//update title
 					{if $cfg['speed_in_title']}
-				document.title='TorrentFlux----  Total Upload :'+data['global']['totalUpSpeed']+'kB/s   Total Download :'+data['global']['totalDownSpeed']+'kB/s';
+				document.title='TorrentFlux----   Total Download :'+data['global']['totalDownSpeed']+'kB/s Total Upload :'+data['global']['totalUpSpeed']+'kB/s';
 					{/if}
 				//update leftmenu 1
 				$('sdownloading').innerHTML=data['global']['totaldownloading'];
@@ -177,30 +177,38 @@ function iframeLoad(url){
 	}
 	torrentControl=function(action,id){
 		{if $cfg['Confirm_Del_tor']}
-		if(action=='Del'){
-				if(!confirm('{_sure_delete}')){
-					return false;
-				}
-		}
-		if(action=='_Del_n_Remove_Torrent'){
-				if(!confirm('{_sure_delete_n_tor}')){
-					return false;
-				}
-		}
-		if( action=='_Del_n_Remove_Torrent_And_Files'){
-				if(!confirm('{_sure_delete_tor_n_file}')){
-					return false;
-				}
-		}
-		if( action=='_Del_n_Remove_Files'){
-				if(!confirm('{_sure_delete_n_file}')){
-					return false;
-				}
-		}
+			if(action=='Del'){
+					if(!confirm('{_sure_delete}')){
+						return false;
+					}
+			}
+			if(action=='_Del_n_Remove_Torrent'){
+					if(!confirm('{_sure_delete_n_tor}')){
+						return false;
+					}
+			}
+			if( action=='_Del_n_Remove_Torrent_And_Files'){
+					if(!confirm('{_sure_delete_tor_n_file}')){
+						return false;
+					}
+			}
+			if( action=='_Del_n_Remove_Files'){
+					if(!confirm('{_sure_delete_n_file}')){
+						return false;
+					}
+			}
 		{/if}
+			if(id=='all'){
+				comma='';
+				id='';
+				$$('#tbody div.rows').each(function(torrent){
+					id+=comma+torrent.id;
+					comma=',';
+				});
+			}
 		Mainloading.show();
 		new Request.HTML({onComplete:function(a,b,c,d){
-		eval(c );
+			eval(c);
 			forceUpdate();
 		}
 		}).post('action.php?id=torrent&action='+action+'&usejs=1&torrentid='+id);
@@ -451,7 +459,6 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 	});
 	// key watcher
 	$$('html').addEvent('keypress',function(e){
-		console.log(e.code);
 			if(e.code==40){
 				//arrow down
 					if(selecting){
@@ -492,7 +499,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 							while (skipnum > 0){
 								newselecting=$(selecting).getNext();
 									if(newselecting){
-										selecting=newselecting;
+										selecting=newselecting.id;
 										skipnum--;
 									}else{
 										skipnum=0;
@@ -508,7 +515,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 							while (skipnum > 0){
 								newselecting=$(selecting).getPrevious();
 									if(newselecting){
-										selecting=newselecting;
+										selecting=newselecting.id;
 										skipnum--;
 									}else{
 										skipnum=0;
@@ -516,7 +523,25 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 							}
 						$(selecting).addClass('torrent_list_clicked');
 					}
+			}else if(e.code==36){
+				//home
+					if(selecting){
+						$(selecting).removeClass('torrent_list_clicked');
+					}
+				selecting=$('tbody').getElement('div.rows').id;
+				$(selecting).addClass('torrent_list_clicked');
+				$('tbody').scrollTo(0,0);
+			}else if(e.code==35){
+				//end
+					if(selecting){
+						$(selecting).removeClass('torrent_list_clicked');
+					}
+				selecting=$('tbody').getLast('div.rows').id;
+				$(selecting).addClass('torrent_list_clicked');
+				$('tbody').scrollTo(0,$('tbody').getScrollSize().y);
 			}
+	}).addEvent('dblclick',function(e){
+		e.preventDefault();
 	});
 	//update data
 	get_data();
