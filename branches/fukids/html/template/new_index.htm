@@ -458,7 +458,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 		$('th_container').scrollTo(x,0);
 	});
 	// key watcher
-	$$('html').addEvent('keypress',function(e){
+	document.addEvent('keydown',function(e){
 			if(e.code==40){
 				//arrow down
 					if(selecting){
@@ -549,9 +549,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 						torrentControl('Del',selecting);
 					}
 			}
-	}).addEvent('dblclick',function(e){
-		e.preventDefault();
-	});
+	})
 	//update data
 	get_data();
 });

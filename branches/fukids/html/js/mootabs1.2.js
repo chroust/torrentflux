@@ -62,7 +62,9 @@ var mootabs = new Class({
 			if(!$defined(tab)){
 				return false;
 			}
-		down_selecting_tab = tab;
+			if(this.elid =='torrent_info'){
+				down_selecting_tab = tab;
+			}
 		this.activeTitle = tab;
 		$$('#' + this.elid + ' div ul.mootabs_title li').removeClass('active');
 		tab.addClass('active');
