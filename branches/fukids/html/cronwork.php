@@ -77,6 +77,11 @@ unlink($dieCall);
 					}else{
 						list($status,$status_text)=grabbingStatus($af->running,$af->percent_done,$haspid);
 					}
+					if($torrent['statusid']==2 && ($status==4 || $status==5)){
+						// if it is just finished
+						//shell_exec($cfg['global_finished_command']);
+						AuditAction($cfg["constants"]["tor_completed"], "Torrent: ".$torrent['file_name']."Download Completed");
+					}
 				$estTime = ($af->time_left != "" && $af->time_left != "0")? $af->time_left:'';
 				$estTime = $estTime=='Download Succeeded!'?'':$estTime;
 				$percent_done=$af->percent_done;

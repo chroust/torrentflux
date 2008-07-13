@@ -12,6 +12,7 @@ if($action=='listtorrent'){
 		if($id=='user_profile'){
 			$uid=intval(getRequestVar('uid'));
 			$UsrData=GrabUserData($uid);
+			$TotalTransfer=GetTransferCount($uid);
 			include template('ajax_Tips_user_profile');
 		}elseif($id=='checkport'){
 			$minport=intval(getRequestVar('minport'));

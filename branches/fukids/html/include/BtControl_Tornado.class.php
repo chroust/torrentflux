@@ -51,7 +51,7 @@ Class BtControl {
 		$this->log=torrent2log($this->torrent);
 	}
 	function Start(){
-		GLOBAL $cfg;
+		GLOBAL $cfg,$db;
 		// check if home dir exist, if not, creat it 
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
@@ -143,10 +143,13 @@ Class BtControl {
 		sleep(1);
         // try to remove the pid file
         @unlink($cfg["torrent_file_path"].$this->pid);
+			//wait until pid file is removed 
 			while(is_file($cfg["torrent_file_path"].$this->pid)){
 				usleep(100);
 			}
+		//force kill it in case error occur 
 		ForceKillProcess($this->torrent);
+		//update new status into sql
 		$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
 		$db->Execute($sql);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);

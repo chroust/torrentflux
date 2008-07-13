@@ -14,3 +14,11 @@
 .invisible{
 	display:none;
 }
+#ms_torrent_multiselect1{
+	overflow:hidden;
+}
+.user_tips{
+	background-color:#fff;
+	border:#ccc solid 1px;
+	padding: 4px;
+}

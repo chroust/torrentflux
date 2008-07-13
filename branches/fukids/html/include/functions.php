@@ -1342,8 +1342,8 @@ function DisplayTorrentFluxLink()
 function saveXfer($user, $down, $up){
 	global $db;
 	//increase performance by saving bytes to MB
-	$down=$down/1000000;
-	$up=$up/1000000;
+	$down=$down/1024/1024;
+	$up=$up/1024/1024;
 	$sql = 'SELECT 1 FROM tf_xfer WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
 		if ($db->GetRow($sql)) {
 			$sql = 'UPDATE tf_xfer SET download = download+'.($down+0).', upload = upload+'.($up+0).' WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
@@ -1975,22 +1975,13 @@ function getDownloadSize($torrent){
 //**************************************************************************
 // formatBytesToKBMGGB()
 // Returns a string in format of GB, MB, or KB depending on the size for display
-function formatBytesToKBMGGB($inBytes)
-{
-	$rsize = "";
-	if ($inBytes > (1024 * 1024 * 1024))
-	{
-		$rsize = round($inBytes / (1024 * 1024 * 1024), 2) . " GB";
-	}
-	elseif ($inBytes < 1024 * 1024)
-	{
-		$rsize = round($inBytes / 1024, 1) . " KB";
-	}
-	else
-	{
-		$rsize = round($inBytes / (1024 * 1024), 1) . " MB";
-	}
-	return $rsize;
+function formatBytesToKBMGGB($inBytes){
+    $mod = 1024;
+    $units = explode(' ','B KB MB GB TB');
+    for ($i = 0; $inBytes > $mod; $i++) {
+        $inBytes /= $mod;
+    }
+    return round($inBytes, 2) . ' ' . $units[$i];
 }
 
 //**************************************************************************
@@ -2677,6 +2668,9 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
 	UpdateRunningTorrent($cfg['uid']);
+	$sql='UPDATE `tf_users` SET `totaltorrent`=`totaltorrent`+1 WHERE `uid`='.$cfg['uid'];
+	$db->Execute($sql);
+	showError($db, $sql);
 	return $torrentID;
 }
 
@@ -2695,7 +2689,10 @@ function checkTransferLimit($uid){
 	//function for checking if the user reached transfer limit
 	// false is over limit
 	global $cfg,$db;
+	// get user info 
 	$userinfo=GrabUserData($uid);
+	//get the current transfer of the user ,
+	//note: the unit of returned value is MB
 	$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
 		if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
 			return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
@@ -2703,13 +2700,15 @@ function checkTransferLimit($uid){
 			return true;
 		}
 }
-function GetTransferCount($uid,$period){
+
+function GetTransferCount($uid,$period=''){
 	//grab the transfer static in specific range
 	//$period is how many DAYS from current time
 	global $cfg,$db;
 	$total_speed=$total_up_speed=$total_down_speed=0;
 	$uid=intval($uid);
 	$torrentowner=Uid2Username($uid);
+	//note: total transfer static = current active transfer static+completed or stoped transfer static ;
 	//get current active transfer static
 	$sql = "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id`='$uid'";
 	$result = $db->Execute($sql);
@@ -2721,8 +2720,11 @@ function GetTransferCount($uid,$period){
 	}
 	unset($af);
 	//get completed or stoped transfer static 
-	$targetDate=$db->DBDate(time()-85200*$period);
-	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid." and date > ".$db->qstr($targetDate);
+		if($period!==''){
+			$targetDate=$db->DBDate(time()-85200*$period);
+		}
+	$targetADD= ($period=='')?'': " AND date > ".$db->qstr($targetDate);
+	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid.$targetADD;
 	list($thisdown,$thisup) = $db->GetRow($sql);
 	showError($db,$sql);
 	$total_up_speed+=$thisup;

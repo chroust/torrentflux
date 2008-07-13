@@ -1,4 +1,4 @@
-<table>
+<table class="user_tips">
 <tr>
 	<td>{_Name} : </td>
 	<td>{$UsrData['user_id']}</td>
@@ -11,6 +11,15 @@
 	<td>{_JOINED} : </td>
 	<td>{$UsrData['last_visit_text']}</td>
 </tr>
+<tr>
+	<td>{_TotalTorrent} : </td>
+	<td>{$UsrData['totaltorrent']}</td>
+</tr>
+<tr>
+	<td>{_TotalTransfer} : </td>
+	<td>{echo formatBytesToKBMGGB($TotalTransfer['total']*1024)} ({_Upload} : {echo formatBytesToKBMGGB($TotalTransfer['up']*1024)} / {_Download} : {echo formatBytesToKBMGGB($TotalTransfer['down']*1024)})</td>
+</tr>
+
 {if $isadmin}
 <tr>
 	<td>{_LASTVISIT} : </td>
