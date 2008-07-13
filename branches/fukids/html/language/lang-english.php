@@ -249,4 +249,16 @@ define("_Enable_Make_Torrent","enable user creat Torrent");
 define("_encrypted_connections","encrypted connections");
 define("_Allow_Encrypted_Connections","allow encrypted connections");
 define("_Only_Allow_Encrypted_Connections","only allow encrypted connections");
+
+//admin edit user
+define("_torrentlimit_period","In");
+define("_torrentlimit_number","day(s), only allow maximum");
+define("_torrentlimit_number_after","new torrent(s)");
+define("_zero_is_no_limit","zero means no limit");
+
+define("_transferlimit_period","In");
+define("_transferlimit_number","day(s), only allow maximum");
+define("_transferlimit_number_after","MB transfer(s)");
+define("_zero_is_no_limit","zero means no limit");
+
 ?>

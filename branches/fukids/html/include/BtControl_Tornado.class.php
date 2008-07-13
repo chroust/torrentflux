@@ -10,11 +10,16 @@ Class BtControl {
 		GLOBAL $cfg,$db;
 		$this->torrentid=intval($torrentid);
 		// grab torrent config from database
-		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio,location FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
+		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio,location,
+		statusid,estTime,timeStarted,endtime,percent_done,down_speed,up_speed,seeds,peers,uptotal,downtotal,haspid
+
+		FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
 		$recordset = $db->Execute($sql);
 		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
 		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
-		$this->rerequest,$this->sharekill,$this->owner,$this->prio,$this->location
+		$this->rerequest,$this->sharekill,$this->owner,$this->prio,$this->location,
+		$this->statusid,$this->estTime,$this->timeStarted,$this->endtime,$this->percent_done,$this->down_speed,
+		$this->up_speed,$this->seeds,$this->peers,$this->uptotal,$this->downtotal,$this->haspid
 		) = $recordset->FetchRow();
 		showError($db,$sql);
 		//check if torrent is ok or not
@@ -59,14 +64,15 @@ Class BtControl {
 				showmessage('_TRANSFER_LIMIT_OVERFLOW',1,0);
 			}
 		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($this->torrent), $this->owner);
-			if($af->downtotal || $af->uptotal)
-				saveXfer($af->torrentowner,$af->downtotal,$af->uptotal);
+			if($this->downtotal || $this->uptotal)
+				saveXfer($this->torrentowner,$this->downtotal,$this->uptotal);
 
 			if ($cfg["AllowQueing"] AND $queue == "1"){
 				$af->QueueTorrentFile();  // this only writes out the stat file (does not start torrent)
 			}else{
 				$af->StartTorrentFile();  // this only writes out the stat file (does not start torrent)
 			}
+			$this->statusid=($af->percent_done < 100)?2:4;
 			if ($cfg["AllowQueing"] && $this->queue == "1"){
 				//  This file is being queued.
 			}else{
@@ -84,7 +90,7 @@ Class BtControl {
 					}else{
 						$pyCmd = escapeshellarg($cfg["pythonCmd"]);
 					}
-				//change to download DIR
+				//change to download DIR    
 				$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
 				$command.= "cd " . $dlpath. ";";
 				$command.= " HOME=".$cfg["path"]."; ";
@@ -107,13 +113,14 @@ Class BtControl {
 				$command .="  > ".$cfg["torrent_file_path"].$this->log." &";
 				//showmessage($command,1,1);
 				passthru($command);
-				
+				$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
+				$db->Execute($sql);				
 			}
 	}
 	
 	// function for Killing the process, but not the file 
 	function Kill(){
-		global $cfg;
+		global $cfg,$db;
 		// write the new state to .state
 		$af = new AliasFile($cfg["torrent_file_path"].$this->stat, $this->owner);
 			if($af->downtotal || $af->uptotal)
@@ -122,11 +129,13 @@ Class BtControl {
 				// The torrent is being stopped but is not completed dowloading
 				$af->running = "0";
 				$af->time_left = "Torrent Stopped";
+				$this->statusid = "3";
 			}else{
 				// Torrent was seeding and is now being stopped
 				$af->percent_done = 100;
 				$af->running = "0";
 				$af->time_left = "Download Succeeded!";
+				$this->statusid = "5";
 			}
 		$af->WriteFile();
 		// see if the torrent process is hung.
@@ -138,6 +147,8 @@ Class BtControl {
 				usleep(100);
 			}
 		ForceKillProcess($this->torrent);
+		$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
+		$db->Execute($sql);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 	}
 
@@ -163,6 +174,7 @@ Class BtControl {
 			}
 			if($delFile){
 			}
+		UpdateRunningTorrent($this->owner);
 		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
 	}
 	

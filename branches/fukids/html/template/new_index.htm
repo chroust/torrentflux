@@ -14,7 +14,8 @@
 <script type="text/javascript" src="js/panel.js"></script>		
 <script type="text/javascript" src="js/multiselect.js"></script>	
 <script type="text/javascript" src="js/Fx.ProgressBar.js"></script>	
-<script type="text/javascript" src="js/loading.js"></script>			
+<script type="text/javascript" src="js/loading.js"></script>		
+<script type="text/javascript" src="js/Roar.js"></script>			
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
@@ -28,6 +29,7 @@
 <link href="css/multiselect.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="css/tree.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="css/pmlist.css" rel="stylesheet" type="text/css" />
+<link href="css/Roar.css" rel="stylesheet" type="text/css" />
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 <![endif]-->
@@ -78,6 +80,9 @@ function iframeLoad(url){
 							b=e.split(':',2);
 							$('useronline_'+b[0]).src='images/user_'+b[1]+'.gif';
 						});
+					}
+					if(data['global']['javascript']){
+						eval(data['global']['javascript']);
 					}
 				timer=setTimeout('get_data()', UpdateInterval*1000);
 				Mainloading.hide();
@@ -162,18 +167,18 @@ function iframeLoad(url){
 		progressbar[torrent.id]=new Fx.ProgressBar('div#tbody div#'+torrent.id+' .tl_percent img',{text:'div#tbody div#'+torrent.id+' .tl_percent span'}).start(torrent.percent,100);
 	}
 	ChangeTorrent=function(torrent){
-		$$('div#tbody div#'+torrent.id+' .tl_name_span').set('html',torrent.title);
+		$$('div#tbody div#'+torrent.id+' .tl_name_span').set('text',torrent.title);
 		$$('div#tbody div#'+torrent.id+' .tl_name img.statusimg').setProperty('src', 'images/icon/status/'+torrent.statusid+'.png');
 		//$$('div#tbody div#'+torrent.id+' .tl_percent').set('html',torrent.percent);
 		progressbar[torrent.id].set(torrent.percent);
-		$$('div#tbody div#'+torrent.id+' .tl_filesize').set('html',torrent.size);
-		$$('div#tbody div#'+torrent.id+' .tl_status').set('html',torrent.status);
-		$$('div#tbody div#'+torrent.id+' .tl_seeds').set('html',torrent.seeds);
-		$$('div#tbody div#'+torrent.id+' .tl_peers').set('html',torrent.peers);
-		$$('div#tbody div#'+torrent.id+' .tl_downloadspeed').set('html',torrent.down_speed+' KB/s');
-		$$('div#tbody div#'+torrent.id+' .tl_uploadspeed').set('html',torrent.up_speed+' KB/s');
-		$$('div#tbody div#'+torrent.id+' .tl_estime').set('html',torrent.estTime);
-		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('html',torrent.totalUpload);
+		$$('div#tbody div#'+torrent.id+' .tl_filesize').set('text',torrent.size);
+		$$('div#tbody div#'+torrent.id+' .tl_status').set('text',torrent.status);
+		$$('div#tbody div#'+torrent.id+' .tl_seeds').set('text',torrent.seeds);
+		$$('div#tbody div#'+torrent.id+' .tl_peers').set('text',torrent.peers);
+		$$('div#tbody div#'+torrent.id+' .tl_downloadspeed').set('text',torrent.down_speed+' KB/s');
+		$$('div#tbody div#'+torrent.id+' .tl_uploadspeed').set('text',torrent.up_speed+' KB/s');
+		$$('div#tbody div#'+torrent.id+' .tl_estime').set('text',torrent.estTime);
+		$$('div#tbody div#'+torrent.id+' .tl_totalupload').set('text',torrent.totalUpload);
 	}
 	torrentControl=function(action,id){
 		{if $cfg['Confirm_Del_tor']}
@@ -225,67 +230,67 @@ function iframeLoad(url){
 		});
 	}
 	OpenWindow=function(id,title,action,extraurl,width,height){
-				var extraurl=$defined(extraurl)?'&'+extraurl:'';
-				var wwidth=width?width:500;
-				var wheight=height?height:400;
-				wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
-				wheight=wheight>window.getSize().y?window.getSize().y:wheight;
-				loadmethod=(id=='Torrent_Search'|| id=='_ADMIN_VIEW_HISTORY')?'iframe':'xhr';
-				new MochaUI.Window({
-				id: 'window_'+id,
-				title: title,
-				evalScripts:1,
-				resizable:0,
-				loadMethod: loadmethod,
-				contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
-				width: wwidth,
-				height: wheight,
-				onContentLoaded:function(e){
-					windowize(e,id);
-				}
-			});
+		var extraurl=$defined(extraurl)?'&'+extraurl:'';
+		var wwidth=width?width:500;
+		var wheight=height?height:400;
+		wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
+		wheight=wheight>window.getSize().y?window.getSize().y:wheight;
+		loadmethod=(id=='Torrent_Search'|| id=='_ADMIN_VIEW_HISTORY')?'iframe':'xhr';
+		new MochaUI.Window({
+			id: 'window_'+id,
+			title: title,
+			evalScripts:1,
+			resizable:0,
+			loadMethod: loadmethod,
+			contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
+			width: wwidth,
+			height: wheight,
+			onContentLoaded:function(e){
+				windowize(e,id);
+			}
+		});
 	}
 	var windowize=function(e,id){
-				$$('#window_'+id+'_content a').each(function(a){
-					a.addEvent('click',function(){
-						$('window_'+id+'_content').set('load', {
-							'evalScripts': true
-						}).load(a.href);
-						
+		$$('#window_'+id+'_content a').each(function(a){
+			a.addEvent('click',function(){
+				$('window_'+id+'_content').set('load', {
+					'evalScripts': true
+				}).load(a.href);
+				return false;
+			});
+		});
+		$$('#window_'+id+' form').each(function(thisform){
+				if(thisform.enctype){
+					thisform.action+='&usejs=1';
+				}else{
+					thisform.addEvent('submit',function(){
+							if($defined(thisform.id)){
+								$$('#'+thisform.id+' input[type=checkbox]').each(function(i){
+									if(i.checked==false){
+										i.value=0;
+										i.checked=true;
+									}
+								});
+							}
+						thisform.set('send', {
+							url:thisform.action+'&usejs=1',
+							onSuccess:function(e){
+								eval(e);
+							}
+						}).send();
 						return false;
 					});
-				});
-				$$('#window_'+id+' form').each(function(thisform){
-					if(thisform.enctype){
-						thisform.action+='&usejs=1';
-					}else{
-							thisform.addEvent('submit',function(){
-							
-									if($defined(thisform.id)){
-										$$('#'+thisform.id+' input[type=checkbox]').each(function(i){
-											if(i.checked==false){
-												i.value=0;
-												i.checked=true;
-											}
-										});
-									}
-							
-								thisform.set('send', {url:thisform.action+'&usejs=1',
-									onSuccess:function(e){eval(e);}}
-								).send();
-								return false;
-							});
-
+				}
+		});
+		$$('#window_'+id+' input.num').each(function(thisform){
+			thisform.addEvent('keypress',function(event){
+				event = new Event(event);
+				var validChars = '0123456789';
+					if ( event.key.length == 1 && !validChars.contains(event.key) ){
+						event.stop();
 					}
-				});
-				$$('#window_'+id+' input.num').each(function(thisform){
-					thisform.addEvent('keypress',function(event){
-						event = new Event(event);
-						var validChars = '0123456789';
-							if ( event.key.length == 1 && !validChars.contains(event.key) )
-								event.stop();
-					});
-				});
+			});
+		});
 	}
 	var UpdateSelectedUser=function(){
 		var output='';
@@ -298,55 +303,54 @@ function iframeLoad(url){
 		forceUpdate();
 	};
 	//function for updating the interface when added a new user
-var adduser2ms=function(uid,user_id){
-	var next=$('torrent_multiselect2').options.length;
-	newoption=new Element('option', {
-		'value':uid,
-		'html':'1'
-	}).injectInside($('torrent_multiselect2'));
-	console.log(next);
-	displaydiv=new Element('div', {
-		'id':'torrent_multiselect2_'+next,
-		'class':'invisible',
-		'html':'<img src="images/user_0.gif" id="useronline_'+uid+'">'+user_id+'(<span id="susering_'+uid+'">0</span>)'
-	}).injectInside($('Mother'));
-	GreatMS.additem($('torrent_multiselect2'),next);
-};
-var build_UserList_Extra=function(index,uid,user_id){
-	// Add onmouse ajax tips on every user
-	Ajaxtips('ms_torrent_multiselect2_'+index,'ajax.php?action=tips&id=user_profile&uid='+uid);
-	// add right click menu on every user
-	new DDMenu ('torrent_multiselect2_innerRightClick', 'ms_torrent_multiselect2_'+index, {
-		onOpen: function(){
-			if(myuid==uid){
-				// if it is my menu
-				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER']);
-				this.hideItems(['_VIEW_PM','_EDITUSER'],false);
-			}else{
-				// if it is not my menu
-				this.hideItems(['_VIEW_PM','_EDITUSER']);
-				this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER'],false);
-			}
-			this.setTitle(user_id);
-		},
-		onItemSelect: function(act_id, act_el, menu_bindon){
-				if(act_id=='_ADMIN_DELETEUSER'){
-					if (confirm('{_WARNING} : {_ABOUTTODELETE} '+user_id)){
-						new Request.HTML({
-							evalScripts:1
-						}).get('admin.php?op=deleteUser&uid='+uid);
-						$('torrent_multiselect2').options[index].destroy();
-						$(menu_bindon).destroy();
-						UpdateSelectedUser();
-					}
-				}else if(act_id=='_ADMIN_VIEW_HISTORY'){
-					OpenWindow(act_id,act_id,'rightclick','uid='+uid,800,500);
+	var adduser2ms=function(uid,user_id){
+		var next=$('torrent_multiselect2').options.length;
+		newoption=new Element('option', {
+			'value':uid,
+			'html':'1'
+		}).injectInside($('torrent_multiselect2'));
+		displaydiv=new Element('div', {
+			'id':'torrent_multiselect2_'+next,
+			'class':'invisible',
+			'html':'<img src="images/user_0.gif" id="useronline_'+uid+'">'+user_id+'(<span id="susering_'+uid+'">0</span>)'
+		}).injectInside($('Mother'));
+		GreatMS.additem($('torrent_multiselect2'),next);
+	};
+	var build_UserList_Extra=function(index,uid,user_id){
+		// Add onmouse ajax tips on every user
+		Ajaxtips('ms_torrent_multiselect2_'+index,'ajax.php?action=tips&id=user_profile&uid='+uid);
+		// add right click menu on every user
+		new DDMenu ('torrent_multiselect2_innerRightClick', 'ms_torrent_multiselect2_'+index, {
+			onOpen: function(){
+				if(myuid==uid){
+					// if it is my menu
+					this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER']);
+					this.hideItems(['_VIEW_PM','_EDITUSER'],false);
 				}else{
-					OpenWindow(act_id,act_id,'rightclick','uid='+uid);
+					// if it is not my menu
+					this.hideItems(['_VIEW_PM','_EDITUSER']);
+					this.hideItems(['_SEND_PM','_ADMIN_DELETEUSER','_ADMIN_EDIT_USER'],false);
 				}
-		}
-	});
-}
+				this.setTitle(user_id);
+			},
+			onItemSelect: function(act_id, act_el, menu_bindon){
+					if(act_id=='_ADMIN_DELETEUSER'){
+							if (confirm('{_WARNING} : {_ABOUTTODELETE} '+user_id)){
+								new Request.HTML({
+									evalScripts:1
+								}).get('admin.php?op=deleteUser&uid='+uid);
+								$('torrent_multiselect2').options[index].destroy();
+								$(menu_bindon).destroy();
+								UpdateSelectedUser();
+							}
+					}else if(act_id=='_ADMIN_VIEW_HISTORY'){
+						OpenWindow(act_id,act_id,'rightclick','uid='+uid,800,500);
+					}else{
+						OpenWindow(act_id,act_id,'rightclick','uid='+uid);
+					}
+			}
+		});
+	}
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', { useAjax: '1', ajaxUrl: 'ajax.php'});
@@ -551,6 +555,11 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 			}
 	})
 	//update data
+	roar = new Roar({
+		position: 'lowerRight',
+		duration: UpdateInterval*600,
+		container: $('mother')
+	});
 	get_data();
 });
 

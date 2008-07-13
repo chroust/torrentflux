@@ -41,8 +41,12 @@ if($action=='listtorrent'){
 			$arThemes = GetThemes();
 			include template('ajax_user_UpdateProfile');
 		}elseif($id=='_VIEW_PM'){
+			//get the pm list
 			$pmlist=listPM();
 			$pmcount=count($pmlist);
+			//uncheck newpm
+			$sql="UPDATE `tf_users` SET `newpm`=0 WHERE `uid`='$myuid'";
+			$db->Execute($sql);
 			include template('ajax_user_VIEW_PM');
 		}elseif($id=='_ADD_USER'){
 			AdminCheck();

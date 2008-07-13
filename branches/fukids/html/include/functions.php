@@ -137,7 +137,7 @@ function Authenticate(){
 		exit();
 	}
 
-	$sql = "SELECT uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent,transferlimit_period,transferlimit_number FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
+	$sql = "SELECT newpm,user_level,uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent,transferlimit_period,transferlimit_number FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
 
@@ -148,7 +148,7 @@ function Authenticate(){
 		exit();
 	}
 
-	list($uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file'],$allow_view_other_torrent,$cfg['transferlimit_period'],$cfg['transferlimit_number']) = $recordset->FetchRow();
+	list($GLOBALS['newpm'],$user_level,$uid, $hits, $cfg['hide_offline'], $cfg['theme'], $cfg['language_file'],$allow_view_other_torrent,$cfg['transferlimit_period'],$cfg['transferlimit_number']) = $recordset->FetchRow();
 	$cfg['uid']=$uid;
 	// Check for valid theme
 	if (!ereg('^[^./][^/]*$', $cfg['theme'])){
@@ -187,7 +187,7 @@ function Authenticate(){
 
 	$result = $db->Execute($sql);
 	showError($db,$sql);
-	$GLOBALS['isadmin']=IsAdmin();
+	$GLOBALS['isadmin']=$user_level>1?1:0;
 	$GLOBALS['myuid']=$uid;
 	$GLOBALS['allow_view_other_torrent']=$GLOBALS['isadmin'] || $allow_view_other_torrent?1:0;
 }
@@ -517,17 +517,56 @@ function IsOwner($user, $owner)
 
 	return $rtnValue;
 }
-
 //*********************************************************
-function GetActivityCount($user="",$timestamp=0)
-{
+// return number of torrent 
+// if no userid specific, return all torrent number
+// userid can in format of   " 12,32,34523"
+function GetTotalRunningTorrent($userid){
+	global $db;
+	$usersql=$comma='';
+		if($userid){
+			$useridArray=split(',',$userid);
+				foreach($useridArray as $index =>$userid){
+						if(is_numeric($userid)){
+							$usersql=$usersql.$comma.$userid;
+							$comma=',';
+						}
+				}
+			$usersql=" AND `owner_id` IN ('$usersql')";
+		}
+	$sql="SELECT COUNT(1) FROM tf_torrents WHERE 1 ".$usersql;
+	$count = $db->GetOne($sql);
+	return $count;
+}
+//*********************************************************
+//update total running torrent of a user
+function UpdateRunningTorrent($userid){
+	global $db;
+	$useridArray=split(',',$userid);
+		foreach($useridArray as $index =>$userid){
+				if(is_numeric($userid)){
+					$usersql=$usersql.$comma.$userid;
+					$comma=',';
+				}
+		}
+	$usersql=" `uid` IN ('$usersql')";
+	$sql="SELECT `uid` FROM `tf_users` WHERE ".$usersql;
+	$result = $db->Execute($sql);
+	while(list($uid) = $result->FetchRow()){
+		$count=GetTotalRunningTorrent($uid);
+		$sql="UPDATE `tf_users` SET `runningtorrent` = '$count' WHERE `uid` ='$uid' ";
+		$db->Execute($sql);
+	}
+}
+//*********************************************************
+// return number of torrent uploaded in specific time range
+function GetUploadCount($user="",$timestamp=0){
 	global $cfg, $db;
 
 	$count = 0;
 	$for_user = "";
 
-	if ($user != "")
-	{
+	if ($user != ""){
 		$for_user = "user_id=".$db->qstr($user)." AND ";
 	}
 
@@ -564,25 +603,9 @@ function ShowUserType($typeid){
 // ***************************************************************************
 // Is User Admin
 // user is Admin if level is 1 or higher
-function IsAdmin($user="")
-{
-	global $cfg, $db;
-
-	$isAdmin = false;
-
-	if($user == "")
-	{
-		$user = $cfg["user"];
-	}
-
-	$sql = "SELECT user_level FROM tf_users WHERE user_id=".$db->qstr($user);
-	$user_level = $db->GetOne($sql);
-
-	if ($user_level >= 1)
-	{
-		$isAdmin = true;
-	}
-	return $isAdmin;
+function IsAdmin($user=""){
+	global $isadmin;
+	return $isadmin? 1:0 ;
 }
 
 // ***************************************************************************
@@ -2653,6 +2676,7 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$recordset = $db->Execute($sql);
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
+	UpdateRunningTorrent($cfg['uid']);
 	return $torrentID;
 }
 
@@ -2662,7 +2686,7 @@ function checkTorrentLimit($uid){
 	global $db;
 	$userinfo=GrabUserData($uid);
 		if($userinfo['torrentlimit_period']>0 && $userinfo['torrentlimit_number']>0){
-			return GetActivityCount(Uid2Username($uid),$userinfo['torrentlimit_period']*85200)>$userinfo['torrentlimit_number']?false:true;
+			return GetUploadCount(Uid2Username($uid),$userinfo['torrentlimit_period']*85200)>$userinfo['torrentlimit_number']?false:true;
 		}else{
 			return true;
 		}

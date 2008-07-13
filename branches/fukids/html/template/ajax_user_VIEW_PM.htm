@@ -12,8 +12,8 @@
 	<div class="msg">{$pm['display_message']}</div>
 	<div>{$pm['time_text']}</div>
 	<div class="admintd">
-		<a href="#" class="replypm" title="{$pm['uid']}"><img src="images/reply.gif" border="0"></a>
-		<a href="#" class="delpm" title="{$pm['mid']}"><img src="images/delete_on.gif" border="0"></a>
+		<img src="images/reply.gif" border="0" class="replypm" title="{$pm['uid']}">
+		<img src="images/delete_on.gif" border="0" class="delpm" title="{$pm['mid']}">
 	</div>
 </div>
 {/foreach}
@@ -36,13 +36,20 @@ function reply(uid){
 }
 
 $$('.delpm').each(function(a){
-	a.addEvent('click',function(){
+	a.addEvent('click',function(e){
+		e = new Event(e);
+		e.stop();
+		e.stopPropagation();
 		arrayaa=split('|',a.title);
 		delpm(arrayaa[0],arrayaa[1]);
 	});
+
 });
 $$('.replypm').each(function(a){
-	a.addEvent('click',function(){
+	a.addEvent('click',function(e){
+		e = new Event(e);
+		e.stop();
+		e.stopPropagation();
 		reply(a.title);
 	});
 });
