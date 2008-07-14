@@ -28,9 +28,6 @@ include_once('include/simplepie.inc');
 include_once("AliasFile.php");
 $maxdietime=6;
 $interval=5;
-$thispid=$cfg['torrent_file_path'].'.cronwork';
-$dieCall=$cfg['torrent_file_path'].'.Killcron';
-$cfg['cronwork_log']=$cfg['torrent_file_path'].'.cronwork.log';
 CronworkLog('');
 CronworkLog('Started Cron Work');
 

@@ -11,13 +11,13 @@ Class BtControl {
 		$this->torrentid=intval($torrentid);
 		// grab torrent config from database
 		$sql='SELECT file_name ,torrent,rate,drate,superseeder,runtime,maxuploads,minport,maxport,rerequest,sharekill,owner_id,prio,location,
-		statusid,estTime,timeStarted,endtime,percent_done,down_speed,up_speed,seeds,peers,uptotal,downtotal,haspid
+		statusid,size,estTime,timeStarted,endtime,percent_done,down_speed,up_speed,seeds,peers,uptotal,downtotal,haspid
 		FROM tf_torrents WHERE `id`=\''.$this->torrentid.'\'';
 		$recordset = $db->Execute($sql);
 		list($this->file_name,$this->torrent, $this->rate, $this->drate, $this->superseeder,
 		$this->runtime,$this->maxuploads,$this->minport,$this->maxport,
 		$this->rerequest,$this->sharekill,$this->owner,$this->prio,$this->location,
-		$this->statusid,$this->estTime,$this->timeStarted,$this->endtime,$this->percent_done,$this->down_speed,
+		$this->statusid,$this->size,$this->estTime,$this->timeStarted,$this->endtime,$this->percent_done,$this->down_speed,
 		$this->up_speed,$this->seeds,$this->peers,$this->uptotal,$this->downtotal,$this->haspid
 		) = $recordset->FetchRow();
 		showError($db,$sql);

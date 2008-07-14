@@ -118,6 +118,28 @@ tableSoort = new Class({
 			}
 		return parseInt(textsize[0]);
 	}
+	
+function HumanSize(size) {
+   var pos=0;
+   while (size>1024) {
+      size/=1024;
+      pos++;
+   }
+   var prefix=getSizePrefix(pos);
+   var sizeName=prefix;
+   var num=Math.pow(10,2);
+   return (Math.round(size*num)/num)+' '+sizeName;
+}
+function getSizePrefix(pos) {
+   switch (pos) {
+      case  0: return "B";
+      case  1: return "KB";
+      case  2: return "MB";
+      case  3: return "GB";
+      case  4: return "TB";
+   }
+}
+
 /** init on screen keyboard on load */
 window.addEvent('domready', function() {
 	$$('table.sortTable').each(function(sort) { new tableSoort(sort.id);});

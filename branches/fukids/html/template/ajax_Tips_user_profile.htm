@@ -16,12 +16,15 @@
 	<td>{$UsrData['totaltorrent']}</td>
 </tr>
 <tr>
+	<td>{_QueuedTorrent} : </td>
+	<td>{$TotalQueue}</td>
+</tr>
+<tr>
 	<td>{_TotalTransfer} : </td>
 	<td>{echo formatBytesToKBMGGB($TotalTransfer['total']*1024*1024)} 
 	({_Download} : {echo formatBytesToKBMGGB($TotalTransfer['down']*1024)} / 
 	{_Upload} : {echo formatBytesToKBMGGB($TotalTransfer['up']*1024*1024)})</td>
 </tr>
-
 {if $isadmin}
 <tr>
 	<td>{_LASTVISIT} : </td>

@@ -36,6 +36,18 @@ function checkUserQueueLimit($uid=0){
 	$uid=(intval($uid)==0)?$cfg['uid']:intval($uid);
 	return getActiveTorrentsCount()>$cfg['maxUserThreads']?false:true;
 }
+//**************************************************************************
+// return the number of queueq torrents
+function getNumberOfQueuedTorrents($uid=0){
+	global $db;
+		if($uid){
+			$sqladd=" AND `owner_id` IN (".FormatMultiUseridSql($uid).")";
+		}
+	$sql= "SELECT COUNT(1) FROM `tf_torrents` WHERE  `statusid`='1' ".$sqladd;
+	return $db->GetOne($sql);
+}
+//**************************************************************************
+//function for adding new queue torrent
 function NewQueue($torrentid,$uid){
 	global $cfg,$db;
 		if(!is_numeric($torrentid)){
@@ -51,6 +63,8 @@ function NewQueue($torrentid,$uid){
 	$db->Execute($sql);
 	AuditAction($cfg["constants"]["queued_torrent"],"Torrentid: ".$torrentid." Queued");
 }
+//**************************************************************************
+//function for run a new torrent from queue torrent list
 function StartRunQueue(){
 	global $cfg,$db;
 		if(!$cfg['AllowQueing']){
@@ -62,13 +76,13 @@ function StartRunQueue(){
 	$sql="SELECT MIN(`torrentid`),`uid` FROM `tf_queue`  group by `uid` ORDER BY `qid` ASC";
 	$result = $db->Execute($sql);
 	$runed =0;
+	include_once("include/BtControl_Tornado.class.php");
 	while(list($torrentid,$uid) = $result->FetchRow()){
 		if(checkUserQueueLimit($uid) && $runed==0){
-			include_once("include/BtControl_Tornado.class.php");
 			$Bt= new BtControl($torrentid);
 			$Bt->Start();
 			unset($Bt);
-			$sql="DELETE  FROM `tf_queue` WHERE `torrentid`='$torrentid'";
+			$sql="DELETE FROM `tf_queue` WHERE `torrentid`='$torrentid'";
 			$db->Execute($sql);
 			showError($db,$sql);
 			$runed=1;
@@ -76,5 +90,24 @@ function StartRunQueue(){
 	}
 	unset($sql,$result,$runed);
 }
-StartRunQueue();
+//**************************************************************************
+//force start all queued torrent
+// only run when unchecked queue
+function forceStartAllQueue(){
+	global $cfg,$db;
+		if(!IsAdmin()){
+			return;
+		}
+	$sql="SELECT `id` FROM `tf_torrents` WHERE `statusid` =1";
+	$result = $db->Execute($sql);
+	$runed =0;
+	include_once("include/BtControl_Tornado.class.php");
+	while(list($torrentid) = $result->FetchRow()){
+		$Bt= new BtControl($torrentid);
+		$Bt->Start();
+		unset($Bt);
+	}
+	$sql="TRUNCATE TABLE `tf_queue`";
+	$db->Execute($sql);
+}
 ?>

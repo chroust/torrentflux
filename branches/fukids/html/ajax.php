@@ -13,6 +13,7 @@ if($action=='listtorrent'){
 			$uid=intval(getRequestVar('uid'));
 			$UsrData=GrabUserData($uid);
 			$TotalTransfer=GetTransferCount($uid);
+			$TotalQueue=getNumberOfQueuedTorrents($uid);
 			include template('ajax_Tips_user_profile');
 		}elseif($id=='checkport'){
 			$minport=intval(getRequestVar('minport'));
@@ -106,13 +107,15 @@ if($action=='listtorrent'){
 			$Default_rerequest_interval=$Bt->rerequest;
 			$Default_sharekill=$Bt->sharekill;
 			$Default_location=$Bt->location;
+			$size=formatBytesToKBMGGB($Bt->size);
 			// grub the file details
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),'remove padding');
-			$filearray=formatTorrentInfoFilesList($info['info']['files']);
+			$filearray=formatTorrentInfoFilesList($info['info']['files'],1);
 			//grab the prio details
 			$priolist=explode(',',$Bt->prio);
 			include template('ajax_Edit_Torrent');
 		}elseif($id=='_Admin_Setting'){
+			$CronRobotLog=nl2br(file_get_contents($cfg['cronwork_log']));
 			include template('ajax_icon_admin_setting');
 		}
 }elseif($action=='tabs'){

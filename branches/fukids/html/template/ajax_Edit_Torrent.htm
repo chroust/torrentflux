@@ -11,12 +11,23 @@
 	{template ajax_Torrent_Config}
 	<fieldset>
 	<legend accesskey="d">{_File_Setting}</legend>
-	<table style="width:100%;border:1">
+	<table style="width:100%;border:1" id="filelist">
+	<tr><td colspan="3" >{_Total_Size} : <span id="totalsize">{$size}</span></td></tr>
 	{foreach $filearray $index $file}
-	<tr><td style="width:100%"><input type="checkbox" id="files_{$index}" name="files[]" value="{$index}" {if $priolist[$index]>=1}checked="checked"{/if} />
-	<label for="files_{$index}">{$file['path']}</label></td></tr>
+	<tr id="files_{$index}"><td><input type="checkbox" id="files_{$index}" name="files[]" value="{$index}" {if $priolist[$index]>=1}checked="checked"{/if} /></td>
+	<td><label for="files_{$index}">{$file['path']}</label></td>
+	<td>{echo formatBytesToKBMGGB($file['size'])}</td>
+	</tr>
 	{/foreach}
 	</table>
 	</fieldset>
 	<input type="submit" value="{_START}">
 </form>
+<script type="text/javascript">
+$$('#filelist input[type=checkbox]').addEvent('change',function(){
+	var size=formatSize(this.getParent('tr').getElements('td')[2].get('text'));
+	console.log($('totalsize').get('text'));
+	var newSize=(this.checked)?formatSize($('totalsize').get('html'))+size:formatSize($('totalsize').get('html'))-size;
+	$('totalsize').set('html',HumanSize(newSize));
+});
+</script>

@@ -56,6 +56,7 @@ PruneDB();
 checkTorrentPath();
 $thispid=$cfg['torrent_file_path'].'.cronwork';
 $dieCall=$cfg['torrent_file_path'].'.Killcron';
+$cfg['cronwork_log']=$cfg['torrent_file_path'].'cronwork.log';
 $maxdietime=300;
 //**********************************************************************************
 // START FUNCTIONS HERE
@@ -1446,33 +1447,6 @@ function runPS(){
 }
 
 
-//**************************************************************************
-function getNumberOfQueuedTorrents()
-{
-	global $cfg;
-
-	$rtnValue = 0;
-
-	$dirName = $cfg["torrent_file_path"] . "queue/";
-
-	$handle = @opendir($dirName);
-
-	if ($handle)
-	{
-		while($entry = readdir($handle))
-		{
-			if ($entry != "." && $entry != "..")
-			{
-				if (!(@is_dir($dirName.$entry)) && (substr($entry, -6) == ".Qinfo"))
-				{
-					$rtnValue = $rtnValue + 1;
-				}
-			}
-		}
-	}
-
-	return $rtnValue;
-}
 
 //*********************************************************
 // return number of torrent uploaded in specific time range
@@ -2171,15 +2145,17 @@ function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
 function getFile($var){
 	return ($var < 65535)? true:false;
 }
-function formatTorrentInfoFilesList($meta_info,$FindPadding=9){
+function formatTorrentInfoFilesList($meta_info,$FindPadding=0){
 	//this function can format torrent meta to the file array
 		if(is_array($meta_info)){
 			//if this is a list of file
 			foreach($meta_info as $fileindex=> $file){
 				$filearray[$fileindex]['path']=$file['path.utf-8']['0'];
+				$filearray[$fileindex]['size']=$file['length'];
 			}
 		}else{
 			$filearray[0]['path']=$file['path.utf-8']['0'];
+			$filearray[0]['size']=$file['length'];
 		}
 		if($FindPadding){
 			foreach($filearray as $index =>$file){
