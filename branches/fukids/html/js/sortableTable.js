@@ -60,19 +60,23 @@ tableSoort = new Class({
 		for (var i = 0; i < rowslength; i++) {
 			values.push(rows[i].getElementsByTagName("div")[column].get('text')+"|"+i);
 		}
-	this.asc = (cell.hasClass('desc')) ?  false : true;
-	this.titles.removeClass('desc').removeClass('asc');
+	this.asc = (cell.hasClass('desc')) ?  true : false;
 	// reverse only if already sorted
-	console.log(values);
 		if (column==this.options.column) { 
 			values.reverse();
 		} else {
 			// use internal array sort -  special handling for numeric values
 				switch (cell.getProperty('axis')) {   		 
 					case 'number': values.sort(this.numsort); break;
+					case 'filesize': values.sort(this.filesizesort); break;
 					default:values.sort();
 				}
-		}	console.log(values);
+		}
+		if(cell.hasClass('desc')==false && cell.hasClass('asc')==false){
+			values.reverse();
+			this.asc=false;
+		}
+	this.titles.removeClass('desc').removeClass('asc');
 	// rebuild table body into tbody element
 	var tBody = $$('#'+this.options.table+' .tbody')[0];
 		for (var i = 0; i < values.length; i++) {
@@ -83,20 +87,37 @@ tableSoort = new Class({
 	$(this.options.table).replaceChild(tBody,$(this.options.table).lastChild);
 	this.options.column = column;
 	// Change table header class
-		if(this.asc){
-			cell.removeClass('asc').addClass('desc');
-		}else{
+		if(this.asc){ console.log('1');
 			cell.removeClass('desc').addClass('asc');
+		}else{ console.log('2');
+			cell.removeClass('asc').addClass('desc');
 		}
 	},
 	numsort: function(a,b) {
-		a = parseInt(a.split("|").shift());
-		b = parseInt(b.split("|").shift());
+		a = parseInt(a.split('|').shift());
+		b = parseInt(b.split('|').shift());
+		return a-b;
+	},
+	filesizesort: function(a,b) {
+		a = this.formatSize(a.split('|').shift());
+		b = this.formatSize(b.split('|').shift());
 		return a-b;
 	}
 	
 });
-
+	formatSize= function(textsize){
+		textsize = textsize.split(' ');
+			if(textsize[1]=='KB'){
+				return parseInt(textsize[0]*1024);
+			}else if(textsize[1]=='MB'){
+				return parseInt(textsize[0]*1024*1024);
+			}else if(textsize[1]=='GB'){
+				return parseInt(textsize[0]*1024*1024*1024);
+			}else if(textsize[1]=='TB'){
+				return parseInt(textsize[0]*1024*1024*1024*1024);
+			}
+		return parseInt(textsize[0]);
+	}
 /** init on screen keyboard on load */
 window.addEvent('domready', function() {
 	$$('table.sortTable').each(function(sort) { new tableSoort(sort.id);});

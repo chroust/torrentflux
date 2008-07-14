@@ -1537,12 +1537,22 @@ function UpdateRunningTorrent($userid){
 //**************************************************************************
 //return the number of active torrents
 function getActiveTorrentsCount($uid=''){
-	return count(getActiveTorrents($uid));
+	global $db;
+		if($uid){
+			$sqladd=" AND `owner_id` IN (".FormatMultiUseridSql($uid).")";
+		}
+	$sql= "SELECT COUNT(1) FROM `tf_torrents` WHERE  `haspid`='1' ".$sqladd;
+	return $db->GetOne($sql);
+}
+//**************************************************************************
+//return the number of active torrents
+function getRealActiveTorrentsCount($uid=''){
+	return count(getRealActiveTorrents($uid));
 }
 //**************************************************************************
 // return array of active torrents
 // old:getRunningTorrents
-function getActiveTorrents($uid=''){
+function getRealActiveTorrents($uid=''){
 	global $cfg,$db;
 		if($uid){
 			$torrentArray=array();
@@ -1701,7 +1711,7 @@ function ForceKillProcess($torrent){
 		foreach($torrentArray as $index => $torrent){
 			$torrentArray[$index]=torrent2stat($torrent);
 		}
-	$runningTorrents = getActiveTorrents();
+	$runningTorrents = getRealActiveTorrents();
 		foreach ($runningTorrents as $key => $value){
 			$rt = new RunningTorrent($value);
 				if (in_array($rt->statFile,$torrentArray)) {
@@ -1715,7 +1725,7 @@ function ForceKillProcess($torrent){
 // Check if a process still running even if no pid
 function checkHung(){
 	global $cfg;
-	$activeTorrents=getActiveTorrents();
+	$activeTorrents=getRealActiveTorrents();
 	foreach($activeTorrents as $process){
 			if(!is_file($cfg["torrent_file_path"].torrent2pid($process['torrent']))){
 				AuditAction($cfg["constants"]["error"], "Posible Hung Process" . $process['torrent']);
