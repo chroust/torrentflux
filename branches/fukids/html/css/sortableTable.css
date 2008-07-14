@@ -3,11 +3,11 @@
 
 ************************/
 *{
-MozUserSelect:none
+	MozUserSelect:none
 }
 body{
-font-size:10pt;
-MozUserSelect:none
+	font-size:10pt;
+	MozUserSelect:none;
 }
 #Mother{
 	padding:10px;
@@ -208,4 +208,8 @@ border:1px solid #BE0200;
 }
 .offline{
 	color:#FF1C19;
+}
+#setting_right{
+	height:370px;
+	overflow:auto;
 }

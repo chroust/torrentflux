@@ -20,7 +20,7 @@ var Roar = new Class({
 		container: null,
 		bodyFx: null,
 		itemFx: null,
-		margin: {x: 10, y: 10},
+		margin: {x: 40, y: 40},
 		offset: 10,
 		className: 'roar',
 		onShow: $empty,

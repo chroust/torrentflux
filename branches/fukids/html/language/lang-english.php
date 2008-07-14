@@ -249,6 +249,20 @@ define("_Enable_Make_Torrent","enable user creat Torrent");
 define("_encrypted_connections","encrypted connections");
 define("_Allow_Encrypted_Connections","allow encrypted connections");
 define("_Only_Allow_Encrypted_Connections","only allow encrypted connections");
+define("_When_Complete_Torrents","When torrent is completed");
+define("_Run_Command","Run command");
+define("_global_finished_command_explain",
+'
+%finish_time% : time when finished,<br />
+%path% : path of the finished torrent,<br />
+%file_name% : file name of the finished torrent (utf-8),<br />
+%hash% : hash of the finished torrent,<br />
+%owner% : owner of the finished torrent<br />
+%uptotal% : Total upload of the finished torrent<br />
+%downtotal% : Total download of the finished torrent<br />
+%size% : size of the finished torrent<br />
+
+');
 
 //admin edit user
 define("_torrentlimit_period","In");

@@ -86,6 +86,7 @@ function iframeLoad(url){
 					}
 				timer=setTimeout('get_data()', UpdateInterval*1000);
 				Mainloading.hide();
+				data=null;
 			}}).get();
 	}
 	forceUpdate=function(){
@@ -120,7 +121,6 @@ function iframeLoad(url){
 				$(item.id).destroy();
 			}
 		});
-			
 	}
 	// a function to display torrent if it is not exist yet
 	NewTorrent=function(torrent){
@@ -269,6 +269,11 @@ function iframeLoad(url){
 									if(i.checked==false){
 										i.value=0;
 										i.checked=true;
+									}
+								});
+								$$('#'+thisform.id+' textarea').each(function(i){
+									if(i.value==''){
+										i.value='%null%';
 									}
 								});
 							}
@@ -557,8 +562,7 @@ listwidth = new Hash.Cookie('listwidth', {duration: 8520000});
 	//update data
 	roar = new Roar({
 		position: 'lowerRight',
-		duration: UpdateInterval*600,
-		container: $('mother')
+		duration: UpdateInterval*600
 	});
 	get_data();
 });

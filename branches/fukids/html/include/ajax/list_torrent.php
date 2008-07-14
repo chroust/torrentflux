@@ -128,7 +128,7 @@ $output['global']=array(
 //javascript
 if(!$cronworking){
 	// alert when cronrobot is not running
-	$javascript.="	roar.alert('{_WARNING}','{_Cronrobot_Is_Not_Running}');
+	$javascript.="	roar.alert('"._WARNING."','"._WARNING_Cronrobot_Is_Not_Running."');
 					roar.items.getLast().addEvent('click', function() {
 						OpenWindow('_Admin_Setting','"._Admin_Setting."','icon','','','');
 					});
@@ -136,7 +136,7 @@ if(!$cronworking){
 }
 if($newpm){
 	// alert when have new pm
-	$javascript.="	roar.alert('','{_NEW_PM_RECEIVED}');
+	$javascript.="	roar.alert('','"._NEW_PM_RECEIVED."');
 					roar.items.getLast().addEvent('click', function() {
 						OpenWindow('_VIEW_PM','"._VIEW_PM."','rightclick','uid=".$myuid."','','');
 					});

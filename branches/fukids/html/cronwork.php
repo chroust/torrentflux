@@ -79,8 +79,22 @@ unlink($dieCall);
 					}
 					if($torrent['statusid']==2 && ($status==4 || $status==5)){
 						// if it is just finished
-						//shell_exec($cfg['global_finished_command']);
 						AuditAction($cfg["constants"]["tor_completed"], "Torrent: ".$torrent['file_name']."Download Completed");
+						$timestamp=date("Y-m-d H:i:s");
+						$owner=Uid2Username($this->owner);
+						$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].$owner):($cfg["path"]);
+						$dlpath.=$torrent['location'].$torrent['file_name'];
+						$command=str_replace(
+							array('%finish_time%','%path%','%file_name%','%hash%','%owner%','%uptotal%','%downtotal%','%size%')
+						,	array($timestamp,$dlpath,$torrent['file_name'],$torrent['hash'],$owner,$torrent['uptotal'],$torrent['downtotal'],$torrent['size'])
+						,$cfg['global_finished_command']);
+						shell_exec($command);
+					}
+					if(($torrent['statusid']==2 ||$torrent['statusid']==4) && ($status==3 || $status==5)){
+						// if the process is stopped
+						//possible because of reaching share limit
+						AuditAction($cfg["constants"]["tor_stopped"],"Torrent: ".$torrent['file_name']."Stopped(possible because of reaching share limit)");
+						StartRunQueue();
 					}
 				$estTime = ($af->time_left != "" && $af->time_left != "0")? $af->time_left:'';
 				$estTime = $estTime=='Download Succeeded!'?'':$estTime;
@@ -115,7 +129,10 @@ unlink($dieCall);
 				//update it into the sql
 				$sql="UPDATE `tf_torrents` SET `statusid`='$status',`estTime`='$estTime',`size`='$size',`percent_done`='$percent_done',`down_speed`='$down_speed',`up_speed`='$up_speed',`seeds`='$seeds',`peers`='$peers',`uptotal`='$uptotal',`downtotal`='$downtotal',`haspid`='$haspid' WHERE `id`='$id'";
 				$db->Execute($sql);
+				unset ($af);
 			}
+		// unest to release memory
+		unset($torrent,$result,$haspid,$status,$status_text,$estTime,$percent_done,$down_speed,$up_speed,$seeds,$peers,$uptotal,$downtotal,$size,$id);
 		updateSetting('totalupload',$totalupload);
 		updateSetting('totaldownload',$totaldownload);
 		updateSetting('totalseed',$totalseed);
@@ -124,6 +141,7 @@ unlink($dieCall);
 		updateSetting('totaldownloading',$totaldownloading);
 		updateSetting('totalactive',$totalactive);
 		updateSetting('totalinactive',$totalinactive);
+		unset($totalupload,$totaldownload,$totalseed,$totalpeers,$totalfinished,$totaldownloading,$totalactive,$totalinactive);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////
@@ -139,6 +157,7 @@ unlink($dieCall);
 						All('Kill',$user['uid']);
 					}
 			}
+		unset($userarray);
 	}
 
 
@@ -155,12 +174,10 @@ unlink($dieCall);
 		$sql = 'select url,timestamp,uid from tf_rss';
 		$result = $db->Execute($sql);
 		showError($db,$sql);
-		$rssarray=array();
 		while($row = $result->FetchRow()){
 			$feed->set_feed_url($row['url']);
 			$feed->init();
 				foreach($feed->get_items() as $item) {
-					CronworkLog($item->get_date('U'));
 						if ($item->get_date('U') > $row['timestamp']) {
 							newrss($item,$row['uid']);
 						}
@@ -168,8 +185,9 @@ unlink($dieCall);
 		}
 		// update timestamp to current time
 		$sql = 'update tf_rss SET  `timestamp`=\''.time().'\' ';
-		$result = $db->Execute($sql);
+		$db->Execute($sql);
 		showError($db,$sql);
+		unset($feed,$sql);
 	}
 	function newrss($item,$uid){
 		//function for update when there is a new rss
@@ -178,12 +196,15 @@ unlink($dieCall);
 		//description : $item->get_description()
 		CronworkLog("new torrent from the rss, uid: $uid,url: $item");
 		$GLOBALS['cfg']['uid']=$uid;
+		$GLOBALS['myuid']=$uid;
 		$torrentid=UrlTorrent($item->get_title());
 			if($cfg['rssautostart']){
 				$Bt= new BtControl($torrentid);
 				$Bt->Start();
 			}
+		unset($Bt,$torrentid);
 		$GLOBALS['cfg']['uid']=0;
+		$GLOBALS['myuid']=0;
 	}
 	
 
@@ -209,5 +230,6 @@ function CronworkLog($msg){
 	$timestamp=date("Y-m-d H:i:s");
 	$msg=$timestamp.' :'.$msg."\n";
 	echo $msg;
+	unset($timestamp,$msg);
 }
 ?>

@@ -1116,55 +1116,16 @@ function configSettings()
 //****************************************************************************
 // updateConfigSettings -- updating App Settings
 //****************************************************************************
-function updateConfigSettings()
-{
+function updateConfigSettings(){
     global $cfg;
-
     $tmpPath = getRequestVar("path");
-    
-    if (!empty($tmpPath) && substr( $tmpPath, -1 )  != "/")
-    {
+    if (!empty($tmpPath) && substr( $tmpPath, -1 )  != "/"){
         // path requires a / on the end
         $_POST["path"] = $_POST["path"] . "/";
     }
-    
-    if ((array_key_exists("AllowQueing",$_POST) && $_POST["AllowQueing"] != $cfg["AllowQueing"]) ||
-        (array_key_exists("maxServerThreads",$_POST) && $_POST["maxServerThreads"] != $cfg["maxServerThreads"]) ||
-        (array_key_exists("maxUserThreads",$_POST) && $_POST["maxUserThreads"] != $cfg["maxUserThreads"]) ||
-        (array_key_exists("sleepInterval",$_POST) && $_POST["sleepInterval"] != $cfg["sleepInterval"]) ||
-        (array_key_exists("debugTorrents",$_POST) && $_POST["debugTorrents"] != $cfg["debugTorrents"]) ||
-        (array_key_exists("tfQManager",$_POST) && $_POST["tfQManager"] != $cfg["tfQManager"]) ||
-        (array_key_exists("btphpbin",$_POST) && $_POST["btphpbin"] != $cfg["btphpbin"])
-        )
-    {
-        // kill QManager process;
-        if(getQManagerPID() != "")
-        {
-            stopQManager();
-        }
-
-            $settings = $_POST;
-
-            saveSettings($settings);
-            AuditAction($cfg["constants"]["admin"], " Updating TorrentFlux Settings");
-
-        // if enabling Start QManager
-        if($cfg["AllowQueing"])
-        {
-            sleep(2);
-            startQManager($cfg["maxServerThreads"], $cfg["maxUserThreads"], $cfg["sleepInterval"]);
-            sleep(1);
-        }
-    }
-    else
-    {
-         $settings = $_POST;
-
-             saveSettings($settings);
-             AuditAction($cfg["constants"]["admin"], " Updating TorrentFlux Settings");
-    }
-
-showmessage('',1,1);
+	saveSettings($_POST);
+    AuditAction($cfg["constants"]["admin"], " Updating TorrentFlux Settings");
+	showmessage('',1,1);
 }
 
 //****************************************************************************

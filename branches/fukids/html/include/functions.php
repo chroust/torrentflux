@@ -60,17 +60,14 @@ $maxdietime=300;
 //**********************************************************************************
 // START FUNCTIONS HERE
 //**********************************************************************************
-
+include ENGINE_ROOT."include/queue.func.php";
 //*********************************************************
-function getLinkSortOrder($lid)
-{
+function getLinkSortOrder($lid){
 	global $db;
-
 	// Get Current sort order index of link with this link id:
 	$sql="SELECT sort_order FROM tf_links WHERE lid=$lid";
 	$rtnValue=$db->GetOne($sql);
 	showError($db,$sql);
-
 	return $rtnValue;
 }
 
@@ -202,24 +199,17 @@ function AdminCheck(){
 
 //*********************************************************
 // SaveMessage
-function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0)
-{
+function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0){
 	global $_SERVER, $cfg, $db;
-
 	$message = str_replace(array("'"), "", $message);
-
 	$create_time = time();
-
 	$sTable = 'tf_messages';
-	if($to_all == 1)
-	{
+	if($to_all == 1){
 		$message .= "\n\n__________________________________\n*** "._MESSAGETOALL." ***";
 		$sql = 'select user_id from tf_users';
 		$result = $db->Execute($sql);
 		showError($db,$sql);
-
-		while($row = $result->FetchRow())
-		{
+		while($row = $result->FetchRow()){
 			$rec = array(
 						'to_user' => $row['user_id'],
 						'from_user' => $from_user,
@@ -229,15 +219,11 @@ function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0)
 						'time' => $create_time,
 						'force_read' => $force_read
 						);
-
 			$sql = $db->GetInsertSql($sTable, $rec);
-
 			$result2 = $db->Execute($sql);
 			showError($db,$sql);
 		}
-	}
-	else
-	{
+	}else{
 		// Only Send to one Person
 		$rec = array(
 					'to_user' => $to_user,
@@ -255,7 +241,6 @@ function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0)
 		$result = $db->Execute($sql);
 		showError($db,$sql);
 	}
-
 }
 
 //*********************************************************
@@ -282,7 +267,6 @@ function addNewUser($newUser, $pass1, $userType=1){
 					'theme'=>$cfg["default_theme"],
 					'language_file'=>$cfg["default_language"]
 					);
-
 	$sTable = 'tf_users';
 	$sql = $db->GetInsertSql($sTable, $record);
 	$result = $db->Execute($sql);
@@ -309,41 +293,24 @@ function PruneDB()
 }
 
 //*********************************************************
-function IsOnline($user)
-{
+function IsOnline($user){
 	global $cfg, $db;
-
 	$online = false;
-
 	$sql = "SELECT count(*) FROM tf_log WHERE user_id=" . $db->qstr($user)." AND action=".$db->qstr($cfg["constants"]["hit"]);
-
 	$number_hits = $db->GetOne($sql);
 	showError($db,$sql);
-
-	if ($number_hits > 0)
-	{
+	if ($number_hits > 0){
 		$online = true;
 	}
-
 	return $online;
 }
 
 //*********************************************************
-function IsUser($user)
-{
-	global $cfg, $db;
-
-	$isUser = false;
-
-	$sql = "SELECT count(*) FROM tf_users WHERE user_id=".$db->qstr($user);
+function IsUser($user){
+	global $db;
+	$sql = "SELECT count(1) FROM tf_users WHERE user_id=".$db->qstr($user);
 	$number_users = $db->GetOne($sql);
-
-	if ($number_users > 0)
-	{
-		$isUser = true;
-	}
-
-	return $isUser;
+	return ($number_users > 0)?true:false;
 }
 
 //*********************************************************
@@ -358,8 +325,7 @@ function getOwner($file){
 }
 
 //*********************************************************
-function resetOwner($file)
-{
+function resetOwner($file){
 	global $cfg, $db;
 	include_once("AliasFile.php");
 
@@ -403,33 +369,24 @@ function resetOwner($file)
 		$result = $db->Execute($sql);
 		showError($db,$sql);
 	}
-
 	return $rtnValue;
 }
 
 //*********************************************************
-function getCookie($cid)
-{
+function getCookie($cid){
 	global $cfg, $db;
-
 	$rtnValue = "";
-
 	$sql = "SELECT host, data FROM tf_cookies WHERE cid=".$cid;
 	$rtnValue = $db->GetAll($sql);
-
 	return $rtnValue[0];
 }
 
 //*********************************************************
-function getAllCookies($uid)
-{
+function getAllCookies($uid){
 	global $cfg, $db;
-
 	$rtnValue = "";
-
 	$sql = "SELECT c.cid, c.host, c.data FROM tf_cookies AS c, tf_users AS u WHERE u.uid=c.uid AND u.user_id='" . $uid . "' order by host";
 	$rtnValue = $db->GetAll($sql);
-
 	return $rtnValue;
 }
 
@@ -467,15 +424,11 @@ function modCookieInfo($cid, $newCookie)
 }
 
 //*********************************************************
-function getSite($lid)
-{
+function getSite($lid){
 	global $cfg, $db;
-
 	$rtnValue = "";
-
 	$sql = "SELECT sitename FROM tf_links WHERE lid=".$lid;
 	$rtnValue = $db->GetOne($sql);
-
 	return $rtnValue;
 }
 
@@ -493,15 +446,11 @@ function getLink($lid)
 }
 
 //*********************************************************
-function getRSS($rid)
-{
+function getRSS($rid){
 	global $cfg, $db;
-
 	$rtnValue = "";
-
 	$sql = "SELECT url FROM tf_rss WHERE rid=".$rid;
 	$rtnValue = $db->GetOne($sql);
-
 	return $rtnValue;
 }
 
@@ -517,76 +466,12 @@ function IsOwner($user, $owner)
 
 	return $rtnValue;
 }
-//*********************************************************
-// return number of torrent 
-// if no userid specific, return all torrent number
-// userid can in format of   " 12,32,34523"
-function GetTotalRunningTorrent($userid){
-	global $db;
-	$usersql=$comma='';
-		if($userid){
-			$useridArray=split(',',$userid);
-				foreach($useridArray as $index =>$userid){
-						if(is_numeric($userid)){
-							$usersql=$usersql.$comma.$userid;
-							$comma=',';
-						}
-				}
-			$usersql=" AND `owner_id` IN ('$usersql')";
-		}
-	$sql="SELECT COUNT(1) FROM tf_torrents WHERE 1 ".$usersql;
-	$count = $db->GetOne($sql);
-	return $count;
-}
-//*********************************************************
-//update total running torrent of a user
-function UpdateRunningTorrent($userid){
-	global $db;
-	$useridArray=split(',',$userid);
-		foreach($useridArray as $index =>$userid){
-				if(is_numeric($userid)){
-					$usersql=$usersql.$comma.$userid;
-					$comma=',';
-				}
-		}
-	$usersql=" `uid` IN ('$usersql')";
-	$sql="SELECT `uid` FROM `tf_users` WHERE ".$usersql;
-	$result = $db->Execute($sql);
-	while(list($uid) = $result->FetchRow()){
-		$count=GetTotalRunningTorrent($uid);
-		$sql="UPDATE `tf_users` SET `runningtorrent` = '$count' WHERE `uid` ='$uid' ";
-		$db->Execute($sql);
-	}
-}
-//*********************************************************
-// return number of torrent uploaded in specific time range
-function GetUploadCount($user="",$timestamp=0){
-	global $cfg, $db;
-
-	$count = 0;
-	$for_user = "";
-
-	if ($user != ""){
-		$for_user = "user_id=".$db->qstr($user)." AND ";
-	}
-
-	if(intval($timestamp) && $timestamp >0){
-		$foruser.="time > $timestamp AND ";
-	}
-	$sql = "SELECT count(*) FROM tf_log WHERE ".$for_user."(action=".$db->qstr($cfg["constants"]["file_upload"])." OR action=".$db->qstr($cfg["constants"]["url_upload"]).")";
-	$count = $db->GetOne($sql);
-
-	return $count;
-}
 
 //*********************************************************
-function GetSpeedValue($inValue)
-{
+function GetSpeedValue($inValue){
 	$rtnValue = 0;
-	$arTemp = split(" ", trim($inValue));
-
-	if (is_numeric($arTemp[0]))
-	{
+	$arTemp = explode(" ", trim($inValue));
+	if (is_numeric($arTemp[0])){
 		$rtnValue = $arTemp[0];
 	}
 	return $rtnValue;
@@ -611,136 +496,93 @@ function IsAdmin($user=""){
 // ***************************************************************************
 // Is User SUPER Admin
 // user is Super Admin if level is higher than 1
-function IsSuperAdmin($user="")
-{
+function IsSuperAdmin($user=""){
 	global $cfg, $db;
-
-	$isAdmin = false;
-
-	if($user == "")
-	{
-		$user = $cfg["user"];
-	}
-
+		if($user == ""){
+			$user = $cfg["user"];
+		}
 	$sql = "SELECT user_level FROM tf_users WHERE user_id=".$db->qstr($user);
 	$user_level = $db->GetOne($sql);
-
-	if ($user_level > 1)
-	{
-		$isAdmin = true;
-	}
-	return $isAdmin;
+	return ($user_level > 1)?true:false;
 }
 
 
 // ***************************************************************************
 // Returns true if user has message from admin with force_read
-function IsForceReadMsg()
-{
+function IsForceReadMsg(){
 	global $cfg, $db;
-	$rtnValue = false;
-
 	$sql = "SELECT count(*) FROM tf_messages WHERE to_user=".$db->qstr($cfg["user"])." AND force_read=1";
 	$count = $db->GetOne($sql);
 	showError($db,$sql);
-
-	if ($count >= 1)
-	{
-		$rtnValue = true;
-	}
-	return $rtnValue;
+	return ($count >= 1)?true:false;
 }
 
 // ***************************************************************************
 // Get Message data in an array
-function GetMessage($mid)
-{
+function GetMessage($mid){
 	global $cfg, $db;
-
 	$rtnValue = array();
-
-	if (is_numeric($mid))
-	{
-		$sql = "select from_user, message, ip, time, isnew, force_read from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
-		$rtnValue = $db->GetRow($sql);
-		showError($db,$sql);
-	}
-
+		if (is_numeric($mid)){
+			$sql = "select from_user, message, ip, time, isnew, force_read from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
+			$rtnValue = $db->GetRow($sql);
+			showError($db,$sql);
+		}
 	return $rtnValue;
 }
 
 // ***************************************************************************
 // Get Themes data in an array
-function GetThemes()
-{
+function GetThemes(){
 	$arThemes = array();
 	$dir = "themes/";
-
 	$handle = opendir($dir);
-	while($entry = readdir($handle))
-	{
-		if (is_dir($dir.$entry) && ($entry != "." && $entry != ".."))
-		{
+	while($entry = readdir($handle)){
+		if (is_dir($dir.$entry) && ($entry != "." && $entry != "..")){
 			array_push($arThemes, $entry);
 		}
 	}
 	closedir($handle);
-
 	sort($arThemes);
-
 	return $arThemes;
 }
 
 // ***************************************************************************
 // Get Languages in an array
-function GetLanguages()
-{
+function GetLanguages(){
 	$arLanguages = array();
 	$dir = "language/";
 
 	$handle = opendir($dir);
-	while($entry = readdir($handle))
-	{
-		if (is_file($dir.$entry) && (strcmp(strtolower(substr($entry, strlen($entry)-4, 4)), ".php") == 0))
-		{
+	while($entry = readdir($handle)){
+		if (is_file($dir.$entry) && (strcmp(strtolower(substr($entry, strlen($entry)-4, 4)), ".php") == 0)){
 			array_push($arLanguages, $entry);
 		}
 	}
 	closedir($handle);
-
 	sort($arLanguages);
-
 	return $arLanguages;
 }
 
 // ***************************************************************************
 // Get Language name from file name
-function GetLanguageFromFile($inFile)
-{
+function GetLanguageFromFile($inFile){
 	$rtnValue = "";
-
 	$rtnValue = str_replace("lang-", "", $inFile);
 	$rtnValue = str_replace(".php", "", $rtnValue);
-
 	return $rtnValue;
 }
 
 // ***************************************************************************
 // Delete Message
-function DeleteMessage($mid)
-{
+function DeleteMessage($mid){
 	global $cfg, $db;
-
 	$sql = "delete from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
 	$result = $db->Execute($sql);
 	showError($db,$sql);
 }
-
-
 // ***************************************************************************
 // Delete Link
-function deleteOldLink($lid)
-{
+function deleteOldLink($lid){
 	global $db;
 	// Get Current sort order index of link with this link id:
 	$idx = getLinkSortOrder($lid);
@@ -1242,179 +1084,34 @@ function getEngineLink($searchEngine)
 // Display Functions
 
 
-// ***************************************************************************
-// ***************************************************************************
-// Display the header portion of admin views
-function DisplayHead($subTopic, $showButtons=true, $refresh="", $percentdone="")
-{
-	global $cfg;
-	?>
-
-	<html>
-	<HEAD>
-		<TITLE><?php echo $percentdone.$cfg["pagetitle"] ?></TITLE>
-		<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-		<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
-		<LINK REL="StyleSheet" HREF="themes/<?php echo $cfg['theme'] ?>/style.css" TYPE="text/css">
-		<META HTTP-EQUIV="Pragma" CONTENT="no-cache" charset="<?php echo _CHARSET ?>">
-
-	<?php
-	if ($refresh != "")
-	{
-		echo "<meta http-equiv=\"REFRESH\" content=\"".$refresh."\">";
-	}
-	?>
-	</HEAD>
-
-	<body topmargin="8" leftmargin="5" bgcolor="<?php echo $cfg["main_bgcolor"] ?>">
-
-	<div align="center">
-	<table border="0" cellpadding="0" cellspacing="0">
-	<tr>
-		<td>
-
-	<table border="1" bordercolor="<?php echo $cfg["table_border_dk"] ?>" cellpadding="4" cellspacing="0">
-	<tr>
-		<td bgcolor="<?php echo $cfg["main_bgcolor"] ?>" background="themes/<?php echo $cfg['theme'] ?>/images/bar.gif">
-		<?php DisplayTitleBar($cfg["pagetitle"]." - ".$subTopic, $showButtons); ?>
-		</td>
-	</tr>
-	<tr>
-	<td bgcolor="<?php echo $cfg["table_header_bg"] ?>">
-	<div align="center">
-
-	<table width="100%" bgcolor="<?php echo $cfg["body_data_bg"] ?>">
-	 <tr><td>
-<?php
-}
-
-
-// ***************************************************************************
-// ***************************************************************************
-// Display the footer portion
-function DisplayFoot($showReturn=true)
-{
-	global $cfg;
-	?>
-	 </td></tr>
-	</table>
-<?php
-	if ($showReturn)
-	{
-		echo "[<a href=\"index.php\">"._RETURNTOTORRENTS."</a>]";
-		echo "</form>";
-	}
-?>
-	</div>
-	</td>
-	</tr>
-	</table>
-<?php
-	echo DisplayTorrentFluxLink();
-?>
-
-		</td>
-	</tr>
-	</table>
-	</div>
-
-   </body>
-  </html>
-
-	<?php
-}
-
-
-// ***************************************************************************
-// ***************************************************************************
-// Dipslay TF Link and Version
 function DisplayTorrentFluxLink()
 {
 	global $cfg;
-
 	echo "<div align=\"right\">";
 	echo "<a href=\"http://www.torrentflux.com\" target=\"_blank\"><font class=\"tinywhite\">TorrentFlux ".$cfg["version"]."</font></a>&nbsp;&nbsp;";
 	echo "</div>";
 }
 
-
-
 function saveXfer($user, $down, $up){
-	global $db;
+	global $db,$cfg;
 	//increase performance by saving bytes to MB
-	$down=$down/1024/1024;
-	$up=$up/1024/1024;
-	$sql = 'SELECT 1 FROM tf_xfer WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
+	$down	=round($down/1024/1024);
+	$up		=round($up/1024/1024);
+	$target_date=$db->DBDate(time());
+	$sql = 'SELECT 1 FROM tf_xfer WHERE user = "'.$user.'" AND date = '.$target_date;
 		if ($db->GetRow($sql)) {
-			$sql = 'UPDATE tf_xfer SET download = download+'.($down+0).', upload = upload+'.($up+0).' WHERE user = "'.$user.'" AND date = '.$db->DBDate(time());
+			$sql = 'UPDATE tf_xfer SET download = download+'.($down+0).', upload = upload+'.($up+0).' WHERE user = "'.$user.'" AND date = '.$target_date;
 			$db->Execute($sql);
 			showError($db,$sql);
 		} else {
 			showError($db,$sql);
-			$sql = 'INSERT INTO tf_xfer SET user = "'.$user.'", date = '.$db->DBDate(time()).', download = '.($down+0).', upload = '.($up+0);
+			$sql = 'INSERT INTO tf_xfer SET user = "'.$user.'", date = '.$target_date.', download = '.($down+0).', upload = '.($up+0);
 			$db->Execute($sql);
 			showError($db,$sql);
 		}
+	unset($up,$down,$target_date,$sql,$user);
 }
 
-
-
-
-// ***************************************************************************
-// ***************************************************************************
-// Dipslay Title Bar
-// 2004-12-09 PFM: now using adodb.
-function DisplayTitleBar($pageTitleText, $showButtons=true)
-{
-	global $cfg, $db;
-	?>
-		<table width="100%" cellpadding="0" cellspacing="0" border="0">
-		<tr>
-			<td align="left"><font class="title"><?php echo $pageTitleText ?></font></td>
-
-	<?php
-	if ($showButtons)
-	{
-		echo "<td align=right>";
-		// Top Buttons
-		echo "&nbsp;&nbsp;";
-
-		echo "<a href=\"index.php\"><img src=\"themes/".$cfg['theme']."/images/home.gif\" width=49 height=13 title=\""._TORRENTS."\" border=0></a>&nbsp;";
-		echo "<a href=\"dir.php\"><img src=\"themes/".$cfg['theme']."/images/directory.gif\" width=49 height=13 title=\""._DIRECTORYLIST."\" border=0></a>&nbsp;";
-		echo "<a href=\"history.php\"><img src=\"themes/".$cfg['theme']."/images/history.gif\" width=49 height=13 title=\""._UPLOADHISTORY."\" border=0></a>&nbsp;";
-		echo "<a href=\"profile.php\"><img src=\"themes/".$cfg['theme']."/images/profile.gif\" width=49 height=13 title=\""._MYPROFILE."\" border=0></a>&nbsp;";
-
-		// Does the user have messages?
-		$sql = "select count(*) from tf_messages where to_user='".$cfg['user']."' and IsNew=1";
-
-		$number_messages = $db->GetOne($sql);
-		showError($db,$sql);
-		if ($number_messages > 0)
-		{
-			// We have messages
-			$message_image = "themes/".$cfg['theme']."/images/messages_on.gif";
-		}
-		else
-		{
-			// No messages
-			$message_image = "themes/".$cfg['theme']."/images/messages_off.gif";
-		}
-
-		echo "<a href=\"readmsg.php\"><img src=\"".$message_image."\" width=49 height=13 title=\""._MESSAGES."\" border=0></a>";
-
-		if(IsAdmin())
-		{
-			echo "&nbsp;<a href=\"admin.php\"><img src=\"themes/".$cfg['theme']."/images/admin.gif\" width=49 height=13 title=\""._ADMINISTRATION."\" border=0></a>";
-		}
-
-		echo "&nbsp;<a href=\"logout.php\"><img src=\"images/logout.gif\" width=13 height=12 title=\"Logout\" border=0></a>";
-	}
-?>
-			</td>
-		</tr>
-		</table>
-<?php
-}
 
 function listPM(){
 	global $db,$cfg;
@@ -1540,34 +1237,6 @@ function getDriveSpace($drive)
 	return $percent;
 }
 
-// ***************************************************************************
-// ***************************************************************************
-// Display the Drive Space Graphical Bar
-function displayDriveSpaceBar($drivespace)
-{
-	global $cfg;
-	$freeSpace = "";
-
-	if ($drivespace > 20)
-	{
-		$freeSpace = " (".formatFreeSpace($cfg["free_space"])." Free)";
-	}
-?>
-	<table width="100%" border="0" cellpadding="0" cellspacing="0">
-	<tr nowrap>
-		<td width="2%"><div class="tiny"><?php echo _STORAGE ?>:</div></td>
-		<td width="80%">
-			<table width="100%" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td background="themes/<?php echo $cfg['theme'] ?>/images/proglass.gif" width="<?php echo $drivespace ?>%"><div class="tinypercent" align="center"><?php echo $drivespace."%".$freeSpace ?></div></td>
-				<td background="themes/<?php echo $cfg['theme'] ?>/images/noglass.gif" width="<?php echo (100 - $drivespace) ?>%"><img src="images/blank.gif" width="1" height="3" border="0"></td>
-			</tr>
-			</table>
-		</td>
-	</tr>
-	</table>
-<?php
-}
 
 // ***************************************************************************
 // ***************************************************************************
@@ -1648,308 +1317,6 @@ function cleanURL($url)
 	if (sizeof($arURL) > 1)
 	{
 		$rtnValue = $arURL[1];
-	}
-
-	return $rtnValue;
-}
-
-// -------------------------------------------------------------------
-// FetchTorrent() method to get data from URL
-// Has support for specific sites
-// -------------------------------------------------------------------
-function FetchTorrent($url)
-{
-	global $cfg, $db;
-	ini_set("allow_url_fopen", "1");
-	ini_set("user_agent", $_SERVER["HTTP_USER_AGENT"]);
-
-	$rtnValue = "";
-
-	$domain  = parse_url( $url );
-
-	if( strtolower( substr( $domain["path"], -8 ) ) != ".torrent" )
-	{
-		// Check know domain types
-		if( strpos( strtolower ( $domain["host"] ), "mininova" ) !== false )
-		{
-			// Sample (http://www.mininova.org/rss.xml):
-			// http://www.mininova.org/tor/2254847
-			// <a href="/get/2281554">FreeLinux.ISO.iso.torrent</a>
-
-			// If received a /tor/ get the required information
-			if( strpos( $url, "/tor/" ) !== false )
-			{
-				// Get the contents of the /tor/ to find the real torrent name
-				$html = FetchHTML( $url );
-
-				// Check for the tag used on mininova.org
-				if( preg_match( "/<a href=\"\/get\/[0-9].[^\"]+\">(.[^<]+)<\/a>/i", $html, $html_preg_match ) )
-				{
-					// This is the real torrent filename
-					$cfg["save_torrent_name"] = $html_preg_match[1];
-				}
-
-				// Change to GET torrent url
-				$url = str_replace( "/tor/", "/get/", $url );
-			}
-
-			// Now fetch the torrent file
-			$html = FetchHTML( $url );
-
-			// This usually gets triggered if the original URL was /get/ instead of /tor/
-			if( strlen( $cfg["save_torrent_name"] ) == 0 )
-			{
-				// Get the name of the torrent, and make it the filename
-				if( preg_match( "/name([0-9][^:]):(.[^:]+)/i", $html, $html_preg_match ) )
-				{
-					$filelength = $html_preg_match[1];
-					$filename = $html_preg_match[2];
-					$cfg["save_torrent_name"] = substr( $filename, 0, $filelength ) . ".torrent";
-				}
-			}
-
-			// Make sure we have a torrent file
-			if( strpos( $html, "d8:" ) === false )
-			{
-				// We don't have a Torrent File... it is something else
-				AuditAction( $cfg["constants"]["error"], "BAD TORRENT for: " . $url . "\n" . $html );
-				$html = "";
-			}
-
-			return $html;
-		}
-		elseif( strpos( strtolower ( $domain["host"] ), "isohunt" ) !== false )
-		{
-			// Sample (http://isohunt.com/js/rss.php):
-			// http://isohunt.com/download.php?mode=bt&id=8837938
-			// http://isohunt.com/btDetails.php?ihq=&id=8464972
-			$referer = "http://" . $domain["host"] . "/btDetails.php?id=";
-
-			// If the url points to the details page, change it to the download url
-			if( strpos( strtolower( $url ), "/btdetails.php?" ) !== false )
-			{
-				$url = str_replace( "/btDetails.php?", "/download.php?", $url ) . "&mode=bt"; // Need to make it grab the torrent
-			}
-
-			// Grab contents of details page
-			$html = FetchHTML( $url, $referer );
-
-			// Get the name of the torrent, and make it the filename
-			if( preg_match( "/name([0-9]+):[^:]+/i", $html, $html_preg_match ) )
-			{
-				$filelength = $html_preg_match[1];
-				$filename = $html_preg_match[0];
-				$cfg["save_torrent_name"] = substr( $filename, 5+strlen($filelength), $filelength ) . ".torrent";
-			}
-
-
-			// Make sure we have a torrent file
-			if( strpos( $html, "d8:" ) === false )
-			{
-				// We don't have a Torrent File... it is something else
-				AuditAction( $cfg["constants"]["error"], "BAD TORRENT for: " . $url . "\n" . $html );
-				$html = "";
-			}
-
-			return $html;
-		}
-		elseif( strpos( strtolower( $url ), "details.php?" ) !== false )
-		{
-			// Sample (http://www.bitmetv.org/rss.php?passkey=123456):
-			// http://www.bitmetv.org/details.php?id=18435&hit=1
-			$referer = "http://" . $domain["host"] . "/details.php?id=";
-
-			$html = FetchHTML( $url, $referer );
-
-			// Sample (http://www.bitmetv.org/details.php?id=18435)
-			// download.php/18435/SpiderMan%20Season%204.torrent
-			if( preg_match( "/(download.php.[^\"]+)/i", $html, $html_preg_match ) )
-			{
-				$torrent = str_replace( " ", "%20", substr( $html_preg_match[0], 0, -1 ) );
-				$url2 = "http://" . $domain["host"] . "/" . $torrent;
-				$html2 = FetchHTML( $url2 );
-
-				// Make sure we have a torrent file
-				if (strpos($html2, "d8:") === false)
-				{
-					// We don't have a Torrent File... it is something else
-					AuditAction($cfg["constants"]["error"], "BAD TORRENT for: ".$url."\n".$html2);
-					$html2 = "";
-				}
-				return $html2;
-			}
-			else
-			{
-				return "";
-			}
-		}
-		elseif( strpos( strtolower( $url ), "download.asp?" ) !== false )
-		{
-			// Sample (TF's TorrenySpy Search):
-			// http://www.torrentspy.com/download.asp?id=519793
-			$referer = "http://" . $domain["host"] . "/download.asp?id=";
-
-			$html = FetchHTML( $url, $referer );
-
-			// Get the name of the torrent, and make it the filename
-			if( preg_match( "/name([0-9]+):[^:]+/i", $html, $html_preg_match ) )
-			{
-				$filelength = $html_preg_match[1];
-				$filename = $html_preg_match[0];
-				$cfg["save_torrent_name"] = substr( $filename, 5+strlen($filelength), $filelength ) . ".torrent";
-			}
-
-			if( !empty( $html ) )
-			{
-				// Make sure we have a torrent file
-				if( strpos( $html, "d8:" ) === false )
-				{
-					// We don't have a Torrent File... it is something else
-					AuditAction( $cfg["constants"]["error"], "BAD TORRENT for: " . $url . "\n" . $html );
-					$html = "";
-				}
-				return $html;
-			}
-			else
-			{
-				return "";
-			}
-		}
-	}
-
-	$html = FetchHTML( $url );
-	// Make sure we have a torrent file
-	if( strpos( $html, "d8:" ) === false )
-	{
-		// We don't have a Torrent File... it is something else
-		AuditAction( $cfg["constants"]["error"], "BAD TORRENT for: " . $url.  "\n" . $html );
-		$html = "";
-	}
-	else
-	{
-		$html = substr($html, strpos($html, "d8:"));
-		// Get the name of the torrent, and make it the filename
-		if( preg_match( "/name([0-9]+):[^:]+/i", $html, $html_preg_match ) )
-		{
-			$filelength = $html_preg_match[1];
-			$filename = $html_preg_match[0];
-			$cfg["save_torrent_name"] = substr( $filename, 5+strlen($filelength), $filelength ) . ".torrent";
-		}
-	}
-
-	return $html;
-}
-
-// -------------------------------------------------------------------
-// FetchHTML() method to get data from URL -- uses timeout and user agent
-// -------------------------------------------------------------------
-function FetchHTML( $url, $referer = "" )
-{
-	global $cfg, $db;
-	ini_set("allow_url_fopen", "1");
-	ini_set("user_agent", $_SERVER["HTTP_USER_AGENT"]);
-
-	//$url = cleanURL( $url );
-	$domain = parse_url( $url );
-	$getcmd  = $domain["path"];
-
-	if(!array_key_exists("query", $domain))
-	{
-		$domain["query"] = "";
-	}
-
-	$getcmd .= ( !empty( $domain["query"] ) ) ? "?" . $domain["query"] : "";
-
-	$cookie = "";
-	$rtnValue = "";
-
-	// If the url already doesn't contain a passkey, then check
-	// to see if it has cookies set to the domain name.
-	if( ( strpos( $domain["query"], "passkey=" ) ) === false )
-	{
-		$sql = "SELECT c.data FROM tf_cookies AS c LEFT JOIN tf_users AS u ON ( u.uid = c.uid ) WHERE u.user_id = '" . $cfg["user"] . "' AND c.host = '" . $domain['host'] . "'";
-		$cookie = $db->GetOne( $sql );
-		showError( $db, $sql );
-	}
-
-	if( !array_key_exists("port", $domain) )
-	{
-		$domain["port"] = 80;
-	}
-
-	// Check to see if this site requires the use of cookies
-	if( !empty( $cookie ) )
-	{
-		$socket = @fsockopen( $domain["host"], $domain["port"], $errno, $errstr, 30 ); //connect to server
-
-		if( !empty( $socket ) )
-		{
-			// Write the outgoing header packet
-			// Using required cookie information
-			$packet  = "GET " . $url . " HTTP/1.0\r\n";
-			$packet .= ( !empty( $referer ) ) ? "Referer: " . $referer . "\r\n" : "";
-			$packet .= "Accept: */*\r\n";
-			$packet .= "Accept-Language: en-us\r\n";
-			$packet .= "User-Agent: ".$_SERVER["HTTP_USER_AGENT"]."\r\n";
-			$packet .= "Host: " . $domain["host"] . "\r\n";
-			$packet .= "Connection: Close\r\n";
-			$packet .= "Cookie: " . $cookie . "\r\n\r\n";
-
-			// Send header packet information to server
-			@fputs( $socket, $packet );
-
-			// Initialize variable, make sure null until we add too it.
-			$rtnValue = null;
-
-			// If http 1.0 just take it all as 1 chunk (Much easier, but for old servers)
-			while( !@feof( $socket ) )
-			{
-				$rtnValue .= @fgets( $socket, 500000 );
-			}
-
-			@fclose( $socket ); // Close our connection
-		}
-	}
-	else
-	{
-		if( $fp = @fopen( $url, 'r' ) )
-		{
-			$rtnValue = "";
-			while( !@feof( $fp ) )
-			{
-				$rtnValue .= @fgets( $fp, 4096 );
-			}
-			@fclose( $fp );
-		}
-	}
-
-	// If the HTML is still empty, then try CURL
-	if (($rtnValue == "" && function_exists("curl_init")) ||
-		(strpos($rtnValue, "HTTP/1.0 302") > 0 && function_exists("curl_init")) ||
-		(strpos($rtnValue, "HTTP/1.1 302") > 0 && function_exists("curl_init")))
-	{
-		// Give CURL a Try
-		$ch = curl_init();
-		if ($cookie != "")
-		{
-			curl_setopt($ch, CURLOPT_COOKIE, $cookie);
-		}
-		curl_setopt($ch, CURLOPT_PORT, $domain["port"]);
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_VERBOSE, FALSE);
-		curl_setopt($ch, CURLOPT_HEADER, TRUE);
-		curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER["HTTP_USER_AGENT"]);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-
-		$response = curl_exec($ch);
-
-		curl_close($ch);
-
-		$rtnValue = substr($response, strpos($response, "d8:"));
-		$rtnValue = rtrim($rtnValue, "\r\n");
 	}
 
 	return $rtnValue;
@@ -2054,116 +1421,30 @@ function writeQinfo($fileName,$command)
 }
 
 //**************************************************************************
-class ProcessInfo
-{
+class ProcessInfo{
 	var $pid = "";
 	var $ppid = "";
 	var $cmdline = "";
-
-	function ProcessInfo($psLine)
-	{
+	var $torrent = "";
+	function ProcessInfo($psLine){
+		global $cfg;
 		$psLine = trim($psLine);
-		if (strlen($psLine) > 12)
-		{
+		if (strlen($psLine) > 12){
 			$this->pid = trim(substr($psLine, 0, 5));
 			$this->ppid = trim(substr($psLine, 5, 6));
 			$this->cmdline = trim(substr($psLine, 12));
+			$cmdline=explode(' ',$this->cmdline);
+			$this->torrent =($cfg['debugTorrents'])? basename($cmdline[9]): basename($cmdline[8]);
 		}
 	}
 }
 
 //**************************************************************************
-function runPS()
-{
+function runPS(){
 	global $cfg;
-
 	return shell_exec("ps x -o pid='' -o ppid='' -o command='' -ww | grep ".basename($cfg["btphpbin"])." | grep ".$cfg["torrent_file_path"]." | grep -v grep");
 }
 
-//**************************************************************************
-function RunningProcessInfo()
-{
-	global $cfg;
-
-	if (IsAdmin())
-	{
-		include_once("RunningTorrent.php");
-
-		$screenStatus = runPS();
-
-		$arScreen = array();
-		$tok = strtok($screenStatus, "\n");
-		while ($tok)
-		{
-			array_push($arScreen, $tok);
-			$tok = strtok("\n");
-		}
-
-		$cProcess = array();
-		$cpProcess = array();
-		$pProcess = array();
-		$ProcessCmd = array();
-
-		$QLine = "";
-		for($i = 0; $i < sizeof($arScreen); $i++)
-		{
-			if(strpos($arScreen[$i], $cfg["tfQManager"]) > 0)
-			{
-				$pinfo = new ProcessInfo($arScreen[$i]);
-				$QLine = $pinfo->pid;
-			}
-			else
-			{
-			   if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false)
-			   {
-				   $pinfo = new ProcessInfo($arScreen[$i]);
-
-				   if (intval($pinfo->ppid) == 1)
-				   {
-						if(!strpos($pinfo->cmdline, "rep python") > 0)
-						{
-							if(!strpos($pinfo->cmdline, "ps x") > 0)
-							{
-								array_push($pProcess,$pinfo->pid);
-								$rt = new RunningTorrent($pinfo->pid . " " . $pinfo->cmdline);
-								//array_push($ProcessCmd,$pinfo->cmdline);
-								array_push($ProcessCmd,$rt->torrentOwner . "\t". str_replace(array(".stat"),"",$rt->statFile));
-							}
-						}
-				   }
-				   else
-				   {
-						if(!strpos($pinfo->cmdline, "rep python") > 0)
-						{
-							if(!strpos($pinfo->cmdline, "ps x") > 0)
-							{
-								array_push($cProcess,$pinfo->pid);
-								array_push($cpProcess,$pinfo->ppid);
-							}
-						}
-				   }
-			   }
-			}
-		}
-		echo " --- Running Processes ---\n";
-		echo " Parents  : " . count($pProcess) . "\n";
-		echo " Children : " . count($cProcess) . "\n";
-		echo "\n";
-
-		echo " PID \tOwner\tTorrent File\n";
-		foreach($pProcess as $key => $value)
-		{
-			echo " " . $value . "\t" . $ProcessCmd[$key] . "\n";
-			foreach($cpProcess as $cKey => $cValue)
-				if (intval($value) == intval($cValue))
-					echo "\t" . $cProcess[$cKey] . "\n";
-		}
-		echo "\n";
-		echo " --- QManager --- \n";
-		echo " PID : ";
-		echo " ".$QLine;
-	}
-}
 
 //**************************************************************************
 function getNumberOfQueuedTorrents()
@@ -2193,15 +1474,85 @@ function getNumberOfQueuedTorrents()
 	return $rtnValue;
 }
 
-//**************************************************************************
-function getRunningTorrentCount()
-{
-	return count(getRunningTorrents());
+//*********************************************************
+// return number of torrent uploaded in specific time range
+function GetUploadCount($user="",$timestamp=0){
+	global $cfg, $db;
+	$count = 0;
+	$for_user = "";
+	if ($user != ""){
+		$for_user = "user_id=".$db->qstr($user)." AND ";
+	}
+	if(intval($timestamp) && $timestamp >0){
+		$foruser.="time > $timestamp AND ";
+	}
+	$sql = "SELECT count(*) FROM tf_log WHERE ".$for_user."(action=".$db->qstr($cfg["constants"]["file_upload"])." OR action=".$db->qstr($cfg["constants"]["url_upload"]).")";
+	$count = $db->GetOne($sql);
+	return $count;
 }
-
+//*********************************************************
+// format userids , to confirm it is numberic
+function FormatMultiUseridSql($userids){
+	$useridArray=explode(',',$userids);
+	$usersql='';
+		foreach($useridArray as $index =>$userid){
+				if(is_numeric($userid)){
+					$usersql.=$comma.$userid;
+					$comma=',';
+				}
+		}
+	unset($useridArray);
+	return $usersql;
+}
+//*********************************************************
+// return number of torrent 
+// if no userid specific, return all torrent number
+// userid can in format of   " 12,32,34523"
+function GetTotalRunningTorrent($userid){
+	global $db;
+	$usersql=$comma='';
+		if($userid){
+			$usersql=" AND `owner_id` IN (".FormatMultiUseridSql($userid).")";
+		}
+	$sql="SELECT COUNT(1) FROM tf_torrents WHERE 1 ".$usersql;
+	$count = $db->GetOne($sql);
+	return $count;
+}
+//*********************************************************
+//update total running torrents of a user
+function UpdateRunningTorrent($userid){
+	global $db;
+	$usersql=" `uid` IN (".FormatMultiUseridSql($userid).")";
+	$sql="SELECT `uid` FROM `tf_users` WHERE ".$usersql;
+	unset($usersql);
+	$result = $db->Execute($sql);
+	while(list($uid) = $result->FetchRow()){
+		$count=GetTotalRunningTorrent($uid);
+		$sql="UPDATE `tf_users` SET `runningtorrent` = '$count' WHERE `uid` ='$uid' ";
+		$db->Execute($sql);
+		unset($count);
+	}
+	unset($result);
+}
 //**************************************************************************
-function getRunningTorrents(){
-	global $cfg;
+//return the number of active torrents
+function getActiveTorrentsCount($uid=''){
+	return count(getActiveTorrents($uid));
+}
+//**************************************************************************
+// return array of active torrents
+// old:getRunningTorrents
+function getActiveTorrents($uid=''){
+	global $cfg,$db;
+		if($uid){
+			$torrentArray=array();
+			$sql= "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id` IN (".FormatMultiUseridSql($uid).")";;
+			$result=$db->Execute($sql);
+			ShowError($db,$sql);
+				while(list($torrent) = $result->FetchRow()){
+					$torrentArray[]=$torrent;
+				}
+		}
 	$screenStatus = runPS();
 	$arScreen = array();
 	$tok = strtok($screenStatus, "\n");
@@ -2210,152 +1561,86 @@ function getRunningTorrents(){
 		$tok = strtok("\n");
 	}
 	$artorrent = array();
-
-	for($i = 0; $i < sizeof($arScreen); $i++){
-		if(! strpos($arScreen[$i], $cfg["tfQManager"]) > 0){
-		   if(strpos($arScreen[$i], basename($cfg["btphpbin"])) !== false) {
-			   $pinfo = new ProcessInfo($arScreen[$i]);
-			   if (intval($pinfo->ppid) == 1) {
-					if(!strpos($pinfo->cmdline, "rep python") > 0){
-						if(!strpos($pinfo->cmdline, "ps x") > 0){
-							array_push($artorrent,$pinfo->pid . " " . $pinfo->cmdline);
-						}
-					}
-			   }
-		   }
+	foreach($arScreen as $thisar){
+		if(strpos($thisar, basename($cfg["btphpbin"])) !== false){
+			$pinfo = new ProcessInfo($thisar);
+				if (intval($pinfo->ppid) == 1 && !strpos($pinfo->cmdline, "rep python") > 0 && !strpos($pinfo->cmdline, "ps x") > 0) {
+						if(!is_array($torrentArray) || in_array($pinfo->torrent,$torrentArray))
+							array_push($artorrent,$pinfo->pid.' '.$pinfo->cmdline);
+				}
 		}
 	}
-
 	return $artorrent;
 }
-
 //**************************************************************************
-function checkQManager()
-{
-	$x = getQManagerPID();
-	if (strlen($x) > 0)
-	{
-		$y = $x;
-		$arScreen = array();
-		$tok = strtok(shell_exec("ps -p " . $x . " | grep " . $y), "\n");
-
-		while ($tok)
-		{
-			array_push($arScreen, $tok);
-			$tok = strtok("\n");
+//function for checking if the user reached torrent limit
+// false is over limit
+function checkTorrentLimit($uid){
+	global $db;
+	$userinfo=GrabUserData($uid);
+		if($userinfo['torrentlimit_period']>0 && $userinfo['torrentlimit_number']>0){
+			return GetUploadCount(Uid2Username($uid),$userinfo['torrentlimit_period']*85200)>$userinfo['torrentlimit_number']?false:true;
+		}else{
+			return true;
 		}
-
-		$QMgrCount = sizeOf($arScreen);
-	}
-	else
-	{
-		$QMgrCount = 0;
-	}
-
-	return $QMgrCount;
 }
-
 //**************************************************************************
-function getQManagerPID()
-{
-	global $cfg;
-
-	$rtnValue = "";
-
-	$pidFile = $cfg["torrent_file_path"] . "queue/tfQManager.pid";
-
-	if(file_exists($pidFile))
-	{
-		$fp = fopen($pidFile,"r");
-		if ($fp)
-		{
-			while (!feof($fp))
-			{
-				$tmpValue = fread($fp,1);
-				if($tmpValue != "\n")
-					$rtnValue .= $tmpValue;
-			}
-			fclose($fp);
+//function for checking if the user reached transfer limit
+// false is over limit
+function checkTransferLimit($uid){
+	global $cfg,$db;
+	// get user info 
+	$userinfo=GrabUserData($uid);
+	//get the current transfer of the user ,
+	//note: the unit of returned value is MB
+	$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
+		if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
+			return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
+		}else{
+			return true;
 		}
-	}
-	return $rtnValue;
 }
-
 //**************************************************************************
-function startQManager($maxServerThreads=5,$maxUserThreads=2,$sleepInterval=10)
-{
-	global $cfg;
-
-	// is there a stat and torrent dir?
-	if (is_dir($cfg["torrent_file_path"]))
-	{
-		if (is_writable($cfg["torrent_file_path"]) && !is_dir($cfg["torrent_file_path"]."queue/"))
-		{
-			//Then create it
-			mkdir($cfg["torrent_file_path"]."queue/", 0777);
+//grab the transfer static in specific range
+//$period is how many DAYS from current time
+function GetTransferCount($uid,$period=''){
+	global $cfg,$db;
+	$total_speed=$total_up_speed=$total_down_speed=0;
+	$uid=intval($uid);
+	$torrentowner=Uid2Username($uid);
+	//note: total transfer static = current active transfer static+completed or stoped transfer static ;
+	//get current active transfer static
+	$sql = "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id`='$uid'";
+	$result = $db->Execute($sql);
+	include_once("AliasFile.php");	
+	while(list($torrent) = $result->FetchRow()){
+		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($torrent), $torrentowner);
+		$total_up_speed+=$af->up_speed;
+		$total_down_speed+=$af->down_speed;
+	}
+	unset($af);
+	//get completed or stoped transfer static 
+		if($period!==''){
+			$targetDate=$db->DBDate(time()-85200*$period);
 		}
-	}
-
-	if (checkQManager() == 0)
-	{
-	$cmd1 = "cd " . $cfg["path"] . "TFQUSERNAME";
-
-	if (! array_key_exists("pythonCmd",$cfg))
-	{
-		insertSetting("pythonCmd","/usr/bin/python");
-	}
-
-	if (! array_key_exists("debugTorrents",$cfg))
-	{
-		insertSetting("debugTorrents",false);
-	}
-
-		if (!$cfg["debugTorrents"])
-		{
-			$pyCmd = $cfg["pythonCmd"] . " -OO";
-		}
-		else
-		{
-			$pyCmd = $cfg["pythonCmd"];
-		}
-
-		$btphp = "'" . $cmd1. "; HOME=".$cfg["path"]."; export HOME; nohup " . $pyCmd . " " .$cfg["btphpbin"] . " '";
-		$command = $pyCmd . " " . $cfg["tfQManager"] . " ".$cfg["torrent_file_path"]."queue/ ".escapeshellarg($maxServerThreads)." ".escapeshellarg($maxUserThreads)." ".escapeshellarg($sleepInterval)." ".$btphp." > /dev/null &";
-		//$command = $pyCmd . " " . $cfg["tfQManager"] . " ".$cfg["torrent_file_path"]."queue/ ".$maxServerThreads." ".$maxUserThreads." ".$sleepInterval." ".$btphp." > /dev/null2>&1 & &";
-
-		$result = exec($command);
-
-		sleep(2); // wait for it to start prior to getting pid
-
-		AuditAction($cfg["constants"]["QManager"], "Started PID:" . getQManagerPID());
-
-	}else{
-		AuditAction($cfg["constants"]["QManager"], "QManager Already Started  PID:" . getQManagerPID());
-	}
+	$targetADD= ($period=='')?'': " AND date > ".$db->qstr($targetDate);
+	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid.$targetADD;
+	list($thisdown,$thisup) = $db->GetRow($sql);
+	showError($db,$sql);
+	$total_up_speed+=$thisup;
+	$total_down_speed+=$thisdown;
+	$totalspeed=$total_up_speed+$total_down_speed;
+	return array(
+		'up'=>$total_up_speed,
+		'down'=>$total_down_speed,
+		'total'=>$totalspeed);
 }
-
-//**************************************************************************
-function stopQManager()
-{
-	global $cfg;
-
-	$QmgrPID = getQManagerPID();
-	if($QmgrPID != "")
-	{
-		AuditAction($cfg["constants"]["QManager"], "Stopping PID:" . $QmgrPID);
-		$result = exec("kill ".escapeshellarg($QmgrPID));
-		unlink($cfg["torrent_file_path"] . "queue/tfQManager.pid");
-	}
-}
-
 //**************************************************************************
 // file_size()
 // Returns file size... overcomes PHP limit of 2.0GB
-function file_size($file)
-{
+function file_size($file){
 	$size = @filesize($file);
-	if ( $size == 0)
-	{
+	if ( $size == 0){
 		$size = exec("ls -l \"".escapeshellarg($file)."\" | awk '{print $5}'");
 	}
 	return $size;
@@ -2412,11 +1697,11 @@ function CheckHomeDir($owner){
 function ForceKillProcess($torrent){
 	global $cfg;
 	include_once(ENGINE_ROOT."include/BtControl/RunningTorrent.php");
-	$torrentArray=split(',',$torrent);
+	$torrentArray=explode(',',$torrent);
 		foreach($torrentArray as $index => $torrent){
 			$torrentArray[$index]=torrent2stat($torrent);
 		}
-	$runningTorrents = getRunningTorrents();
+	$runningTorrents = getActiveTorrents();
 		foreach ($runningTorrents as $key => $value){
 			$rt = new RunningTorrent($value);
 				if (in_array($rt->statFile,$torrentArray)) {
@@ -2457,9 +1742,9 @@ function Options2Vars($options,$allowedVars){
 		if($options==''){
 			return $output;
 		}
-	$options=split(';', $options);
+	$options=explode(';', $options);
 		foreach($options as $option){
-			$tmp=split(':',$option ,2);
+			$tmp=explode(':',$option ,2);
 				if(in_array($tmp[0],$allowedVars)){
 					$output[$tmp[0]]=$tmp[1];
 				}
@@ -2518,7 +1803,7 @@ function UrlTorrent($url,$options=''){
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_HEADER, false);
-	$return=curl_exec($ch);
+	$torrentdata=curl_exec($ch);
 	$errno=curl_errno($ch);
 		if($errno !==0){
 			$errstring=curl_error($ch);
@@ -2530,10 +1815,11 @@ function UrlTorrent($url,$options=''){
 			$file_name=$cfg["torrent_file_path"].RANDOM().$timestamp.'.torrent';
 		}while(is_file($cfg["torrent_file_path"].$file_name));
 	$fp = fopen($file_name, 'w');
-	fwrite($fp, $return);
+	fwrite($fp, $torrentdata);
 	fclose($fp);
 	$return = NewTorrentInjectDATA($file_name,$options);
 	AuditAction($cfg["constants"]["url_upload"], $file_name);
+	unset($url,$ch,$errno,$errstring,$file_name,$torrentdata,$fp);
 	return $return;
 }
 // ***************************************************************************
@@ -2637,9 +1923,11 @@ function NewTorrentInjectDATA($filename,$options=''){
 		if($recordset->RecordCount() == 1){
 			showmessage('TORRENT ALREADY EXIST',1,0);
 		}
+	unset($recordset);
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
 	// creat the .stat file for displaying
 	CreatNewStat($basename,$filesize);
+	unset($filesize);
 	//creat prio string
 	$prio=buildprio(formatTorrentInfoFilesList($info['info']['files']),NULL,$cfg['smart_select']?1:0,1);
 	
@@ -2664,77 +1952,17 @@ function NewTorrentInjectDATA($filename,$options=''){
 	, \''.$rate.'\', \''.$drate.'\', \''.$superseeder.'\'
 	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\', \''.$location.'\'
 	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\', \''.$prio.'\');';
-	$recordset = $db->Execute($sql);
+	$db->Execute($sql);
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
 	UpdateRunningTorrent($cfg['uid']);
 	$sql='UPDATE `tf_users` SET `totaltorrent`=`totaltorrent`+1 WHERE `uid`='.$cfg['uid'];
 	$db->Execute($sql);
-	showError($db, $sql);
+	showError($db, $sql,$recordset,$name,$hash,$torrent,$prio,$basename,$hash,$rate,$drate,$superseeder,$runtime,$maxuploads,$minport,$location,$maxport,$rerequest,$sharekill);
+	unset($db,$sql,$info);
 	return $torrentID;
 }
 
-function checkTorrentLimit($uid){
-	//function for checking if the user reached torrent limit
-	// false is over limit
-	global $db;
-	$userinfo=GrabUserData($uid);
-		if($userinfo['torrentlimit_period']>0 && $userinfo['torrentlimit_number']>0){
-			return GetUploadCount(Uid2Username($uid),$userinfo['torrentlimit_period']*85200)>$userinfo['torrentlimit_number']?false:true;
-		}else{
-			return true;
-		}
-}
-function checkTransferLimit($uid){
-	//function for checking if the user reached transfer limit
-	// false is over limit
-	global $cfg,$db;
-	// get user info 
-	$userinfo=GrabUserData($uid);
-	//get the current transfer of the user ,
-	//note: the unit of returned value is MB
-	$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
-		if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
-			return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
-		}else{
-			return true;
-		}
-}
-
-function GetTransferCount($uid,$period=''){
-	//grab the transfer static in specific range
-	//$period is how many DAYS from current time
-	global $cfg,$db;
-	$total_speed=$total_up_speed=$total_down_speed=0;
-	$uid=intval($uid);
-	$torrentowner=Uid2Username($uid);
-	//note: total transfer static = current active transfer static+completed or stoped transfer static ;
-	//get current active transfer static
-	$sql = "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id`='$uid'";
-	$result = $db->Execute($sql);
-	include_once("AliasFile.php");	
-	while(list($torrent) = $result->FetchRow()){
-		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($torrent), $torrentowner);
-		$total_up_speed+=$af->up_speed;
-		$total_down_speed+=$af->down_speed;
-	}
-	unset($af);
-	//get completed or stoped transfer static 
-		if($period!==''){
-			$targetDate=$db->DBDate(time()-85200*$period);
-		}
-	$targetADD= ($period=='')?'': " AND date > ".$db->qstr($targetDate);
-	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid.$targetADD;
-	list($thisdown,$thisup) = $db->GetRow($sql);
-	showError($db,$sql);
-	$total_up_speed+=$thisup;
-	$total_down_speed+=$thisdown;
-	$totalspeed=$total_up_speed+$total_down_speed;
-	return array(
-		'up'=>$total_up_speed,
-		'down'=>$total_down_speed,
-		'total'=>$totalspeed);
-}
 // ***************************************************************************
 // ***************************************************************************
 //function for removing SQL while deleting a torrent job
@@ -2927,6 +2155,7 @@ function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
         }else{
 			showmessage('Filelist is not an array or shorter than 1');
 		}
+		unset($FileList,$prioList,$smartremove,$default);
 	return $result;
 }
 function getFile($var){
@@ -2947,6 +2176,7 @@ function formatTorrentInfoFilesList($meta_info,$FindPadding=9){
 					$file['padd']=(strpos($file['path'],'_padding_file'))?1:0;
 			}
 		}
+	unset($meta_info);
 	return $filearray;
 }
 function MakeDefault($name,$type){

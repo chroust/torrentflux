@@ -150,8 +150,7 @@ function updateSetting($key,$value)
 {
     global $cfg, $db;
     $update_value = $value;
-    if (is_array($value))
-    {
+    if (is_array($value)) {
         $update_value = serialize($value);
     }
 
@@ -164,33 +163,29 @@ function updateSetting($key,$value)
         // update the Config.
         $cfg[$key] = $value;
     }
+	unset($update_value,$key,$value,$sql,$result);
 }
 
 //*********************************************************
-function saveSettings($settings)
-{
+function saveSettings($settings){
     global $cfg, $db;
 
     if ($settings == null)
         return;
         
-    foreach ($settings as $key => $value)
-    {
-        if (array_key_exists($key, $cfg))
-        {
-            if(is_array($cfg[$key]) || is_array($value))
-            {
-                if(serialize($cfg[$key]) != serialize($value))
-                {
+    foreach ($settings as $key => $value){
+		if($value=='%null%'){
+			$value='';
+		}
+        if (array_key_exists($key, $cfg)){
+            if(is_array($cfg[$key]) || is_array($value)){
+                if(serialize($cfg[$key]) != serialize($value)) {
                     updateSetting($key, $value);
                 }
 
-            }elseif ($cfg[$key] != $value)
-            {
+            }elseif ($cfg[$key] != $value){
                 updateSetting($key, $value);
-            }
-            else
-            {
+            }else{
                 // Nothing has Changed..
             }
         }else{

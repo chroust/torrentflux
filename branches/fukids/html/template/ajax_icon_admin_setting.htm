@@ -90,11 +90,11 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{_Download_Path} :</td>
-			<td><input type="text" size="20" name="path" value="{$cfg['path']}"   class="path {if validatePath($cfg['path'])}value {else}error{/if}"/></td>
+			<td><input type="text" size="20" name="path" value="{$cfg['path']}" id="path" class="path {if validatePath($cfg['path'])}value {else}error{/if}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Force_Download_In_Home_Dir} :</td>
-			<td><input type="checkbox" name="force_dl_in_home_dir" {echo MakeDefault('force_dl_in_home_dir','checkbox')} value="1"/></td>
+			<td><input type="checkbox" id="force_dl_in_home_dir" name="force_dl_in_home_dir" {echo MakeDefault('force_dl_in_home_dir','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{_Enable_Make_Torrent} :</td>
@@ -112,6 +112,18 @@
 		<tr>
 			<td style="width:80%">{_Smart_Select} :</td>
 			<td><input type="checkbox" name="smart_select" {echo MakeDefault('smart_select','checkbox')} value="1"/></td>
+		</tr>
+		</table>
+		</fieldset>
+		<fieldset>
+		<legend>{_When_Complete_Torrents}</legend>
+		<table style="width:100%;border:1">
+		<tr>
+			<td style="width:80%" valign="top">{_Run_Command} :</td>
+			<td><textarea id="global_finished_command" name="global_finished_command">{$cfg['global_finished_command']}</textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2">{_global_finished_command_explain}</td>
 		</tr>
 		</table>
 		</fieldset>
@@ -137,23 +149,15 @@
 		<table style="width:100%;border:1">
 		<tr>
 			<td style="width:80%">{Enable_Queue_Manager} :</td>
-			<td><input type="checkbox" name="aaa"/></td>
-		</tr>
-		<tr>
-			<td style="width:80%">{tfQManager_Path} :</td>
-			<td><input type="text" size="20" name="bbb"/></td>
+			<td><input type="checkbox" name="AllowQueing" {echo MakeDefault('AllowQueing','checkbox')} value="1"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{Max_Server_Threads} :</td>
-			<td><input type="text" size="3" class="num" name="ccc"/></td>
+			<td><input type="text" size="3" class="num" name="maxServerThreads" value="{$cfg['maxServerThreads']}"/></td>
 		</tr>
 		<tr>
 			<td style="width:80%">{Max_User_Threads} :</td>
-			<td><input type="text" size="3" class="num" name="ddd"/></td>
-		</tr>
-		<tr>
-			<td style="width:80%">{Polling_Interval} :</td>
-			<td><input type="text" size="3" class="num" name="eee"/></td>
+			<td><input type="text" size="3" class="num" name="maxUserThreads" value="{$cfg['maxUserThreads']}"/></td>
 		</tr>
 		</table>
 		</fieldset>
@@ -272,7 +276,12 @@ var CronRobotControl=function(action){
 		}
 	}).send('op='+action);
 }
-
+$('path').addEvent('focus',function(){
+	roar.alert('{_WARNING}','{_WARNING_SHOULD_REMOVE_ALL_TORRENT_BEFORE_CHANGE}');
+});
+$('force_dl_in_home_dir').addEvent('focus',function(){
+	roar.alert('{_WARNING}','{_WARNING_SHOULD_REMOVE_ALL_TORRENT_BEFORE_CHANGE}');
+});
 update_CronRobot_Stat();
 </script>
 	<input type="Submit" value="{_UPDATE}">
