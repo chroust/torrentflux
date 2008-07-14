@@ -81,7 +81,7 @@ unlink($dieCall);
 						// if it is just finished
 						AuditAction($cfg["constants"]["tor_completed"], "Torrent: ".$torrent['file_name']."Download Completed");
 						$timestamp=date("Y-m-d H:i:s");
-						$owner=Uid2Username($this->owner);
+						$owner=Uid2Username($torrent['owner_id']);
 						$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].$owner):($cfg["path"]);
 						$dlpath.=$torrent['location'].$torrent['file_name'];
 						$command=str_replace(
@@ -99,6 +99,9 @@ unlink($dieCall);
 				$estTime = ($af->time_left != "" && $af->time_left != "0")? $af->time_left:'';
 				$estTime = $estTime=='Download Succeeded!'?'':$estTime;
 				$percent_done=$af->percent_done;
+					if($percent_done<0){
+						$percent_done=($percent_done*-1)-100;
+					}
 				$down_speed=$af->down_speed+0;
 				$up_speed=$af->up_speed+0;
 				$seeds=$af->seeds;

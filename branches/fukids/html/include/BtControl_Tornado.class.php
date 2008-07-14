@@ -75,7 +75,7 @@ Class BtControl {
 			unset($af);
 			if ($queue == 1){
 				//  This file is being queued.
-				NewQueue($this->torrentid);
+				NewQueue($this->torrentid,$this->owner);
 			}else{
 				@unlink($cfg["torrent_file_path"].$this->log);
 					// insert setting if it is not set yet
@@ -151,6 +151,9 @@ Class BtControl {
 		ForceKillProcess($this->torrent);
 		//update new status into sql
 		$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
+		$db->Execute($sql);
+		//delete it from queue list
+		$sql="DELETE FROM `tf_queue` WHERE `id`='".$this->torrentid."'";
 		$db->Execute($sql);
 		AuditAction($cfg["constants"]["kill_torrent"], $this->torrent);
 		StartRunQueue();

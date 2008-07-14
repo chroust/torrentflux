@@ -1566,7 +1566,7 @@ function getActiveTorrents($uid=''){
 			$pinfo = new ProcessInfo($thisar);
 				if (intval($pinfo->ppid) == 1 && !strpos($pinfo->cmdline, "rep python") > 0 && !strpos($pinfo->cmdline, "ps x") > 0) {
 						if(!is_array($torrentArray) || in_array($pinfo->torrent,$torrentArray))
-							array_push($artorrent,$pinfo->pid.' '.$pinfo->cmdline);
+							array_push($artorrent,array('pid'=>$pinfo->pid,'torrent'=>$pinfo->torrent));
 				}
 		}
 	}
@@ -1714,15 +1714,15 @@ function ForceKillProcess($torrent){
 // ***************************************************************************
 // Check if a process still running even if no pid
 function checkHung(){
-	global $db,$cfg;
-	$sql = "SELECT `torrent` FROM `tf_torrents`";
-	$result = $db->Execute($sql);
-	while(list($torrent) = $result->FetchRow()){
-			if(!is_file($cfg["torrent_file_path"].torrent2pid($torrent))){
-				AuditAction($cfg["constants"]["error"], "Posible Hung Process" . $torrent);
-				ForceKillProcess($torrent);
+	global $cfg;
+	$activeTorrents=getActiveTorrents();
+	foreach($activeTorrents as $process){
+			if(!is_file($cfg["torrent_file_path"].torrent2pid($process['torrent']))){
+				AuditAction($cfg["constants"]["error"], "Posible Hung Process" . $process['torrent']);
+				ForceKillProcess($process['torrent']);
 			}
 	}
+	unset($activeTorrents);
 }
 // ***************************************************************************
 // ***************************************************************************

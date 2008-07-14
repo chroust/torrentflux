@@ -58,20 +58,21 @@ tableSoort = new Class({
 	var values = new Array;
 	var rowslength= rows.length;
 		for (var i = 0; i < rowslength; i++) {
-			values.push(rows[i].getElementsByTagName("div")[column].innerHTML+"|"+i);
+			values.push(rows[i].getElementsByTagName("div")[column].get('text')+"|"+i);
 		}
 	this.asc = (cell.hasClass('desc')) ?  false : true;
 	this.titles.removeClass('desc').removeClass('asc');
 	// reverse only if already sorted
+	console.log(values);
 		if (column==this.options.column) { 
 			values.reverse();
 		} else {
 			// use internal array sort -  special handling for numeric values
-				switch (cell.getProperty('axis')) {
-					case 'string': values.sort(); break;	   		 
-					case 'number': values.sort(this.numsort); break;	   		 
+				switch (cell.getProperty('axis')) {   		 
+					case 'number': values.sort(this.numsort); break;
+					default:values.sort();
 				}
-		}
+		}	console.log(values);
 	// rebuild table body into tbody element
 	var tBody = $$('#'+this.options.table+' .tbody')[0];
 		for (var i = 0; i < values.length; i++) {

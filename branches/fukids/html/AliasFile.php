@@ -126,7 +126,7 @@ class AliasFile{
 		$this->time_left = "Waiting...";
 		$this->down_speed = "";
 		$this->up_speed = "";
-		$this->seeds = "";
+		$this->seeds = "0+000";
 		$this->peers = "";
 		$this->files = array();
 		$this->errors = array();
