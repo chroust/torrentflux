@@ -89,7 +89,8 @@ if($action=='listtorrent'){
 		}elseif($id=='Creat_Torrent'){
 			die('building.....');
 		}elseif($id=='New_Feed'){
-			die('building.....');
+			$rssArray=GetRSSLinks();
+			include template('ajax_icon_Feed');
 		}elseif($id=='Edit_Torrent'){
 			$torrentid=intval(getRequestVar('torrentid'));
 				if(!$torrentid){
@@ -120,7 +121,7 @@ if($action=='listtorrent'){
 		}
 }elseif($action=='tabs'){
 	//if it is called via tab bar 
-	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5','tab6'));
+	$tab = getRequestVar('tab',Array('tab1','tab2','tab3','tab4','tab5','tab6','speedimg'));
 	$torrentId=intval(getRequestVar('torrentId'));
 		if(!$torrentId){
 			showmessage('torrentId Error',1);
@@ -172,6 +173,22 @@ if($action=='listtorrent'){
 						}
 					echo $output?$output :'('._Current_No_Log.')';
 				}
+		}elseif($tab=='speedimg'){
+			$upstr=$downstr=$comma='';
+			$sql="SELECT `speedlog` FROM `tf_torrents` WHERE `id`='$torrentId'";
+			$speedlog=unserialize($db->GetOne($sql));
+				foreach($speedlog['down'] as $key => $speed){
+					$upstr.=$comma.$speedlog['up'][$key];
+					$downstr.=$comma.$speedlog['down'][$key];
+					$comma=',';
+				}
+			$max=max(max($speedlog['up']),max($speedlog['down']));
+			$count=count($speedlog['up']);
+			$timestamp=time();
+			$time1=date('H:i',$timestamp-5*$count);
+			$time2=date('H:i',$timestamp-2.5*$count);
+			$time3=date('H:i',$timestamp);
+			echo "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|$max|1:||Speed(KB/s)|2:|$time1|$time2|$time3|3:||time|";
 		}
 }elseif($action=='form'){
 	$id = getRequestVar('id',Array('Torrent_Search'));

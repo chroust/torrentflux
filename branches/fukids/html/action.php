@@ -2,7 +2,7 @@
 //this php is for doing action
 include_once("include/functions.php");
 //check and grab action
-$id=getRequestVar('id',array('torrent','user'));
+$id=getRequestVar('id',array('torrent','user','feed'));
 if($id=='torrent'){
 $action=getRequestVar('action',array('Kill','Del','Start','Upload','UrlUpload','Edit_Torrent','_Del_n_Remove_Torrent','_Del_n_Remove_Torrent_And_Files','_Del_n_Remove_Files','torrent_download'));
 $torrentid=getRequestVar('torrentid');
@@ -100,24 +100,29 @@ include_once("include/BtControl_Tornado.class.php");
 		//$sharekill=intval(getRequestVar('sharekill'));
 			foreach($_FILES['torrents']['name'] as $key => $thisfile){
 				$torrentid=NewTorrent($HTTP_POST_FILES['torrents']['tmp_name'][$key],$HTTP_POST_FILES['torrents']['name'][$key],"rate:$rate;drate:$drate;maxuploads:$maxuploads;minport:$minport;maxport:$maxport;rerequest:$rerequest;sharekill:$sharekill;runtime:$runtime");
-					if($autostart){
-						$Bt= new BtControl($torrentid);
-						$Bt->Start();
-						showmessage('',1,1);
-					}else{
-						?> OpenWindow('Edit_Torrent','<?=Edit_Torrent?>','icon','torrentid=<?=$torrentid?>');<?
+					if($torrentid){
+						if($autostart){
+							$Bt= new BtControl($torrentid);
+							$Bt->Start();
+							showmessage('',1,1);
+						}else{
+							?> OpenWindow('Edit_Torrent','<?=Edit_Torrent?>','icon','torrentid=<?=$torrentid?>');<?
+						}
 					}
 			}
 	}elseif($action=='UrlUpload'){
 		//if user want upload torrent from url
 		$torrentid=UrlTorrent(getRequestVar('torrent'));
 		$autostart=getRequestVar('autostart');
-			if($autostart){
-				$Bt= new BtControl($torrentid);
-				$Bt->Start();
-				showmessage('',1,1);
+			if($torrentid){
+					if($autostart){
+						$Bt= new BtControl($torrentid);
+						$Bt->Start();
+						showmessage('',1,1);
+					}
 			}
-			showmessage('',1,1);
+		$closewindow=getRequestVar('closewindow')=='0'?0:1;
+		showmessage('',1,$closewindow);
 	}elseif($action=='torrent_download'){
 			if(!is_numeric($torrentid)){
 				exit();
@@ -160,6 +165,25 @@ include_once("include/BtControl_Tornado.class.php");
 			if(!empty($delete)){
 				DeleteMessage($delete);
 			}
+		}
+}elseif($id=='feed'){
+	$action=getRequestVar('action',array('del','SetAutoDownload','newurl','FeedInfo'));
+		if($action=='del'){
+			$rid=getRequestVar('rid');
+			deleteOldRSS($rid);
+		}elseif($action=='SetAutoDownload'){
+			$rid=getRequestVar('rid');
+			$value=getRequestVar('value');
+			echo SetAutoDownload($rid,$value)?'on':'off';
+		}elseif($action=='newurl'){
+			$url=getRequestVar('new_rss');
+			addNewRSS($url);
+			showmessage('',0,1);
+			exit('OpenWindow(\'New_Feed\',\'New_Feed\',\'icon\');');
+		}elseif($action=='FeedInfo'){
+			$rid=getRequestVar('rid');
+			$array=GrabFeedArray($rid);
+			include template('ajax_icon_Feed_info');
 		}
 }else{
 	showmessage('no id'.$id);

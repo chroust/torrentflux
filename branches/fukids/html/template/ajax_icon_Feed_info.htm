@@ -1,0 +1,25 @@
+<fieldset>
+<table style="width:100%;border:1">
+{foreach $array $feed}
+<tr>
+	<td><span class="feedDL" axis="{echo rawurlencode($feed['link'])}">{$feed['title']}</span></td>
+	<td>{$feed['date']}</td>
+</tr>
+{/foreach}
+</table>
+</fieldset>
+<script type="text/javascrit">
+$$('.feedDL').addEvent('click',function(){
+	new Request.HTML({onComplete:function(t,e,h,j){
+		eval(h);
+	}}).
+	post('action.php?id=torrent&action=UrlUpload&usejs=1&closewindow=0&torrent='+this.getProperty('axis'));
+
+}).addEvents({
+	'mouseover':function(){
+		this.setStyle('cursor','pointer');
+	},'mouseleave':function(){
+		this.setStyle('cursor','auto');
+	},
+});;
+</script>

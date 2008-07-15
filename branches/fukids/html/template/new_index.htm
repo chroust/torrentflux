@@ -229,27 +229,7 @@ function iframeLoad(url){
 			height: 300
 		});
 	}
-	OpenWindow=function(id,title,action,extraurl,width,height){
-		var extraurl=$defined(extraurl)?'&'+extraurl:'';
-		var wwidth=width?width:500;
-		var wheight=height?height:400;
-		wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
-		wheight=wheight>window.getSize().y?window.getSize().y:wheight;
-		loadmethod=(id=='Torrent_Search'|| id=='_ADMIN_VIEW_HISTORY')?'iframe':'xhr';
-		new MochaUI.Window({
-			id: 'window_'+id,
-			title: title,
-			evalScripts:1,
-			resizable:0,
-			loadMethod: loadmethod,
-			contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
-			width: wwidth,
-			height: wheight,
-			onContentLoaded:function(e){
-				windowize(e,id);
-			}
-		});
-	}
+	
 	var windowize=function(e,id){
 		$$('#window_'+id+'_content a').each(function(a){
 			a.addEvent('click',function(){
@@ -263,7 +243,7 @@ function iframeLoad(url){
 				if(thisform.enctype){
 					thisform.action+='&usejs=1';
 				}else{
-					thisform.addEvent('submit',function(){
+					thisform.addEvent('submit',function(e){
 							if($defined(thisform.id)){
 								$$('#'+thisform.id+' input[type=checkbox]').each(function(i){
 									if(i.checked==false){
@@ -280,13 +260,15 @@ function iframeLoad(url){
 						thisform.set('send', {
 							url:thisform.action+'&usejs=1',
 							onSuccess:function(e){
+								this.hideLoadingIcon(this.canvasIconEl);
 								eval(e);
-							}
+							}.bind(this)
 						}).send();
+						this.showLoadingIcon(this.canvasIconEl);
 						return false;
-					});
+					}.bind(this));
 				}
-		});
+		}.bind(this));
 		$$('#window_'+id+' input.num').each(function(thisform){
 			thisform.addEvent('keypress',function(event){
 				event = new Event(event);
@@ -295,6 +277,27 @@ function iframeLoad(url){
 						event.stop();
 					}
 			});
+		});
+	}
+	OpenWindow=function(id,title,action,extraurl,width,height){
+		var extraurl=$defined(extraurl)?'&'+extraurl:'';
+		var wwidth=width?width:500;
+		var wheight=height?height:400;
+		wwidth=wwidth>window.getSize().x?window.getSize().x:wwidth;
+		wheight=wheight>window.getSize().y?window.getSize().y:wheight;
+		loadmethod=(id=='Torrent_Search'|| id=='_ADMIN_VIEW_HISTORY')?'iframe':'xhr';
+		aaa=new MochaUI.Window({
+			id: 'window_'+id,
+			title: title,
+			evalScripts:1,
+			resizable:0,
+			loadMethod: loadmethod,
+			contentURL: 'ajax.php?action='+action+'&usejs=1&id='+id+extraurl,
+			width: wwidth,
+			height: wheight,
+			onContentLoaded:function(e){
+				windowize.attempt([e,id],this);
+			}
 		});
 	}
 	var UpdateSelectedUser=function(){
@@ -356,6 +359,9 @@ function iframeLoad(url){
 			}
 		});
 	}
+window.addEvent('unload',function(){
+    MochaUI.garbageCleanUp();
+});
 window.addEvent('domready', function() {
 	sorted1		=	new tableSoort('list_torrent')
 	myTabs1		=	new mootabs('torrent_info', { useAjax: '1', ajaxUrl: 'ajax.php'});
@@ -394,6 +400,7 @@ window.addEvent('domready', function() {
 	window.addEvent('keydown', function(e){
 		e = new Event(e); 
 			if(e.key=='esc'){
+			    MochaUI.garbageCleanUp();
 				window.MochaUI.closeAll();
 			}
 	});

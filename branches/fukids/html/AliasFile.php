@@ -92,6 +92,7 @@ class AliasFile{
 					array_push($this->errors, $arStatus[$inx]);
 				}
 			}
+			unset($arStatus);
 		}else{
 			// this file does not exist (yet)
 		}

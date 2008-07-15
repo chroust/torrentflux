@@ -523,7 +523,11 @@ function editRSS()
 
 }
 
-
+function ClearCronRobotLog(){
+	global $cfg;
+	unlink($cfg['cronwork_log']);
+	touch($cfg['cronwork_log']);
+}
 
 //****************************************************************************
 // updateConfigSettings -- updating App Settings
@@ -834,6 +838,9 @@ switch ($op)
     case "updateSearchSettings":
         updateSearchSettings();
     break;
+    case "ClearCronRobotLog":
+        ClearCronRobotLog();
+	break;
 	case "checkpath":
 		echo validatePath( getRequestVar('path'));
 	break;

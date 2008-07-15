@@ -24,7 +24,6 @@
 Ignore_User_Abort(True);
 set_time_limit(0);
 include_once('include/functions.php');
-include_once('include/simplepie.inc');
 include_once("AliasFile.php");
 $maxdietime=6;
 $interval=5;
@@ -45,7 +44,7 @@ touch($thispid);
 	while(1){
 		checkDieCall();
 		torrentUpdate();
-		checkrss();
+		checkrssFeed();
 		check_Transfer_Limit();
 		checkHung();
 		touch($thispid);
@@ -125,9 +124,17 @@ unlink($dieCall);
 					}else{
 						$totalinactive++;
 					}
-				
+				//get new speed log
+				$speedlog=unserialize($torrent['speedlog']);
+					if(is_array($speedlog) && count($speedlog['down'])>300){
+						array_shift($speedlog['down']);
+						array_shift($speedlog['up']);
+					}
+				$speedlog['up'][]=round($up_speed);
+				$speedlog['down'][]=round($down_speed);
+				$sqlspeedlog=serialize($speedlog);
 				//update it into the sql
-				$sql="UPDATE `tf_torrents` SET `statusid`='$status',`estTime`='$estTime',`size`='$size',`percent_done`='$percent_done',`down_speed`='$down_speed',`up_speed`='$up_speed',`seeds`='$seeds',`peers`='$peers',`uptotal`='$uptotal',`downtotal`='$downtotal',`haspid`='$haspid' WHERE `id`='$id'";
+				$sql="UPDATE `tf_torrents` SET `statusid`='$status',`speedlog`='$sqlspeedlog',`estTime`='$estTime',`size`='$size',`percent_done`='$percent_done',`down_speed`='$down_speed',`up_speed`='$up_speed',`seeds`='$seeds',`peers`='$peers',`uptotal`='$uptotal',`downtotal`='$downtotal',`haspid`='$haspid' WHERE `id`='$id'";
 				$db->Execute($sql);
 				unset ($af);
 			}
@@ -160,58 +167,9 @@ unlink($dieCall);
 		unset($userarray);
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////
-	// rss
-	/////////////////////////////////////////////////////////////////////////////////
-	function checkrss(){
-		//function for checking rss update
-		global $db;
-		//check if rss have new feed
-		// Initialize new feed
-		//CronworkLog("checking if any new rss update");
-		$feed = new SimplePie();
-		$sql = 'select url,timestamp,uid from tf_rss';
-		$result = $db->Execute($sql);
-		showError($db,$sql);
-		while($row = $result->FetchRow()){
-			$feed->set_feed_url($row['url']);
-			$feed->init();
-				foreach($feed->get_items() as $item) {
-						if ($item->get_date('U') > $row['timestamp']) {
-							newrss($item,$row['uid']);
-						}
-				}
-		}
-		// update timestamp to current time
-		$sql = 'update tf_rss SET  `timestamp`=\''.time().'\' ';
-		$db->Execute($sql);
-		showError($db,$sql);
-		unset($feed,$sql);
-	}
-	function newrss($item,$uid){
-		//function for update when there is a new rss
-		//title: $item->get_title()
-		//time: $item->get_date('j M Y, H:i:s O') 
-		//description : $item->get_description()
-		CronworkLog("new torrent from the rss, uid: $uid,url: $item");
-		$GLOBALS['cfg']['uid']=$uid;
-		$GLOBALS['myuid']=$uid;
-		$torrentid=UrlTorrent($item->get_title());
-			if($cfg['rssautostart']){
-				$Bt= new BtControl($torrentid);
-				$Bt->Start();
-			}
-		unset($Bt,$torrentid);
-		$GLOBALS['cfg']['uid']=0;
-		$GLOBALS['myuid']=0;
-	}
-	
-
 	////////////////////////////////////////////////////////////////////////////////
 	// global
 	/////////////////////////////////////////////////////////////////////////////////
-
 	function checkDieCall(){
 		global $dieCall,$thispid;
 		//CronworkLog('checking if there is any diecall');

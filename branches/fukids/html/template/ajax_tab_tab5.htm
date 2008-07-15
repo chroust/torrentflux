@@ -2,33 +2,11 @@
 			<script type="text/javascript">
 			var speed_updateIntervals = 5;
 			var updateGraph=function(){
-			if($defined(uploadingspeed[selecting])){
-				downSpeedLength=downloadingspeed[selecting].length;
-				var chd1='';
-				var comma='';
-				var max=0;
-					for ( i = 0; i < downSpeedLength; i++) {
-						chd1=chd1+comma+downloadingspeed[selecting][i];
-						comma=',';
-							if(downloadingspeed[selecting][i]>max){
-								max=downloadingspeed[selecting][i];
-							}
-					}
-				var chd2='';
-				var comma='';
-					for ( i = 0; i < downSpeedLength; i++) {
-						chd2=chd2+comma+uploadingspeed[selecting][i];
-						comma=',';
-							if(uploadingspeed[selecting][i]>max){
-								max=uploadingspeed[selecting][i];
-							}
-					}
-				var src='http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:'+chd1+'|'+chd2+'&chds=0,'+max+'&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y&chxl=0:|0|'+max+'|1:||Speed(KB/s)';
-				console.log(src);
-				$('thisspeed').src=src;
+				new Request.HTML({onComplete:function(t,e,h,j){
+					$('thisspeed').src=(h);
+				}}).
+				get('ajax.php?action=tabs&tab=speedimg&torrentId={$torrentId}');
 				graphtimer= setTimeout("updateGraph()",speed_updateIntervals*1000);
-			}
-				
 			}
 			window.addEvent('TabReady', function() {
 			updateGraph();

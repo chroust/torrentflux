@@ -1,0 +1,85 @@
+<fieldset>
+<legend>{_Add_Feed}</legend>
+<table style="width:100%;border:1">
+<tr>
+	<td style="width:100%">
+	<form action="action.php?id=feed&action=newurl">
+	<input type="text" name="new_rss" id="new_rss" />
+	<input type="submit" value	="{_Add_Feed}" />
+	</form>
+	</td>
+</tr>
+</table>
+</fieldset>
+
+<fieldset>
+<legend>{_Feed_List}</legend>
+<table style="width:100%;border:1">
+<tr>
+	<th></th>
+	<th>{_Feed)</th>
+	<th>{_LastUpdate}</th>
+	<th>{_AutoDownload}</th>
+</tr>
+{foreach $rssArray $rss}
+<tr axis="{$rss['rid']}">
+	<td><img src="images/delete_on.gif" alt="delete" class="del_feed"></td>
+	<td><span class="rssurl">{$rss['url']}</span></td>
+	<td>{echo gmdate("d-m-Y H:i",$rss['timestamp'])}</td>
+	<td><span class="autodownload" >{if $rss['autodownload']} on {else} off {/if}</span></td>
+</tr>
+<tr>
+	<td colspan="4"><div id="rssinfo_{$rss['rid']}" style="display:none"></div></td>
+</tr>
+{/foreach}
+</table>
+</fieldset>
+<div id="jsload" style="display:none;"></div>
+<script type="text/javascript">
+$$('img.del_feed').addEvent('click',function(){
+	var rid=this.getParent('tr').getProperty('axis');
+	if (confirm('{_CONFIRM_DELETE_RSS}')){
+		new Request({url: 'action.php?id=feed&action=del&rid='+rid, method: 'post'}).send('');
+		var next=this.getParent('tr').getNext();
+		next.destroy();
+		this.getParent('tr').destroy();
+	}
+}).addEvents({
+	'mouseover':function(){
+		this.setStyle('cursor','pointer');
+	},'mouseleave':function(){
+		this.setStyle('cursor','auto');
+	},
+});
+$$('span.autodownload').addEvent('click',function(){
+	var rid=this.getParent('tr').getProperty('axis');
+	var value=this.get('text')=='on'?'0':'1';
+	this.load('action.php?id=feed&action=SetAutoDownload&rid='+rid+'&value='+value);
+}).addEvents({
+	'mouseover':function(){
+		this.setStyle('cursor','pointer');
+	},'mouseleave':function(){
+		this.setStyle('cursor','auto');
+	},
+});
+
+$$('span.rssurl').addEvent('click',function(){
+	var rid=this.getParent('tr').getProperty('axis');
+		if($('rssinfo_'+rid).getStyle('display')=='block'){
+			$('rssinfo_'+rid).setStyle('display','none');
+		}else{
+			$('rssinfo_'+rid).setStyle('display','block');
+			$('rssinfo_'+rid).load('action.php?id=feed&action=FeedInfo&rid='+rid);
+		}
+}).addEvents({
+	'mouseover':function(){
+		this.setStyle('cursor','pointer');
+	},'mouseleave':function(){
+		this.setStyle('cursor','auto');
+	},
+});
+$$('span.rssurl').each(function(e){
+	var rid=e.getParent('tr').getProperty('axis');
+	$('rssinfo_'+rid).set('load', {evalScripts: true});
+});
+</script>

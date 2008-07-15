@@ -42,8 +42,10 @@ $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
 $cfg["torrent_file_path"] = $cfg["path"].".torrents/";
-if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || ($_SERVER['argv'][0]==ENGINE_ROOT.'cronwork.php')){
+if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || (($_SERVER['argv'][0]==ENGINE_ROOT.'cronwork.php') &&($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'cronwork.php' ))){
+	$CronRobot=1;
 }else{
+	$CronRobot=0;
 Authenticate();
 include_once("language/".$cfg['language_file']);
 include_once("themes/".$cfg['theme']."/index.php");
@@ -62,6 +64,7 @@ $maxdietime=300;
 // START FUNCTIONS HERE
 //**********************************************************************************
 include ENGINE_ROOT."include/queue.func.php";
+include ENGINE_ROOT."include/rss.func.php";
 //*********************************************************
 function getLinkSortOrder($lid){
 	global $db;
@@ -424,36 +427,8 @@ function modCookieInfo($cid, $newCookie)
 	showError($db,$sql);
 }
 
-//*********************************************************
-function getSite($lid){
-	global $cfg, $db;
-	$rtnValue = "";
-	$sql = "SELECT sitename FROM tf_links WHERE lid=".$lid;
-	$rtnValue = $db->GetOne($sql);
-	return $rtnValue;
-}
 
-//*********************************************************
-function getLink($lid)
-{
-	global $cfg, $db;
 
-	$rtnValue = "";
-
-	$sql = "SELECT url FROM tf_links WHERE lid=".$lid;
-	$rtnValue = $db->GetOne($sql);
-
-	return $rtnValue;
-}
-
-//*********************************************************
-function getRSS($rid){
-	global $cfg, $db;
-	$rtnValue = "";
-	$sql = "SELECT url FROM tf_rss WHERE rid=".$rid;
-	$rtnValue = $db->GetOne($sql);
-	return $rtnValue;
-}
 
 //*********************************************************
 function IsOwner($user, $owner)
@@ -611,15 +586,7 @@ function deleteOldLink($lid){
 	showError($db,$sql);
 }
 
-// ***************************************************************************
-// Delete RSS
-function deleteOldRSS($rid)
-{
-	global $db;
-	$sql = "delete from tf_rss where rid=".$rid;
-	$result = $db->Execute($sql);
-	showError($db,$sql);
-}
+
 
 // ***************************************************************************
 // Delete User
@@ -857,20 +824,6 @@ function addNewLink($newLink,$newSite)
 	$db->Execute($sql);
 	showError($db,$sql);
 }
-
-
-// ***************************************************************************
-// addNewRSS - Add New RSS Link
-function addNewRSS($newRSS)
-{
-	global $db;
-	$rec = array('url'=>$newRSS);
-	$sTable = 'tf_rss';
-	$sql = $db->GetInsertSql($sTable, $rec);
-	$db->Execute($sql);
-	showError($db,$sql);
-}
-
 // ***************************************************************************
 // UpdateUserProfile
 function UpdateUserProfile($user_id, $pass1, $hideOffline, $theme, $language){
@@ -923,32 +876,6 @@ function GetSuperAdmin()
 	return $rtnValue;
 }
 
-// ***************************************************************************
-// Get Links in an array
-function GetLinks()
-{
-	global $cfg, $db;
-
-	$link_array = array();
-
-	$link_array = $db->GetAssoc("SELECT lid, url, sitename, sort_order FROM tf_links ORDER BY sort_order");
-	return $link_array;
-}
-
-// ***************************************************************************
-// Get RSS Links in an array
-function GetRSSLinks()
-{
-	global $cfg, $db;
-
-	$link_array = array();
-
-	$sql = "SELECT rid, url FROM tf_rss ORDER BY rid";
-	$link_array = $db->GetAssoc($sql);
-	showError($db,$sql);
-
-	return $link_array;
-}
 
 // ***************************************************************************
 // Build Search Engine Drop Down List
@@ -1710,6 +1637,17 @@ function checkHung(){
 }
 // ***************************************************************************
 // ***************************************************************************
+// return current server load
+function GetLoad(){
+	global $cfg;
+		if($fp = @fopen($cfg['loadavg_path'], 'r')) {
+			list($loadaverage) = explode(' ', fread($fp, 6));
+			fclose($fp);
+		}
+	return $loadaverage;
+}
+// ***************************************************************************
+// ***************************************************************************
 //get pid from alias
 function GetPid($alias){
 	global $cfg;
@@ -1875,7 +1813,6 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 					}
 			}
 		}
-
 	return $info;
 }
 // ***************************************************************************
@@ -1885,7 +1822,8 @@ function NewTorrentInjectDATA($filename,$options=''){
 	global $db,$cfg;
 	//check torrent limit
 		if(!checkTorrentLimit($cfg['uid'])){
-			showmessage('_Max_Torrent_Limit_Reached',1,1);
+			showmessage('_Max_Torrent_Limit_Reached',0,1);
+			return false;
 		}
 	$basename=basename($filename);
 	//GrabTorrentInfo
@@ -1898,14 +1836,15 @@ function NewTorrentInjectDATA($filename,$options=''){
 		if(!$name || !$hash){
 			unlink($filename);
 			showmessage('WRONG TORRENT FORMAT');
-			return;
+			return false;
 		}
 	//check if the torrent exist 
 	$sql = "SELECT `id` FROM `tf_torrents` WHERE `hash`=".$db->qstr($hash);
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
 		if($recordset->RecordCount() == 1){
-			showmessage('TORRENT ALREADY EXIST',1,0);
+			showmessage('TORRENT ALREADY EXIST',0,0);
+			return false;
 		}
 	unset($recordset);
 	$filesize=$info["info"]["piece length"] * (strlen($info["info"]["pieces"]) / 20);
@@ -1991,11 +1930,11 @@ function DumpCurlError($errno,$errstring){
 // ***************************************************************************
 //showmessage:
 function showmessage($msg,$stop=0,$closewindow=0){
-	global $usejs;
+	global $usejs,$CronRobot;
 		if($closewindow){
 				if($usejs){
 						if($msg)echo 'alert(\''.addslashes($msg).'\');';
-					echo 'window.MochaUI.closeAll();'; 
+					echo '    MochaUI.garbageCleanUp(); window.MochaUI.closeAll();'; 
 				}else{
 					if($msg)echo $msg;
 				}
@@ -2173,5 +2112,9 @@ function MakeDefault($name,$type){
 		}elseif($type=='text'){
 			return 'value=\''.$cfg[$name].'\'';
 		}
+}
+
+function isurl($url=FALSE) {
+	return  ( strstr($url,'http://') == $url ) && $url;
 }
 ?>
