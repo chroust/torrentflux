@@ -11,18 +11,27 @@ function parse_css($file){
 	return '<style type="text/css">'.str_replace('; ',';',str_replace(' }','}',str_replace('{ ','{',str_replace(array("\r\n","\r","\n","\t",'  ','    ','    '),"",preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!','',$template))))).'</style>';
 }
 
-function parse_js($file){
-	require_once ENGINE_ROOT . 'include/JsPacker.class.php';
-	$tplfile = ENGINE_ROOT.'template/js/'.$file.'.js';
-	$objfile = ENGINE_ROOT . 'cache/js/' . $file. '_packed' .'.js';
-	if(!@$fp = fopen($tplfile, 'r')) {
-		exit("Current js template file , not found or have no access!");
+function parse_js($fileArray){
+	require_once ENGINE_ROOT . 'include/JavaScriptPacker.class.php';
+		if(!is_array($fileArray)){
+			return;
+		}
+	$jscontent='';
+	//load all js
+	foreach($fileArray as $file){
+		$tplfile = ENGINE_ROOT.'js/'.$file.'.js';
+		$objfile = ENGINE_ROOT . 'cache/js/js_packed' .'.js';
+			if(!@$fp = fopen($tplfile, 'r')) {
+				exit("$file js template file , not found or have no access!");
+			}
+		$jscontent .= fread($fp, filesize($tplfile));
+		fclose($fp);
 	}
-	$template = fread($fp, filesize($tplfile));
-	fclose($fp);
-	
-	$packer = new JavaScriptPacker($template, '62', '1', '');
-	$template = $packer->pack();
+	//$packer = new JavaScriptPacker($jscontent, '62', '1', '');
+	//$template = $packer->pack();
+	//unset($packer);
+	$template=$jscontent;
+	//write a new js file
 	$objfile_dir=dirname($objfile).DIRECTORY_SEPARATOR;
 	if(!file_exists($objfile_dir)){
 			if(!@mkdir($objfile_dir)) {

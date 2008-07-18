@@ -1,0 +1,21 @@
+<stat>
+	<Torrents>
+		<TotalQueue>{$Global_TotalQueue}</TotalQueue>
+		<CurrentStatus>
+			<downloading>{$cfg['totaldownloading']}</downloading>
+			<finished>{$cfg['totalfinished']}</finished>
+			<active>{$cfg['totalactive']}</active>
+			<inactive>{$cfg['totalinactive']}</inactive>
+		</CurrentStatus>
+		<CurrentSpeed>
+			<Up>{$cfg['totalupload']} KB/s</Up>
+			<Down>{$cfg['totaldownload']} KB/s</Down>
+			<Total>{$TotalCurrentSpeed} KB/s</Total>
+		</CurrentSpeed>
+		<TotalTransfer>
+			<Up>{echo formatBytesToKBMGGB($Global_TotalTransfer['up']*1024*1024)}</Up>
+			<Down>{echo formatBytesToKBMGGB($Global_TotalTransfer['down']*1024*1024)}</Down>
+			<Total>{echo formatBytesToKBMGGB($Global_TotalTransfer['total']*1024*1024)}</Total>
+		</TotalTransfer>
+	</Torrents>
+</stat>

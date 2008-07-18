@@ -1,45 +1,43 @@
 div#DirListContainer{
-	width:80%;
+	width:100%;
 	height:600px;
 	overflow:scroll;
 }
 
 div.DirList{
-	width:300px;
-	height:80px;
+	width:100%;
+	height:30px;
+}
+div.DirList div{
 	float:left;
 }
 	div.icon{
-		width:100px;
-		padding:10px;
+		width:10%;
 	}
-	div.fileInfo{
-		width:200px;
-		float:right;
-		padding:10px;
+	div.filename{
 		cursor:default;
+		width:60%;
+		height:1.1em;
+		overflow:hidden;
+		color:#000;
 	}
-		span.filename{
-			height:1.1px;
-			overflow:hidden;
-			color:#000;
-		}
-		span.filetype,span.filesize{
-			height:1.1px;
-			overflow:hidden;
-			color:#666;
-		}
-		div.selected{
-			background: #007AFA;
-		}
-		div.selected span{
-			color:#fff;
-			overflow:visible;
-		}
+	div.filetype,div.filesize{
+		width:10%;
+		height:1.1em;
+		overflow:hidden;
+		color:#666;
+	}
+	div.selected{
+		background: #007AFA;
+	}
+	div.selected {
+		color:#fff;
+		overflow:visible;
+	}
 		
 img.icon{
-	height:50px;
-	width:50px;
+	height:25px;
+	width:25px;
 	border:0px;
 }
 

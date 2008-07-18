@@ -28,11 +28,6 @@ include_once("include/functions.php");
 $result = shell_exec("df -h ".$cfg["path"]);
 $result2 = shell_exec("du -sh ".$cfg["path"]."*");
 
-
-DisplayHead(_DRIVESPACE);
-echo "<table width=\"740\" border=0 cellpadding=0 cellspacing=0><tr><td>";
-echo displayDriveSpaceBar(getDriveSpace($cfg["path"]));
-echo "</td></tr></table>";
 ?>
 
 <br>
@@ -47,6 +42,5 @@ echo $result2;
 echo "</pre>";
 echo "</div>";
 
-DisplayFoot();
 
 ?>

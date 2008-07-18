@@ -34,7 +34,7 @@ $usejs=getRequestVar('usejs');
 // Create Connection.
 $db = getdb();
 loadSettings();
-
+    ob_start("ob_gzhandler");
 // Free space in MB
 $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 
@@ -247,6 +247,67 @@ function SaveMessage($to_user, $from_user, $message, $to_all=0, $force_read=0){
 	}
 }
 
+
+// ***************************************************************************
+// Returns true if user has message from admin with force_read
+function IsForceReadMsg(){
+	global $cfg, $db;
+	$sql = "SELECT count(*) FROM tf_messages WHERE to_user=".$db->qstr($cfg["user"])." AND force_read=1";
+	$count = $db->GetOne($sql);
+	showError($db,$sql);
+	return ($count >= 1)?true:false;
+}
+
+// ***************************************************************************
+// Get Message data in an array
+function GetMessage($mid){
+	global $cfg, $db;
+	$rtnValue = array();
+		if (is_numeric($mid)){
+			$sql = "select from_user, message, ip, time, isnew, force_read from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
+			$rtnValue = $db->GetRow($sql);
+			showError($db,$sql);
+		}
+	return $rtnValue;
+}
+// ***************************************************************************
+// Delete Message
+function DeleteMessage($mid){
+	global $cfg, $db;
+	$sql = "delete from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
+	$result = $db->Execute($sql);
+	showError($db,$sql);
+}
+// ***************************************************************************
+// Mark Message as Read
+function MarkMessageRead($mid){
+	global $cfg, $db;
+	$sql = 'select * from tf_messages where mid = '.$mid;
+	$rs = $db->Execute($sql);
+	showError($db,$sql);
+	$rec = array('IsNew'=>0,
+			 'force_read'=>0);
+	$sql = $db->GetUpdateSQL($rs, $rec);
+	$db->Execute($sql);
+	showError($db,$sql);
+}
+function listPM(){
+	global $db,$cfg;
+	$sql = "SELECT u.uid, m.mid, m.from_user, m.message, m.IsNew, m.ip, m.time, m.force_read FROM tf_messages m LEFT JOIN tf_users u ON u.user_id =m.from_user  WHERE to_user=".$db->qstr($cfg['user'])." ORDER BY time";
+    $result = $db->Execute($sql);
+    showError($db,$sql);
+    while($row = $result->FetchRow()){
+        $row['mail_image'] =($row['new'] == 1)? "images/new_message.gif":"images/old_message.gif";
+        $row['display_message'] = check_html($row['message'], "nohtml");
+        if(strlen($row['display_message']) >= 40) { // needs to be trimmed
+            $row['display_message'] = substr($row['display_message'], 0, 39);
+            $row['display_message'] .= "..";
+        }
+		$row['time_text']=date(_DATETIMEFORMAT, $row['time']);
+		$resulta[]=$row;
+	}
+	return $resulta;
+}
 //*********************************************************
 function addNewUser($newUser, $pass1, $userType=1){
 	global $cfg, $db;
@@ -484,29 +545,6 @@ function IsSuperAdmin($user=""){
 
 
 // ***************************************************************************
-// Returns true if user has message from admin with force_read
-function IsForceReadMsg(){
-	global $cfg, $db;
-	$sql = "SELECT count(*) FROM tf_messages WHERE to_user=".$db->qstr($cfg["user"])." AND force_read=1";
-	$count = $db->GetOne($sql);
-	showError($db,$sql);
-	return ($count >= 1)?true:false;
-}
-
-// ***************************************************************************
-// Get Message data in an array
-function GetMessage($mid){
-	global $cfg, $db;
-	$rtnValue = array();
-		if (is_numeric($mid)){
-			$sql = "select from_user, message, ip, time, isnew, force_read from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
-			$rtnValue = $db->GetRow($sql);
-			showError($db,$sql);
-		}
-	return $rtnValue;
-}
-
-// ***************************************************************************
 // Get Themes data in an array
 function GetThemes(){
 	$arThemes = array();
@@ -548,14 +586,7 @@ function GetLanguageFromFile($inFile){
 	return $rtnValue;
 }
 
-// ***************************************************************************
-// Delete Message
-function DeleteMessage($mid){
-	global $cfg, $db;
-	$sql = "delete from tf_messages where mid=".$mid." and to_user=".$db->qstr($cfg['user']);
-	$result = $db->Execute($sql);
-	showError($db,$sql);
-}
+
 // ***************************************************************************
 // Delete Link
 function deleteOldLink($lid){
@@ -759,23 +790,6 @@ function validateFile($the_file){
 //****************************************************************************
 function validatePath($path){
 	return is_dir($path) && is_writable($path)?1:0;
-}
-// ***************************************************************************
-// Mark Message as Read
-function MarkMessageRead($mid)
-{
-	global $cfg, $db;
-
-	$sql = 'select * from tf_messages where mid = '.$mid;
-	$rs = $db->Execute($sql);
-	showError($db,$sql);
-
-	$rec = array('IsNew'=>0,
-			 'force_read'=>0);
-
-	$sql = $db->GetUpdateSQL($rs, $rec);
-	$db->Execute($sql);
-	showError($db,$sql);
 }
 
 //**************************************************************************
@@ -1007,6 +1021,122 @@ function getEngineLink($searchEngine)
 	return $tmpLink;
 }
 
+// -------------------------------------------------------------------
+// FetchHTML() method to get data from URL -- uses timeout and user agent
+// -------------------------------------------------------------------
+function FetchHTML( $url, $referer = "" )
+{
+    global $cfg, $db;
+    ini_set("allow_url_fopen", "1");
+    ini_set("user_agent", $_SERVER["HTTP_USER_AGENT"]);
+
+    //$url = cleanURL( $url );
+    $domain = parse_url( $url );
+    $getcmd  = $domain["path"];
+
+    if(!array_key_exists("query", $domain))
+    {
+        $domain["query"] = "";
+    }
+
+    $getcmd .= ( !empty( $domain["query"] ) ) ? "?" . $domain["query"] : "";
+
+    $cookie = "";
+    $rtnValue = "";
+
+    // If the url already doesn't contain a passkey, then check
+    // to see if it has cookies set to the domain name.
+    if( ( strpos( $domain["query"], "passkey=" ) ) === false )
+    {
+        $sql = "SELECT c.data FROM tf_cookies AS c LEFT JOIN tf_users AS u ON ( u.uid = c.uid ) WHERE u.user_id = '" . $cfg["user"] . "' AND c.host = '" . $domain['host'] . "'";
+        $cookie = $db->GetOne( $sql );
+        showError( $db, $sql );
+    }
+
+    if( !array_key_exists("port", $domain) )
+    {
+        $domain["port"] = 80;
+    }
+
+    // Check to see if this site requires the use of cookies
+    if( !empty( $cookie ) )
+    {
+        $socket = @fsockopen( $domain["host"], $domain["port"], $errno, $errstr, 30 ); //connect to server
+
+        if( !empty( $socket ) )
+        {
+            // Write the outgoing header packet
+            // Using required cookie information
+            $packet  = "GET " . $url . " HTTP/1.0\r\n";
+            $packet .= ( !empty( $referer ) ) ? "Referer: " . $referer . "\r\n" : "";
+            $packet .= "Accept: */*\r\n";
+            $packet .= "Accept-Language: en-us\r\n";
+            $packet .= "User-Agent: ".$_SERVER["HTTP_USER_AGENT"]."\r\n";
+            $packet .= "Host: " . $domain["host"] . "\r\n";
+            $packet .= "Connection: Close\r\n";
+            $packet .= "Cookie: " . $cookie . "\r\n\r\n";
+
+            // Send header packet information to server
+            @fputs( $socket, $packet );
+
+            // Initialize variable, make sure null until we add too it.
+            $rtnValue = null;
+
+            // If http 1.0 just take it all as 1 chunk (Much easier, but for old servers)
+            while( !@feof( $socket ) )
+            {
+                $rtnValue .= @fgets( $socket, 500000 );
+            }
+
+            @fclose( $socket ); // Close our connection
+        }
+    }
+    else
+    {
+        if( $fp = @fopen( $url, 'r' ) )
+        {
+            $rtnValue = "";
+            while( !@feof( $fp ) )
+            {
+                $rtnValue .= @fgets( $fp, 4096 );
+            }
+            @fclose( $fp );
+        }
+    }
+
+    // If the HTML is still empty, then try CURL
+    if (($rtnValue == "" && function_exists("curl_init")) ||
+        (strpos($rtnValue, "HTTP/1.0 302") > 0 && function_exists("curl_init")) ||
+        (strpos($rtnValue, "HTTP/1.1 302") > 0 && function_exists("curl_init")))
+    {
+        // Give CURL a Try
+        $ch = curl_init();
+        if ($cookie != "")
+        {
+            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+        }
+        curl_setopt($ch, CURLOPT_PORT, $domain["port"]);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_VERBOSE, FALSE);
+        curl_setopt($ch, CURLOPT_HEADER, TRUE);
+        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER["HTTP_USER_AGENT"]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+        $rtnValue = substr($response, strpos($response, "d8:"));
+        $rtnValue = rtrim($rtnValue, "\r\n");
+    }
+
+    return $rtnValue;
+}
+
+
 // ***************************************************************************
 // ***************************************************************************
 // Display Functions
@@ -1041,23 +1171,7 @@ function saveXfer($user, $down, $up){
 }
 
 
-function listPM(){
-	global $db,$cfg;
-	$sql = "SELECT u.uid, m.mid, m.from_user, m.message, m.IsNew, m.ip, m.time, m.force_read FROM tf_messages m LEFT JOIN tf_users u ON u.user_id =m.from_user  WHERE to_user=".$db->qstr($cfg['user'])." ORDER BY time";
-    $result = $db->Execute($sql);
-    showError($db,$sql);
-    while($row = $result->FetchRow()){
-        $row['mail_image'] =($row['new'] == 1)? "images/new_message.gif":"images/old_message.gif";
-        $row['display_message'] = check_html($row['message'], "nohtml");
-        if(strlen($row['display_message']) >= 40) { // needs to be trimmed
-            $row['display_message'] = substr($row['display_message'], 0, 39);
-            $row['display_message'] .= "..";
-        }
-		$row['time_text']=date(_DATETIMEFORMAT, $row['time']);
-		$resulta[]=$row;
-	}
-	return $resulta;
-}
+
 
 
 function torrentid2torrentname($id){
@@ -1137,12 +1251,10 @@ function check_html ($str, $strip="")
 // ***************************************************************************
 // Checks for the location of the torrents
 // If it does not exist, then it creates it.
-function checkTorrentPath()
-{
+function checkTorrentPath(){
 	global $cfg;
 	// is there a stat and torrent dir?
-	if (!@is_dir($cfg["torrent_file_path"]) && is_writable($cfg["path"]))
-	{
+	if (!@is_dir($cfg["torrent_file_path"]) && is_writable($cfg["path"])){
 		//Then create it
 		@mkdir($cfg["torrent_file_path"], 0777);
 	}
@@ -1151,15 +1263,11 @@ function checkTorrentPath()
 // ***************************************************************************
 // ***************************************************************************
 // Returns the drive space used as a percentage i.e 85 or 95
-function getDriveSpace($drive)
-{
+function getDriveSpace($drive){
 	$percent = 0;
-
-	if (is_dir($drive))
-	{
+	if (is_dir($drive)){
 		$dt = disk_total_space($drive);
 		$df = disk_free_space($drive);
-
 		$percent = round((($dt - $df)/$dt) * 100);
 	}
 	return $percent;
@@ -1340,15 +1448,6 @@ function getStatusImage($af)
 }
 
 //**************************************************************************
-function writeQinfo($fileName,$command)
-{
-	$fp = fopen($fileName.".Qinfo","w");
-	fwrite($fp, $command);
-	fflush($fp);
-	fclose($fp);
-}
-
-//**************************************************************************
 class ProcessInfo{
 	var $pid = "";
 	var $ppid = "";
@@ -1514,37 +1613,53 @@ function checkTransferLimit($uid){
 //**************************************************************************
 //grab the transfer static in specific range
 //$period is how many DAYS from current time
-function GetTransferCount($uid,$period=''){
+function GetTransferCount($uid=0,$period=''){
 	global $cfg,$db;
 	$total_speed=$total_up_speed=$total_down_speed=0;
 	$uid=intval($uid);
-	$torrentowner=Uid2Username($uid);
 	//note: total transfer static = current active transfer static+completed or stoped transfer static ;
 	//get current active transfer static
-	$sql = "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id`='$uid'";
-	$result = $db->Execute($sql);
-	include_once("AliasFile.php");	
-	while(list($torrent) = $result->FetchRow()){
-		$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($torrent), $torrentowner);
-		$total_up_speed+=$af->up_speed;
-		$total_down_speed+=$af->down_speed;
-	}
-	unset($af);
+		if($uid!==0){
+			$torrentowner=Uid2Username($uid);
+			$torrents_SQLADD="AND `owner_id`='$uid'";
+			$xfer_SQLADD="AND `user`='$uid'";
+		}else{
+			$torrents_SQLADD=$xfer_SQLADD='';
+		}
+	$sql = 'SELECT SUM(`uptotal`),SUM(`downtotal`) FROM `tf_torrents` WHERE 1 '.$torrents_SQLADD;
+	list($uptotal,$downtotal) = $db->GetRow($sql);
+	$total_up=$uptotal/1024/1024;
+	$total_down=$downtotal/1024/1024;
 	//get completed or stoped transfer static 
 		if($period!==''){
 			$targetDate=$db->DBDate(time()-85200*$period);
 		}
 	$targetADD= ($period=='')?'': " AND date > ".$db->qstr($targetDate);
-	$sql = "select SUM(download ),SUM(upload) from tf_xfer where user=".$uid.$targetADD;
+	$sql = 'select SUM(download),SUM(upload) from tf_xfer where 1 '.$xfer_SQLADD.$targetADD;
 	list($thisdown,$thisup) = $db->GetRow($sql);
 	showError($db,$sql);
-	$total_up_speed+=$thisup;
-	$total_down_speed+=$thisdown;
-	$totalspeed=$total_up_speed+$total_down_speed;
+	$total_up+=$thisup;
+	$total_down+=$thisdown;
+	$totalxfer=$total_up+$total_down;
 	return array(
-		'up'=>$total_up_speed,
-		'down'=>$total_down_speed,
-		'total'=>$totalspeed);
+		'up'=>$total_up,
+		'down'=>$total_down,
+		'total'=>$totalxfer);
+}
+function GetGlobalUploadCount(){
+	global $db;
+	$sql='SELECT SUM(`totaltorrent`) FROM `tf_torrents`';
+	return $db->GetOne($sql);
+}
+function GetGlobalStatidCount(){
+	global $db;
+	$sql='SELECT COUNT(statusid),`statusid` FROM `tf_torrents` group by `statusid`';
+	$recordset = $db->Execute($sql);
+	$output=array();
+		while(list($count,$statusid) = $recordset->FetchRow()){
+			$output[$statusid]=$count;
+		}
+	return $output;
 }
 //**************************************************************************
 // file_size()
@@ -1799,6 +1914,8 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 			$info['info']['files'][0]['pieces'][0]=$info['info']['pieces'];
 		}
 	$info['creation date_text']=date("m/d/Y H:i:s",$info['creation date'] );
+	$info['encoding']=array_key_exists('encoding',$info)?$info['encoding']:
+	(array_key_exists('codepage',$info)?codepage2encoding($info['codepage']):false);
 		//creat utf8 path name if there is not
 		foreach($info['info']['files'] as $index =>$file){
 				if(!array_key_exists('path.utf-8',$file)){
@@ -1806,6 +1923,7 @@ function GrabTorrentInfo($basename,$smartremove_padding=0){
 					unset($file['path']['0']);
 				}
 		}
+		
 		if($smartremove_padding){
 			foreach($info['info']['files'] as $index =>$file){
 					if(strpos($file['path.utf-8']['0'], '_padding_file') !==FALSE){
@@ -1868,14 +1986,26 @@ function NewTorrentInjectDATA($filename,$options=''){
 	$sharekill= ($sharekill == "0")? "-1": intval($sharekill);
 	$location='/';
 	//injecting sql
-	$sql = 'INSERT INTO `tf_torrents` 
-	(`file_name`,`torrent` ,`hash` ,`owner_id`,
-	`rate`,`drate`,`superseeder`,`runtime`,`maxuploads`,`minport`,`location`,`maxport`,`rerequest`,`sharekill`,`prio`) VALUES 
-	(\''.$name.'\',\''.$basename.'\', \''.$hash.'\', \''.$cfg['uid'].'\'
-	, \''.$rate.'\', \''.$drate.'\', \''.$superseeder.'\'
-	, \''.$runtime.'\', \''.$maxuploads.'\', \''.$minport.'\', \''.$location.'\'
-	, \''.$maxport.'\', \''.$rerequest.'\', \''.$sharekill.'\', \''.$prio.'\');';
-	$db->Execute($sql);
+	$table_torrents='tf_torrents';
+	$record=array(
+		'file_name'=>$name,
+		'torrent'=>$basename,
+		'hash'=>$hash,
+		'owner_id'=>$cfg['uid'],
+		'rate'=>$rate,
+		'drate'=>$drate,
+		'superseeder'=>$superseeder,
+		'runtime'=>$runtime,
+		'maxuploads'=>$maxuploads,
+		'minport'=>$minport,
+		'location'=>$location,
+		'maxport'=>$maxport,
+		'rerequest'=>$rerequest,
+		'sharekill'=>$sharekill,
+		'prio'=>$prio,
+		'timeStarted'=>time(),
+	);
+	$db->AutoExecute($table_torrents,$record,'INSERT');
 	$torrentID=$db->Insert_ID();
 	showError($db, $sql);
 	UpdateRunningTorrent($cfg['uid']);
@@ -2044,6 +2174,22 @@ function template($file){
 		}
 	return $objfile;
 }
+function jstemp($fileArray){
+	$jscache= ENGINE_ROOT . '/cache/js/js_packed.js';
+	$jstime=filemtime($tplfile);
+	$time=$jstime;
+		foreach($fileArray as $file){
+			$tplfile = ENGINE_ROOT.'js/'.$file.'.js';
+				if(filemtime($tplfile)>$time){
+					$time=filemtime($tplfile);
+				}
+		}
+	if($time != $jstime){
+		include ENGINE_ROOT.'/include/template_rebuild.func.php';
+		parse_js($fileArray);
+	}
+	return '/cache/js/js_packed.js';
+}
 function buildprio($FileList,$prioList=array(),$smartremove=1,$default=-1){
 // this function build the variable for prio
 // the input file list should look like this:
@@ -2116,5 +2262,127 @@ function MakeDefault($name,$type){
 
 function isurl($url=FALSE) {
 	return  ( strstr($url,'http://') == $url ) && $url;
+}
+function codepage2encoding($codepage){
+	$encoding=array(
+		'708'=>'ASMO-708',
+		'720'=>'DOS-720',
+		'852'=>'ibm852',
+		'862'=>'DOS-862',
+		'866'=>'cp866',
+		'874'=>'windows-874',
+		'932'=>'shift_jis',
+		'936'=>'gb2312',
+		'949'=>'ks_c_5601-1987',
+		'50932'=>'_autodetect',
+		'51932'=>'euc-jp',
+		'52936'=>'hz-gb-2312',
+		'65001'=>'utf-8'
+	);
+	return array_key_exists($codepage,$encoding)?$encoding[$codepage]:false;
+}
+function dirTree2($dir, $maxdepth,$selectedValue){
+        $return= "<option value=\"".$dir."\">".$dir."</option>\n" ;
+        if (is_numeric ($maxdepth)){
+                if ($maxdepth == 0){
+                        $last = exec ("du ".$dir." | cut -f 2- | sort", $retval) ;
+                        for ($i = 1; $i < (count ($retval) - 1); $i++){
+								if($retval[$i]!==$dir.'.BitTornado' && $retval[$i]!==$dir.'.torrents'){
+									$return.= "<option value=\"".$retval[$i]."\">".$retval[$i]."</option>\n" ;
+								}
+                        }
+                } else if ($maxdepth > 0) {
+                        $last = exec ("du --max-depth=".$maxdepth." ".$dir." | cut -f 2- | sort", $retval) ;
+                        for ($i = 1; $i < (count ($retval) - 1); $i++){
+								if($retval[$i]!==$dir.'.BitTornado'&& $retval[$i]!==$dir.'.torrents'){
+									$return.= "<option value=\"".$retval[$i]."\">".$retval[$i]."</option>\n" ;
+								}
+                        }
+                } else{
+                        $return.= "<option value=\"".$dir."\">".$dir."</option>\n" ;
+                }
+        }
+        return str_replace($dir,'/',$return) ;
+}
+
+function Listtorrent($Requiredusers,$Requiredstatus,$order='ASC'){
+	global $allow_view_other_torrent,$myuid,$db;
+	$status_text=array(
+		'0'=>_show_status_New,
+		'1'=>_show_status_Queue,
+		'2'=>_show_status_Downloading,
+		'3'=>_show_status_Stopped,
+		'4'=>_show_status_Seeding,
+		'5'=>_show_status_Finished,
+	);
+	$order=$order=='ASC'?'ASC':'DESC';
+	$Requiredstatus=split(',',$Requiredstatus,4);
+	$Requiredusers=$Requiredusers==''?0:$Requiredusers;
+		if(!$allow_view_other_torrent){
+			//restrict other user's torrent are invisable
+			$sqladd=" AND t.owner_id='".$myuid."'";
+		}elseif($Requiredusers!=='0' &&$Requiredusers!==0){
+			$sqladd=" AND t.owner_id IN('".FormatMultiUseridSql($Requiredusers)."')";
+		}else{
+			$sqladd='';
+		}
+	$statusadd='';
+		if(in_array('1',$Requiredstatus)){
+			//if required status is "downloading"
+			$statusadd.=$OR." `statusid`='2' ";
+			$OR=' OR ';
+		}elseif(in_array('2',$Requiredstatus)){
+			//if required status is "finished"
+			$statusadd.=$OR." `statusid`='4' OR `statusid`='5' ";
+			$OR=' OR ';
+		}
+	$statusadd=$statusadd?$statusadd:'1';
+	$OR='';
+	$haspidadd='';
+		if(in_array('3',$Requiredstatus)){
+			//if required status is "active"
+			$haspidadd.=$OR." `haspid`='1' ";
+			$OR=' OR ';
+		}elseif(in_array('4',$Requiredstatus)){
+			//if required status is "inactive"
+			$haspidadd.=$OR." `haspid`='0' ";
+			$OR=' OR ';
+		}
+	$haspidadd=$haspidadd?$haspidadd:'1';
+	$output=array();
+	$sql = "SELECT w.hide_offline,w.last_visit,t.id,t.file_name,t.torrent,t.hash,t.owner_id,w.user_id,t.statusid,t.estTime,t.timeStarted,t.endtime,t.percent_done,t.down_speed,t.up_speed,t.size,t.seeds,t.peers,t.uptotal,t.downtotal,t.haspid FROM tf_torrents t,tf_users w WHERE w.uid=t.owner_id $sqladd AND ( $statusadd) AND ($haspidadd) ORDER BY `id` ".$order;
+	$result = $db->Execute($sql);
+		while(list($hide_offline,$list_visit,$id, $file_name,$torrent,$hash, $owner_id,$owner,$statusid,$estTime,$timeStarted,$endtime,$percent_done,$down_speed,$up_speed,$size,$seeds,$peers,$uptotal,$downtotal,$haspid) = $result->FetchRow()){
+			$return = array(
+				'id'		=>$id,
+				'title'	=>str_replace('.','-',$file_name),
+				'owner'	=>$owner_id,
+				'status'	=>$status_text[$statusid],
+				'statusid'=>$statusid,
+			);
+				if($status=="1"){
+					//queue
+				}else{
+					$reutrn_add = array(
+						'down_speed'=>$down_speed,
+						'up_speed'=>$up_speed,
+						'percent'=>$percent_done,
+						'size'	=>formatBytesToKBMGGB($size),
+						'sharing'=>$sharing,
+						'seeds'=>$seeds,
+						'peers'=>$peers,
+						'uploaddate'=>$uploaddate,
+						'timeStarted'=>$timeStarted,
+						'endtime'=>$endtime,
+						'estTime'=>$estTime,
+						'uptotal'=>$uptotal,
+						'downtotal'=>$downtotal,
+					//	'haspid'=>$haspid
+					);
+				}
+			$return = array_merge($reutrn_add, $return);
+			$output[]=$return;
+		}
+	return $output;
 }
 ?>

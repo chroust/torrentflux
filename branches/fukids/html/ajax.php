@@ -1,5 +1,4 @@
 <?php
-
 // this file is for returning html and javascript when ever there is a ajax call
 //most of them are called via javascript::OpenWindow()
 include_once("include/functions.php");
@@ -85,6 +84,7 @@ if($action=='listtorrent'){
 			$Default_minport=$cfg['minport'];
 			$Default_rerequest_interval=$cfg['rerequest_interval'];
 			$Default_location=DIRECTORY_SEPARATOR;
+			$ownername=Uid2Username($myuid);
 			include template('ajax_Url_Torrent');
 		}elseif($id=='Creat_Torrent'){
 			die('building.....');
@@ -92,8 +92,8 @@ if($action=='listtorrent'){
 			$rssArray=GetRSSLinks();
 			include template('ajax_icon_Feed');
 		}elseif($id=='Edit_Torrent'){
-			$torrentid=intval(getRequestVar('torrentid'));
-				if(!$torrentid){
+			$torrentid=getRequestVar('torrentid');
+				if(!is_numeric($torrentid)){
 					showmessage('torrent is not a intval',1);
 				}
 			// grab torrent config
@@ -109,6 +109,7 @@ if($action=='listtorrent'){
 			$Default_sharekill=$Bt->sharekill;
 			$Default_location=$Bt->location;
 			$size=formatBytesToKBMGGB($Bt->size);
+			$ownername=Uid2Username($Bt->owner);
 			// grub the file details
 			$info=GrabTorrentInfo(TorrentIDtoTorrent($torrentid),'remove padding');
 			$filearray=formatTorrentInfoFilesList($info['info']['files'],1);
@@ -183,12 +184,16 @@ if($action=='listtorrent'){
 					$comma=',';
 				}
 			$max=max(max($speedlog['up']),max($speedlog['down']));
+			$max=$max<1?1:$max/25;
+			$max=ceil($max)*25;
+			$maxtext=$max.'KB/s';
+			$halfmax=($max/2).'KB/s';
 			$count=count($speedlog['up']);
 			$timestamp=time();
 			$time1=date('H:i',$timestamp-5*$count);
 			$time2=date('H:i',$timestamp-2.5*$count);
 			$time3=date('H:i',$timestamp);
-			echo "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,y,x,x&chxl=0:|0|$max|1:||Speed(KB/s)|2:|$time1|$time2|$time3|3:||time|";
+			echo "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,x,x&chxl=0:|0|$halfmax|$maxtext|1:|$time1|$time2|$time3|2:||time|";
 		}
 }elseif($action=='form'){
 	$id = getRequestVar('id',Array('Torrent_Search'));

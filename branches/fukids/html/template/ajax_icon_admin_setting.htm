@@ -287,6 +287,9 @@ $('force_dl_in_home_dir').addEvent('focus',function(){
 	roar.alert('{_WARNING}','{_WARNING_SHOULD_REMOVE_ALL_TORRENT_BEFORE_CHANGE}');
 });
 update_CronRobot_Stat();
+$('window__Admin_Setting').addEvent('close',function(){
+	settingtab=null;
+});
 </script>
 	<input type="Submit" value="{_UPDATE}">
 </form>

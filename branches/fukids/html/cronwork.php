@@ -98,20 +98,12 @@ unlink($dieCall);
 					if($percent_done<0){
 						$percent_done=($percent_done*-1)-100;
 					}
-				$down_speed=$af->down_speed+0;
-				$up_speed=$af->up_speed+0;
-				$seeds=$af->seeds;
-				$peers=$af->peers;
-				$uptotal=$af->uptotal;
-				$downtotal=$af->downtotal;
-				$size=$af->size;
 				$id=$torrent['id'];
-				
 				// total static
-				$totalupload+=$up_speed;
-				$totaldownload+=$down_speed;
-				$totalseed+=$seeds;
-				$totalpeers+=$peers;
+				$totalupload+=$af->up_speed;
+				$totaldownload+=$af->down_speed;
+				$totalseed+=$af->seeds;
+				$totalpeers+=$af->peers;
 					if(in_array($status,array(4,5))){
 						//finished count
 						$totalfinished++;
@@ -134,8 +126,23 @@ unlink($dieCall);
 				$speedlog['down'][]=round($down_speed);
 				$sqlspeedlog=serialize($speedlog);
 				//update it into the sql
-				$sql="UPDATE `tf_torrents` SET `statusid`='$status',`speedlog`='$sqlspeedlog',`estTime`='$estTime',`size`='$size',`percent_done`='$percent_done',`down_speed`='$down_speed',`up_speed`='$up_speed',`seeds`='$seeds',`peers`='$peers',`uptotal`='$uptotal',`downtotal`='$downtotal',`haspid`='$haspid' WHERE `id`='$id'";
-				$db->Execute($sql);
+				$table='tf_torrents';
+				$record=array(
+					'statusid'=>$status,
+					'speedlog'=>$sqlspeedlog,
+					'estTime'=>$estTime,
+					'size'=>$af->size,
+					'percent_done'=>$percent_done,
+					'down_speed'=>$af->down_speed,
+					'up_speed'=>$af->up_speed,
+					'seeds'=>$af->seeds,
+					'peers'=>$af->peers,
+					'uptotal'=>$af->uptotal,
+					'downtotal'=>$af->downtotal,
+					'size'=>$af->size,
+					'haspid'=>$haspid,
+				);
+				$db->AutoExecute($table,$record,'UPDATE', "`id`='$id'");
 				unset ($af);
 			}
 		// unest to release memory

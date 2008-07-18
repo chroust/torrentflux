@@ -32,11 +32,6 @@ $result = shell_exec("df -h ".$cfg["path"]);
 $result2 = shell_exec("du -sh ".$cfg["path"]."*");
 $result4 = shell_exec("w");
 $result5 = shell_exec("free -mo");
-
-DisplayHead(_ALL);
-echo "<table width=\"740\" border=0 cellpadding=0 cellspacing=0><tr><td>";
-echo displayDriveSpaceBar(getDriveSpace($cfg["path"]));
-echo "</td></tr></table>";
 ?>
 
 <br>
@@ -59,7 +54,5 @@ echo "<br><hr><br>";
 echo $result5;
 echo "</pre>";
 echo "</div>";
-
-DisplayFoot(); 
 
 ?>

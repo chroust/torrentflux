@@ -16,68 +16,29 @@
 <body>
 <script  type="text/javascript">
 var selecting;
-var Yesmousedown=0;
-var Dragging=0;
 var renaming=0;
 var clone;
-var basedir='{echo addslashes(rawurlencode($_GET['dir']))}/';
 window.addEvent('domready', function() {
 	FxScroll = new Fx.Scroll('DirListContainer');
 	$$('.DirList').each(function(item){
 		item.addEvents({
 		'mousedown':function(e){
 			// for selecting
-			e = new Event(e).preventDefault(); 
-			Yesmousedown=1;
+			e = new Event(e).preventDefault();
 				if(selecting!==item){
 					SelectThis(item);
 				}
-		},
-		'mouseup':function(e){
-			Yesmousedown=0;
-			Dragging=0;
 		},
 		'dblclick':function(e){
 			//for opening
 			e = new Event(e).stop();
 			OpenAct(item);
-		},
-		'mouseleave':function(e){
-			item.removeClass('dragOver');
-		},
-		'mouseenter':function(e) {
-			// for dragging
-			e = new Event(e).stop();
-				if(Yesmousedown==0) return;
-				if(Dragging==1 && item.hasClass('folder')){
-					item.addClass('dragOver');
-				}else if(Dragging==0){
-					Dragging=1;
-					clone = selecting.clone()
-						.setStyles({'opacity': 0.7, 'position': 'absolute','left':e.client.x+10,'top':e.client.y+10,'width':selecting.width,'height':selecting.height})
-						.inject(document.body);
-					var drag = clone.makeDraggable({
-						droppables: $$('.folder'),
-						container :'DirListContainer',
-							onDrop: function(element, droppable){
-								element.destroy();
-								Dragging=0;
-								Yesmousedown=0;
-									if($defined(droppable) && droppable.getProperty('alt')!==element.getProperty('alt')){
-										MoveInto(element,droppable);
-									}
-							},
-					}).start(e); // start the event manual
-						if(item.hasClass('folder'))
-							item.addClass('dragOver');
-				}
 		}
 		});
 	});
 
 document.addEvent('keypress', function(event){
     event = new Event(event);
-	console.log(event.code);
 		if(selecting){
 				if(event.code==113){
 					Rename(selecting);
@@ -87,7 +48,7 @@ document.addEvent('keypress', function(event){
 					DeleteAct(selecting);
 				}
 		}
-		if(event.code==37){
+		if(event.code==38){
 			//pressing arrow <-
 				if(selecting){
 					SelectThis(selecting.getPrevious());
@@ -95,7 +56,7 @@ document.addEvent('keypress', function(event){
 					SelectThis($('DirListContainer').getLast('div.DirList'));
 					FxScroll.toBottom();
 				}
-		}else if(event.code==39){
+		}else if(event.code==40){
 			//pressing arrow ->
 				if(selecting){
 					SelectThis(selecting.getNext());
@@ -130,26 +91,19 @@ var SelectThis = function(item){
 					RenameAct(selecting);
 				}
 			selecting.removeClass('selected');
-			var shortname=selecting.getElement('span').innerHTML;
-			selecting.getElement('span').set('html',selecting.getElement('span').getProperty('alt')).setProperty('alt',shortname);
+			var shortname=selecting.getElements('div')[1].innerHTML;
+			selecting.getElements('div')[1].set('html',selecting.getElements('div')[1].getProperty('alt')).setProperty('alt',shortname);
 		}
 	item.addClass('selected');
-	var shortname=item.getElement('span').innerHTML;
-	item.getElement('span').set('html',item.getElement('span').getProperty('alt')).setProperty('alt',shortname);
+	var shortname=item.getElements('div')[1].innerHTML;
+	item.getElements('div')[1].set('html',item.getElements('div')[1].getProperty('alt')).setProperty('alt',shortname);
 	selecting=item;
 }
 
-//function for moving file/ folder into another folder
-var MoveInto =function(FileDiv,Target){
-		var myRequest = new Request({method: 'post', url: 'dir.php',onSuccess:function(){
-			window.location.reload();
-		}}).send('moveinto='+basedir+FileDiv.getProperty('alt')+'&target='+basedir+Target.getProperty('alt'));
-}
 var OpenAct = function(FileDiv){
-			window.location=
-				(FileDiv.hasClass('folder'))?'dir.php?dir='+basedir+FileDiv.getProperty('alt'):
-				'dir.php?down='+basedir+urlencode(FileDiv.getProperty('alt'));
-				
+	window.location=
+		(FileDiv.hasClass('folder'))?'dir.php?dir='+FileDiv.getProperty('alt'):
+		'dir.php?down='+FileDiv.getProperty('alt');
 }
 
 //function for delete file / folder
@@ -163,9 +117,9 @@ var DeleteAct = function(FileDiv){
 //function for renaming
 var Rename = function(FileDiv){
 	renaming=1;
-	var oldname=FileDiv.getElement('span').innerHTML;
+	var oldname=FileDiv.getElements('div')[1].innerHTML;
 	FileDiv.store('oldname',oldname);
-	FileDiv.getElement('span').set('html','');
+	FileDiv.getElements('div')[1].set('html','');
 	thisinput=new Element('input', {
 		'type': 'text',
 		'value': oldname,
@@ -191,48 +145,24 @@ var RenameAct = function(FileDiv){
 		if(NewName==null || NewName.trim()==""){
 			NewName=OldName;
 		}
-		console.log(NewName);
 	new Request({method: 'post', url: 'dir.php',onSuccess:function(){
-	}}).send('rename='+basedir+urlencode(OldName)+'&newname='+basedir+(NewName));
-	FileDiv.getElement('span').set('html',NewName).setProperty('alt',NewName);
+	}}).send('rename='+basedir+OldName+'&newname='+basedir+(NewName));
+	FileDiv.getElements('div')[1].set('html',NewName).setProperty('alt',NewName);
 	FileDiv.setProperty('alt',NewName);
-}
-
-
-
-function urlencode(str) {
-	str = encodeURIComponent(str);
-	str = str.replace('+', '%2B');
-	str = str.replace('%20', '+');
-	str = str.replace('*', '%2A');
-	str = str.replace('/', '%2F');
-	str = str.replace('@', '%40');
-	return (str);
-}
-
-function urldecode(str) {
-	str = str.replace('+', ' ');
-	str = decodeURIComponent((str));
-	return str;
 }
 </script>
 <div id="DirListContainer">
 {foreach $DirList $index $file}
-	<div class="DirList {$file['type']}" alt="{echo rawurlencode($file['name'])}" id="File_{$index}">
-		<div class="fileInfo">
-			<span class="filename" alt="{$file['name']}">{$file['shortname']}</span>
-			<br />
-			<span class="filetype"></span>
-			<br />
-			<span class="filesize">{$file['size']}</span>
-		</div>
+	<div class="DirList {$file['type']}" alt="{echo rawurlencode($file['path'])}" id="File_{$index}">
 		<div class="icon">
 			<img src="{$file['icon']}" class="icon" alt="">
 		</div>
+		<div class="filename" alt="{$file['name']}"> {$file['shortname']}</div>
+		<div class="filetype"></div>
+		<div class="filesize">{$file['size']}</div>
 	</div>
 {/foreach}
 </div>
-
 
 <!--{ this is the DIV for displaying right click menu }-->
 <div class="ddmenu def" id="FileRightClick" style="display:none">

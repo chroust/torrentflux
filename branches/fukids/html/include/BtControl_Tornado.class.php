@@ -37,7 +37,7 @@ Class BtControl {
 		$this->sharekill= (empty($sharekill) OR $sharekill == o) ? $this->sharekill: intval($sharekill);
 		$this->prio=empty($prio)?$this->prio:str_replace('\'','',$prio);
 		$this->alias = getAliasName($torrent);
-		$this->location = empty($location)?'/':$location.'/';
+		$this->location = empty($location)?$this->location:$location.'/';
 		// update the torrent config to the database
 		$sql = 'UPDATE `tf_torrents`  SET `rate`=\''.$this->rate.'\',`drate`=\''.$this->drate.'\',`superseeder`=\''.$this->superseeder.'\',
 		`runtime`=\''.$this->runtime.'\',`maxuploads`=\''.$this->maxuploads.'\',`minport`=\''.$this->minport.'\',

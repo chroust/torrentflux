@@ -4,24 +4,6 @@
 <head>
 <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
-<script type="text/javascript" src="js/mootools-1.2-core.js"></script>
-<script type="text/javascript" src="js/mootools-1.2-more.js"></script>
-<script type="text/javascript" src="js/ajaxtips.js"></script>
-<script type="text/javascript" src="js/sortableTable.js"></script>
-<script type="text/javascript" src="js/mootabs1.2.js"></script>
-<script type="text/javascript" src="js/webtoolkit.aim.js"></script>
-<script type="text/javascript" src="js/ddmenu.js"></script>			
-<script type="text/javascript" src="js/panel.js"></script>		
-<script type="text/javascript" src="js/multiselect.js"></script>	
-<script type="text/javascript" src="js/Fx.ProgressBar.js"></script>	
-<script type="text/javascript" src="js/loading.js"></script>		
-<script type="text/javascript" src="js/Roar.js"></script>			
-<!--[if IE]>
-	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
-	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
-<![endif]-->
-<script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>
-
 <link href="css/mocha.css" rel="stylesheet" type="text/css" />
 <link href="css/sortableTable.css" rel="stylesheet" type="text/css" />
 <link href="css/mootabs1.2.css" rel="stylesheet" type="text/css" />
@@ -33,12 +15,32 @@
 <!--[if IE]>
 	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
 <![endif]-->
+<link rel="alternate" href="index.php?action=XML&id=torrent" type="application/rss+xml" title="Latest Torrent">
+<link rel="alternate" href="index.php?action=XML&id=torrent&status=1" type="application/rss+xml" title="Downloading Torrent">
+<link rel="alternate" href="index.php?action=XML&id=torrent&status=2" type="application/rss+xml" title="Finished Torrent">
+<link rel="alternate" href="index.php?action=XML&id=torrent&status=2,3" type="application/rss+xml" title="Seeding Torrent">
+<link rel="alternate" href="index.php?action=XML&id=stat" type="text/xml" title="Static">
 </head>
 <body>
+<script type="text/javascript" src="js/mootools-1.2-core.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/mootools-1.2-more.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/ajaxtips.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/sortableTable.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/mootabs1.2.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/webtoolkit.aim.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/ddmenu.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/panel.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/multiselect.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/Fx.ProgressBar.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/loading.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/Roar.js" charset="utf-8"></script>
+<!--[if IE]>
+	<link href="css/ie.css" rel="stylesheet" type="text/css" media="screen" />
+	<script type="text/javascript" src="js/excanvas-compressed.js"></script>
+<![endif]-->
+<script type="text/javascript" src="js/mocha.js" charset="utf-8"></script>
+
 <script  type="text/javascript">
-function echo(a){
-	console.log(a);
-}
 function iframeLoad(url){
 	var myIframe = new Element('iframe', {
 		'src': url,
@@ -46,7 +48,6 @@ function iframeLoad(url){
 			'display': 'none',
 		}
 	}).inject($('down'),'before');
-	
 }
 
 	//function for grabing torrent list
@@ -297,6 +298,10 @@ function iframeLoad(url){
 			height: wheight,
 			onContentLoaded:function(e){
 				windowize.attempt([e,id],this);
+			},
+			onClose:function(e){
+				$('window_'+id).fireEvent('close');
+				$('window_'+id).removeEvents('close');
 			}
 		});
 	}

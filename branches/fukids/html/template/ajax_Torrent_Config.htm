@@ -1,8 +1,9 @@
 	<table style="width:100%;border:1">
-	<tr>
-		<td style="width:50%">{_DownloadLocation} :</td>
-		<td><input type="hidden" name="location" class="tf_file" size="5" value="{$Default_location}" /></td>
-	</tr>
+        <tr>
+            <td >Download location:</td>
+            <td ><SELECT name="location">
+			{echo $arDirTree = dirTree2 ($cfg["path"].($cfg['force_dl_in_home_dir']?$ownername:'').'/', 1) ;}</SELECT></td>
+        </tr>
 	</table>
 	<fieldset>
 	<legend accesskey="d">{_TRAFFIC_SETTING}</legend>

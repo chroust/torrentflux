@@ -1,4 +1,6 @@
 .MSitem{
+	max-height:1.5em;
+	overflow:hidden;
 }
 .MSover{
 	cursor:pointer;
@@ -14,9 +16,7 @@
 .invisible{
 	display:none;
 }
-#ms_torrent_multiselect1{
-	overflow:hidden;
-}
+
 .user_tips{
 	background-color:#fff;
 	border:#ccc solid 1px;
