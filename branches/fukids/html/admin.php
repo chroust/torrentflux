@@ -820,20 +820,12 @@ switch ($op)
     break;
 
     case "updateConfigSettings":
-        if (! array_key_exists("debugTorrents", $_REQUEST))
-        {
+        if (! array_key_exists("debugTorrents", $_REQUEST)) {
             $_REQUEST["debugTorrents"] = false;
         }
         updateConfigSettings();
     break;
 
-    case "queueSettings":
-        queueSettings();
-    break;
-
-    case "searchSettings":
-        searchSettings();
-    break;
 
     case "updateSearchSettings":
         updateSearchSettings();

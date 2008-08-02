@@ -26,10 +26,14 @@ include_once("include/functions.php");
 $op=getRequestVar('op',array('start','stop'));
 $cfg['phpbin']='php';
 if($op=='start'){
+		if(file_exists($cfg['cronwork_log'])){
+			unlink($cfg['cronwork_log']);
+		}
 	$command = 'cd '.ENGINE_ROOT.'; ';
 	$command.= $cfg['phpbin'].' '.ENGINE_ROOT.'cronwork.php';
-	$command.= '>> '.$cfg["torrent_file_path"].'cronwork.log';
+	$command.= ' >> '.$cfg['cronwork_log'];
 	$command.= ' &';
+	showmessage($command);
 	passthru($command);
 	sleep(1);
 }elseif($op=='stop'){

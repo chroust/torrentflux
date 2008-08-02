@@ -26,7 +26,9 @@
 //return false when it is over limit
 function checkGlobalQueueLimit(){
 	global $cfg;
-	return getActiveTorrentsCount()>$cfg['maxServerThreads']?false:true;
+	return ($cfg['maxServerThreads'] && $cfg['totalactive'] > $cfg['maxServerThreads']) || 
+		($cfg['maxServerDlThreads'] && $cfg['totaldownloading'] > $cfg['maxServerDlThreads']) || 
+		($cfg['maxServerSeedThreads'] && $cfg['totalseeding'] > $cfg['maxServerSeedThreads']) ?false:true;
 }
 //**************************************************************************
 //function for checking if it exist user thread limit
@@ -34,7 +36,10 @@ function checkGlobalQueueLimit(){
 function checkUserQueueLimit($uid=0){
 	global $cfg;
 	$uid=(intval($uid)==0)?$cfg['uid']:intval($uid);
-	return getActiveTorrentsCount()>$cfg['maxUserThreads']?false:true;
+	$data=GrabUserData($uid,'maxActiveTorrent,activetorrent,maxDownloadTorrent,downloadingtorrent,maxSeedTorrent,seedingtorrent');
+	return ($data['maxActiveTorrent'] && $data['activetorrent'] > $data['maxActiveTorrent']) || 
+		($data['maxDownloadTorrent'] && $data['downloadingtorrent'] > $data['maxDownloadTorrent']) || 
+		($data['maxSeedTorrent'] && $data['seedingtorrent'] > $data['maxSeedTorrent']) ?false:true;
 }
 //**************************************************************************
 // return the number of queueq torrents

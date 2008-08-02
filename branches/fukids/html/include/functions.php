@@ -34,10 +34,9 @@ $usejs=getRequestVar('usejs');
 // Create Connection.
 $db = getdb();
 loadSettings();
-    ob_start("ob_gzhandler");
+ob_start("ob_gzhandler");
 // Free space in MB
 $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
-
 
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
@@ -46,14 +45,12 @@ if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || (($_SERVER['argv'][0]
 	$CronRobot=1;
 }else{
 	$CronRobot=0;
-Authenticate();
-include_once("language/".$cfg['language_file']);
-include_once("themes/".$cfg['theme']."/index.php");
+	Authenticate();
+	include_once("language/".$cfg['language_file']);
+	include_once("themes/".$cfg['theme']."/index.php");
 }
-
 AuditAction($cfg["constants"]["hit"], $_SERVER['PHP_SELF']);
 PruneDB();
-
 // is there a stat and torrent dir?  If not then it will create it.
 checkTorrentPath();
 $thispid=$cfg['torrent_file_path'].'.cronwork';
@@ -65,6 +62,7 @@ $maxdietime=300;
 //**********************************************************************************
 include ENGINE_ROOT."include/queue.func.php";
 include ENGINE_ROOT."include/rss.func.php";
+include ENGINE_ROOT."include/space_limit.functions.php";
 //*********************************************************
 function getLinkSortOrder($lid){
 	global $db;
@@ -105,14 +103,14 @@ function Uid2Username($uid){
 	showError($db,$sql);
 	return $username;
 }
-function GrabUserData($uid){
+function GrabUserData($uid,$field='*'){
 	global $db;
 		if(!is_numeric($uid)){
 			showmessage('uid is not a number',1);
 		}elseif($uid==0){
 			showmessage('uid should not equal to 0');
 		}
-	$sql='SELECT * FROM `tf_users` WHERE `uid`=\''.$uid.'\'';
+	$sql='SELECT '.$field.' FROM `tf_users` WHERE `uid`=\''.$uid.'\'';
 	$recordset = $db->Execute($sql);
 	showError($db,$sql);
 	$UsrData=$recordset->FetchRow();
@@ -436,7 +434,6 @@ function resetOwner($file){
 	}
 	return $rtnValue;
 }
-
 //*********************************************************
 function getCookie($cid){
 	global $cfg, $db;
@@ -505,6 +502,8 @@ function IsOwner($user, $owner)
 }
 
 //*********************************************************
+// remove the unit, 
+// turn from 120 KB/s to 120
 function GetSpeedValue($inValue){
 	$rtnValue = 0;
 	$arTemp = explode(" ", trim($inValue));
@@ -1473,7 +1472,6 @@ function runPS(){
 }
 
 
-
 //*********************************************************
 // return number of torrent uploaded in specific time range
 function GetUploadCount($user="",$timestamp=0){
@@ -1536,6 +1534,7 @@ function UpdateRunningTorrent($userid){
 }
 //**************************************************************************
 //return the number of active torrents
+// return the number of torrent which have pid
 function getActiveTorrentsCount($uid=''){
 	global $db;
 		if($uid){
@@ -1554,8 +1553,8 @@ function getRealActiveTorrentsCount($uid=''){
 // old:getRunningTorrents
 function getRealActiveTorrents($uid=''){
 	global $cfg,$db;
+	$torrentArray=array();
 		if($uid){
-			$torrentArray=array();
 			$sql= "SELECT `torrent` FROM `tf_torrents` WHERE `owner_id` IN (".FormatMultiUseridSql($uid).")";;
 			$result=$db->Execute($sql);
 			ShowError($db,$sql);
@@ -1575,7 +1574,7 @@ function getRealActiveTorrents($uid=''){
 		if(strpos($thisar, basename($cfg["btphpbin"])) !== false){
 			$pinfo = new ProcessInfo($thisar);
 				if (intval($pinfo->ppid) == 1 && !strpos($pinfo->cmdline, "rep python") > 0 && !strpos($pinfo->cmdline, "ps x") > 0) {
-						if(!is_array($torrentArray) || in_array($pinfo->torrent,$torrentArray))
+						if( in_array($pinfo->torrent,$torrentArray))
 							array_push($artorrent,array('pid'=>$pinfo->pid,'torrent'=>$pinfo->torrent));
 				}
 		}
@@ -1597,17 +1596,27 @@ function checkTorrentLimit($uid){
 //**************************************************************************
 //function for checking if the user reached transfer limit
 // false is over limit
-function checkTransferLimit($uid){
+function checkTransferLimit($uid=0){
 	global $cfg,$db;
-	// get user info 
-	$userinfo=GrabUserData($uid);
-	//get the current transfer of the user ,
-	//note: the unit of returned value is MB
-	$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
-		if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
-			return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
+	$uid=intval($uid);
+		if($uid==0){
+			//if want to check global transfer limit
+				if($cfg['global_transferlimit_period']>0 && $cfg['global_transferlimit_number']>0){
+					$stat=GetTransferCount(0,$cfg['global_transferlimit_period']);
+					return ($cfg['global_transferlimit_number']<$stat['total'])?false:true;
+				}
 		}else{
-			return true;
+			// if want to check user transfer limit
+			// get user info 
+			$userinfo=GrabUserData($uid);
+			//get the current transfer of the user ,
+			//note: the unit of returned value is MB
+				if($userinfo['transferlimit_number'] >0 && $userinfo['transferlimit_period']>0){
+					$stat=GetTransferCount($uid,$userinfo['transferlimit_period']);
+					return ($userinfo['transferlimit_number']<$stat['total'])?false:true;
+				}else{
+					return true;
+				}
 		}
 }
 //**************************************************************************
@@ -2281,28 +2290,51 @@ function codepage2encoding($codepage){
 	);
 	return array_key_exists($codepage,$encoding)?$encoding[$codepage]:false;
 }
-function dirTree2($dir, $maxdepth,$selectedValue){
-        $return= "<option value=\"".$dir."\">".$dir."</option>\n" ;
-        if (is_numeric ($maxdepth)){
+function dirTree2($dir='', $maxdepth=1){
+	global $cfg;
+	$dir=$cfg["path"].($cfg['force_dl_in_home_dir']?$cfg['user']:'').'/';
+    $return[]='/';
+        if (is_numeric($maxdepth)){
                 if ($maxdepth == 0){
                         $last = exec ("du ".$dir." | cut -f 2- | sort", $retval) ;
                         for ($i = 1; $i < (count ($retval) - 1); $i++){
 								if($retval[$i]!==$dir.'.BitTornado' && $retval[$i]!==$dir.'.torrents'){
-									$return.= "<option value=\"".$retval[$i]."\">".$retval[$i]."</option>\n" ;
+									$return[]=str_replace($dir,'/',$retval[$i]);
 								}
                         }
                 } else if ($maxdepth > 0) {
                         $last = exec ("du --max-depth=".$maxdepth." ".$dir." | cut -f 2- | sort", $retval) ;
                         for ($i = 1; $i < (count ($retval) - 1); $i++){
 								if($retval[$i]!==$dir.'.BitTornado'&& $retval[$i]!==$dir.'.torrents'){
-									$return.= "<option value=\"".$retval[$i]."\">".$retval[$i]."</option>\n" ;
+									$return[]=str_replace($dir,'/',$retval[$i]);
 								}
                         }
-                } else{
-                        $return.= "<option value=\"".$dir."\">".$dir."</option>\n" ;
                 }
         }
-        return str_replace($dir,'/',$return) ;
+        return $return;
+}
+function SureRemoveDir($dir, $DeleteMe) {
+	global $cfg;
+		if(strpos($dir,$cfg["path"])!==0){
+			return false;
+		}
+		if(strpos($dir,"../")===false){
+				if(!$dh = @opendir($dir)){
+					return false;
+				}
+				while (false !== ($obj = readdir($dh))) {
+						if($obj=='.' || $obj=='..'){
+							continue;
+						}
+						if (!@unlink($dir.'/'.$obj)){
+							SureRemoveDir($dir.'/'.$obj, true);
+						}
+				}
+			closedir($dh);
+				if ($DeleteMe){
+					@rmdir($dir);
+				}
+		}
 }
 
 function Listtorrent($Requiredusers,$Requiredstatus,$order='ASC'){

@@ -97,8 +97,18 @@ function addNewRSS($url){
 		if(!checkRSS($url)){
 			return false;
 		}
-	$record = array('url'=>$url,'uid'=>$cfg[uid]);
+	$record = array('url'=>$url,'uid'=>$cfg['uid'],'title'=>getRSStitle($url));
 	$db->AutoExecute($cfg['rsstable'],$record,'INSERT');
+}
+function getRSStitle($url){
+	include_once(ENGINE_ROOT.'include/simplepie.inc');
+	$feed = new SimplePie();
+	$feed->set_feed_url($url);
+	$feed->init();
+	$title=$feed->get_title();
+	$feed->__destruct();
+	unset($feed); 
+	return $title;
 }
 function checkRSS($url){
 	include_once(ENGINE_ROOT.'include/simplepie.inc');
@@ -156,12 +166,13 @@ function GrabFeedArray($rid,$itemlimit=0){
 // Get RSS Links in an array
 function GetRSSLinks($rid=0){
 	global $cfg, $db;
-	if($rid==0){
-		$sql = "SELECT * FROM tf_rss ORDER BY rid";
-		return $db->GetArray($sql);
-	}else{
-		$sql = "SELECT * FROM tf_rss WHERE rid=".$rid;
-		return $db->GetOne($sql);
-	}
+	$userSQL=AdminCheck()?' AND `uid`=\''.$cfg['uid'].'\'':'';
+		if($rid==0){
+			$sql = "SELECT * FROM tf_rss WHERE 1 $userSQL ORDER BY rid";
+			return $db->GetArray($sql);
+		}else{
+			$sql = "SELECT * FROM tf_rss WHERE rid=$rid $userSQL";
+			return $db->GetOne($sql);
+		}
 }
 ?>

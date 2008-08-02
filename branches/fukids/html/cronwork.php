@@ -25,6 +25,7 @@ Ignore_User_Abort(True);
 set_time_limit(0);
 include_once('include/functions.php');
 include_once("AliasFile.php");
+define('FILE_APPEND', 1);
 $maxdietime=6;
 $interval=5;
 CronworkLog('');
@@ -58,10 +59,12 @@ unlink($dieCall);
 	// this function grab the information from .stat which is made by bittornado , then update it to sql
 	function torrentUpdate(){
 		global $db,$cfg;
-		$totalfinished=$totaldownloading=$totalactive=$totalinactive=0;
+		$userCount=array();
+		$totalupload=$totaldownload=$totalseeding=$totalfinished=$totalpeers=$totalseed=$totaldownloading=$totalactive=$totalinactive=0;
 		$sql = "SELECT * FROM `tf_torrents`";
 		$result = $db->Execute($sql);
 			while($torrent = $result->FetchRow()){
+				$owner_id=$torrent['owner_id'];
 				//grab the .stat file made by bittornado
 				$af = new AliasFile($cfg["torrent_file_path"].torrent2stat($torrent['torrent']), $torrent['owner_id']);
 				//grab the pid from .pid file
@@ -87,7 +90,7 @@ unlink($dieCall);
 						shell_exec($command);
 					}
 					if(($torrent['statusid']==2 ||$torrent['statusid']==4) && ($status==3 || $status==5)){
-						// if the process is stopped
+						// if the process is stopped automatically (not through Torrentflux)
 						//possible because of reaching share limit
 						AuditAction($cfg["constants"]["tor_stopped"],"Torrent: ".$torrent['file_name']."Stopped(possible because of reaching share limit)");
 						StartRunQueue();
@@ -98,32 +101,56 @@ unlink($dieCall);
 					if($percent_done<0){
 						$percent_done=($percent_done*-1)-100;
 					}
-				$id=$torrent['id'];
+				//remove the speed unit
+				$downspeed=GetSpeedValue($af->down_speed);
+				$upspeed=GetSpeedValue($af->up_speed);
 				// total static
-				$totalupload+=$af->up_speed;
-				$totaldownload+=$af->down_speed;
+				$totalupload+=$upspeed;
+				$totaldownload+=$downspeed;
 				$totalseed+=$af->seeds;
 				$totalpeers+=$af->peers;
+				//creat user's update static
+					if(!array_key_exists($owner_id,$userCount)){
+						$userCount[$owner_id]=array(
+							'DownloadSpeed'=>0,
+							'UploadSpeed'=>0,
+							'downloadingtorrent'=>0,
+							'seedingtorrent'=>0,
+							'activetorrent'=>0
+						);
+					}
 					if(in_array($status,array(4,5))){
 						//finished count
 						$totalfinished++;
 					}elseif($status==2){
 						//downloading count
 						$totaldownloading++;
+						$userCount[$owner_id]['downloadingtorrent']++;
+					}
+					if($status==4){
+						//seeding count
+						$totalseeding++;
+						$userCount[$owner_id]['seedingtorrent']++;
 					}
 					if(in_array($status,array(2,4))){
+						//active count
 						$totalactive++;
+						$userCount[$owner_id]['activetorrent']++;
 					}else{
 						$totalinactive++;
 					}
+				//user's speed static
+				$userCount[$owner_id]['UploadSpeed']=$userCount[$owner_id]['UploadSpeed']+$upspeed;
+				$userCount[$owner_id]['DownloadSpeed']=$userCount[$owner_id]['DownloadSpeed']+$downspeed;
+				
 				//get new speed log
 				$speedlog=unserialize($torrent['speedlog']);
 					if(is_array($speedlog) && count($speedlog['down'])>300){
 						array_shift($speedlog['down']);
 						array_shift($speedlog['up']);
 					}
-				$speedlog['up'][]=round($up_speed);
-				$speedlog['down'][]=round($down_speed);
+				$speedlog['up'][]=round($af->up_speed);
+				$speedlog['down'][]=round($af->down_speed);
 				$sqlspeedlog=serialize($speedlog);
 				//update it into the sql
 				$table='tf_torrents';
@@ -133,17 +160,22 @@ unlink($dieCall);
 					'estTime'=>$estTime,
 					'size'=>$af->size,
 					'percent_done'=>$percent_done,
-					'down_speed'=>$af->down_speed,
-					'up_speed'=>$af->up_speed,
+					'down_speed'=>$downspeed,
+					'up_speed'=>$upspeed,
 					'seeds'=>$af->seeds,
 					'peers'=>$af->peers,
 					'uptotal'=>$af->uptotal,
 					'downtotal'=>$af->downtotal,
 					'size'=>$af->size,
-					'haspid'=>$haspid,
+					'haspid'=>($haspid?1:0),
 				);
-				$db->AutoExecute($table,$record,'UPDATE', "`id`='$id'");
-				unset ($af);
+				$db->AutoExecute($table,$record,'UPDATE', "`id`='".$torrent['id']."'");
+				showError($db,$sql);
+				unset($af);
+			}
+		//update data to users' database
+			foreach($userCount as $uid => $userStatic){
+				$db->AutoExecute($cfg['table']['users'], $userStatic, 'UPDATE', " `uid`='$uid' ");
 			}
 		// unest to release memory
 		unset($torrent,$result,$haspid,$status,$status_text,$estTime,$percent_done,$down_speed,$up_speed,$seeds,$peers,$uptotal,$downtotal,$size,$id);
@@ -153,6 +185,7 @@ unlink($dieCall);
 		updateSetting('totalpeers',$totalpeers);
 		updateSetting('totalfinished',$totalfinished);
 		updateSetting('totaldownloading',$totaldownloading);
+		updateSetting('totalseeding',$totalseeding);
 		updateSetting('totalactive',$totalactive);
 		updateSetting('totalinactive',$totalinactive);
 		unset($totalupload,$totaldownload,$totalseed,$totalpeers,$totalfinished,$totaldownloading,$totalactive,$totalinactive);
@@ -163,6 +196,9 @@ unlink($dieCall);
 	/////////////////////////////////////////////////////////////////////////////////
 	function check_Transfer_Limit(){
 		//CronworkLog("checking if any user overflow transfer limit");
+		//check global transfer limit
+		checkTransferLimit();
+		//check user transfer limit
 		$userarray=GetUserList();
 			foreach($userarray as $index=>$user){
 					if(!checkTransferLimit($user['uid'])){
@@ -192,9 +228,19 @@ unlink($dieCall);
 
 function CronworkLog($msg){
 	global $cfg;
-	$timestamp=date("Y-m-d H:i:s");
+	$msg=is_array($msg)?implode('|',$msg):$msg;
+	$timestamp=date('Y-m-d H:i:s');
 	$msg=$timestamp.' :'.$msg."\n";
-	echo $msg;
-	unset($timestamp,$msg);
+	//echo $msg;
+	//ob_flush();
+    //flush();
+	
+    $f = @fopen($cfg['cronwork_log'], 'a');
+    if ($f === false) {
+        return 0;
+    } else {
+        fwrite($f, $msg);
+        fclose($f);
+    }
 }
 ?>

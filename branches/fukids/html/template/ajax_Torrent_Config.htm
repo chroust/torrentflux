@@ -1,8 +1,9 @@
 	<table style="width:100%;border:1">
         <tr>
-            <td >Download location:</td>
-            <td ><SELECT name="location">
-			{echo $arDirTree = dirTree2 ($cfg["path"].($cfg['force_dl_in_home_dir']?$ownername:'').'/', 1) ;}</SELECT></td>
+            <td  style="width:50%">{Default_location}:</td>
+            <td><input type="hidden" name="location" id="location" value="$Default_location" />
+			<span id="text_location" onclick="OpenWindow('dirtree','{Default_location}','tips','',200,300);">{$Default_location}</span>
+			</td>
         </tr>
 	</table>
 	<fieldset>

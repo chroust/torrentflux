@@ -7,12 +7,32 @@ $action = getRequestVar('action',Array('listtorrent','icon','jsonTorrent','tabs'
 if($action=='listtorrent'){
 	include(ENGINE_ROOT.'include/ajax/list_torrent.php');
 }elseif($action=='tips'){
-	$id = getRequestVar('id',Array('user_profile','checkport','robotstat'));
+	$id = getRequestVar('id',Array('user_profile','checkport','robotstat','dirtree'));
 		if($id=='user_profile'){
 			$uid=intval(getRequestVar('uid'));
 			$UsrData=GrabUserData($uid);
 			$TotalTransfer=GetTransferCount($uid);
 			$TotalQueue=getNumberOfQueuedTorrents($uid);
+			//creat img for transfer static
+			$sql="SELECT `date`,`download`,`upload` FROM `tf_xfer` WHERE `user`='$uid'";
+			$result = $db->Execute($sql);
+			showError($db,$sql);
+			$mindate=$maxdate=$maxval=$upstr=$downstr=$comma='';
+			$max=0;
+				while($row = $result->FetchRow()){
+					$mindate=($mindate=='')?$row['date']:$mindate;
+					$maxdate=$row['date'];
+					$max=$max<$row['download']?$row['upload']:($max<$row['download']?$row['download']:$max);
+					$upstr.=$comma.$row['upload'];
+					$downstr.=$comma.$row['download'];
+					$comma=',';
+					$row[]=$row;
+				}
+			$halfmax=$max/2;
+			$maxtext= formatBytesToKBMGGB($max*1024*1024);
+			$halfmaxtext= formatBytesToKBMGGB($halfmax*1024*1024);
+			$imgsrc= "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,x,x&chxl=0:|0|$halfmaxtext|$maxtext|1:|$mindate|$maxdate|2:||time|";
+
 			include template('ajax_Tips_user_profile');
 		}elseif($id=='checkport'){
 			$minport=intval(getRequestVar('minport'));
@@ -20,6 +40,9 @@ if($action=='listtorrent'){
 			CheckPorts($minport,$maxport);
 		}elseif($id=='robotstat'){
 			echo CheckCronRobot()?'<span class="online">'._ONLINE.'</span>':'<span class="offline">'._OFFLINE.'</span>';
+		}elseif($id=='dirtree'){
+			$dirlist= dirTree2();
+			include template('ajax_Tips_dirtree');
 		}
 }elseif($action=='rightclick'){
 	$id = getRequestVar('id',Array('_SEND_PM','_EDITUSER','_VIEW_PM','_ADD_USER','_ADMIN_EDIT_USER','_ADMIN_VIEW_HISTORY'));

@@ -40,6 +40,26 @@
 	</td>
 </tr>
 <tr>
+	<td>{_Queueing}:</td>
+	<td>
+		<table>
+			<tr>
+				<td>{Max_Active_Torrent} :</td><td><input name="maxActiveTorrent" id="maxActiveTorrent" type="text" class="num" size="5" value="{$userinfo['maxActiveTorrent']}" /></td>
+			</tr>
+			<tr>
+				<td>{Max_Download_Torrent} :</td><td><input name="maxDownloadTorrent" id="maxDownloadTorrent" type="text" class="num" size="5" value="{$userinfo['maxDownloadTorrent']}" /></td>
+			</tr>
+			<tr>
+				<td>{Max_Seeding_Torrent} :</td><td><input name="maxSeedTorrent" id="maxSeedTorrent" type="text" class="num" size="5" value="{$userinfo['maxSeedTorrent']}" /></td>
+			</tr>
+	</td>
+</tr>
+<tr>
+	<td colspan=2>
+	{_spacelimit_number} <input name="space_limit" id="space_limit" type="text" class="num" size="5" value="{$userinfo['space_limit']}" />{_spacelimit_number_after}
+	</td>
+</tr>
+<tr>
 	<td colspan=2>
 	{_torrentlimit_period} <input name="torrentlimit_period" id="torrentlimit_period" type="text" class="num" size="5" value="{$userinfo['torrentlimit_period']}" />
 	{_torrentlimit_number} <input name="torrentlimit_number" id="torrentlimit_number" type="text" class="num" size="5" value="{$userinfo['torrentlimit_number']}" />
@@ -55,6 +75,7 @@
 	({_zero_is_no_limit})
 	</td>
 </tr>
+
 <tr>
 	<td>
 	</td>
@@ -69,6 +90,7 @@
 	<input name="allow_view_other_torrent" id="allow_view_other_torrent" type="Checkbox" value="1" {if $userinfo['allow_view_other_torrent']==1}checked="checked"{/if}> {_allow_view_other_torrent}<br>
 	</td>
 </tr>
+
 <tr>
 	<td align="center" colspan="2">
 	<input type="Submit" value="{_UPDATE}">

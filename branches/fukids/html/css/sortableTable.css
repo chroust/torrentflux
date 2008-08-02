@@ -213,3 +213,7 @@ border:1px solid #BE0200;
 	height:370px;
 	overflow:auto;
 }
+.dirlist{
+	width:100%;
+	overflow:hidden;
+}

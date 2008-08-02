@@ -47,12 +47,23 @@ Class BtControl {
 		$this->pid=torrent2pid($this->torrent);
 		$this->stat=torrent2stat($this->torrent);
 		$this->log=torrent2log($this->torrent);
+		$this->dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
+		$this->dlpath.=$this->location;
 	}
 	function Start(){
 		GLOBAL $cfg,$db;
 		// check if home dir exist, if not, creat it 
 		//* this is not unix user home dir
 		CheckHomeDir($this->owner);
+		if(!checkSpaceLimit($this->owner)){
+			showmessage('_Max_Space_Limit_Reached',1,0);
+		}
+		//check tread limit
+		if(!checkTorrentLimit($cfg['uid'])){
+			showmessage('_Max_Torrent_Limit_Reached',0,1);
+			return false;
+		}
+
 		//check if it is hung
 		ForceKillProcess($this->torrent);
 			if(CheckRunning($this->pid)!==0){
@@ -88,9 +99,8 @@ Class BtControl {
 				// build the command
 				$pyCmd = (!$cfg["debugTorrents"])?escapeshellarg($cfg["pythonCmd"]) . " -OO":escapeshellarg($cfg["pythonCmd"]);
 				//change to download DIR    
-				$dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
-				$dlpath.=$this->location;
-				$command.= "cd " . $dlpath. ";";
+				
+				$command.= "cd ".$this->dlpath.";";
 				$command.= " HOME=".$cfg["path"]."; ";
 				$command.= "export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
@@ -108,11 +118,11 @@ Class BtControl {
 				$command.= " --priority ".escapeshellarg($this->prio);
 		//		$command.= " --check_hashes 0 ";
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
-				$command .="  > ".$cfg["torrent_file_path"].$this->log." &";
-				//showmessage($command,1,1);
+				$command .="  >> ".$cfg["torrent_file_path"].$this->log." &";
+				//showmessage($command,0,0);
 				passthru($command);
 				$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
-				$db->Execute($sql);		
+				$db->Execute($sql);
 				AuditAction($cfg["constants"]["start_torrent"],"Torrent: ".$this->file_name." Started");
 			}
 	}
@@ -177,12 +187,14 @@ Class BtControl {
 		@unlink($cfg["torrent_file_path"].$this->alias.".prio");
 		$delTorrent=1;
 			if($delTorrent){
-				@unlink($cfg["torrent_file_path"].$this->torrent);
+				unlink($cfg["torrent_file_path"].$this->torrent);
 			}
 			if($delFile){
+				$okdel=SureRemoveDir($this->dlpath.$this->file_name,true);
 			}
+		$okdel=$okdel==false?0:1;
 		UpdateRunningTorrent($this->owner);
-		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent);
+		AuditAction($cfg["constants"]["delete_torrent"], $this->torrent.', Del File:'.$okdel);
 	}
 	
 	function CheckTorrent($torrent){

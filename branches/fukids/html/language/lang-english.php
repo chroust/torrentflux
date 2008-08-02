@@ -274,5 +274,8 @@ define("_transferlimit_period","In");
 define("_transferlimit_number","day(s), only allow maximum");
 define("_transferlimit_number_after","MB transfer(s)");
 define("_zero_is_no_limit","zero means no limit");
+define("_spacelimit_number","Maximum allowed space");
+define("_spacelimit_number_after","MB");
+
 
 ?>

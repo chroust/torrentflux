@@ -1,0 +1,16 @@
+<div class="dirlist">
+{foreach $dirlist $dir}
+<div class="dir">{$dir}</div>
+{/foreach}
+</div>
+<script type="text/javascript">
+$$('.dir').addEvent('click',function(event){
+	event.stop();
+	var thistext=this.get('text');
+		if($defined($('location'))){
+			$('location').set('value',thistext);
+			$('text_location').set('text',thistext);
+		}
+	return false;
+});
+</script>
