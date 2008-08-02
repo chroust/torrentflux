@@ -183,19 +183,16 @@ if($action=='listtorrent'){
 		}elseif($tab=='tab6'){
 		//log
 			$logfile=$cfg["torrent_file_path"].torrent2log(TorrentIDtoTorrent($torrentId));
-				if(!is_file($logfile) || is_readable($logfile)){
-					// if there is no log file or not readable
-					echo '('._Current_No_Log.')';
-				}else{
+			$filesize=filesize($logfile);
+				if(is_file($logfile)){
 					$fh = fopen($logfile, 'r');
-						if ($fh) {
-								while (!feof($fh)){
-									$buffer = fgets($fh, 4096); // Read a line.
-									$output= $buffer.'<br />';
-								}
-							fclose($fh);
+						if(!$fh || $filesize==0){
+							echo '('._Current_No_Log.')';
+						}else{
+							$theData = fread($fh,$filesize );
+							echo $theData;
 						}
-					echo $output?$output :'('._Current_No_Log.')';
+					fclose($fh);
 				}
 		}elseif($tab=='speedimg'){
 			$upstr=$downstr=$comma='';

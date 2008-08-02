@@ -49,7 +49,6 @@ if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || (($_SERVER['argv'][0]
 	include_once("language/".$cfg['language_file']);
 	include_once("themes/".$cfg['theme']."/index.php");
 }
-AuditAction($cfg["constants"]["hit"], $_SERVER['PHP_SELF']);
 PruneDB();
 // is there a stat and torrent dir?  If not then it will create it.
 checkTorrentPath();

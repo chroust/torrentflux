@@ -99,10 +99,9 @@ Class BtControl {
 				// build the command
 				$pyCmd = (!$cfg["debugTorrents"])?escapeshellarg($cfg["pythonCmd"]) . " -OO":escapeshellarg($cfg["pythonCmd"]);
 				//change to download DIR    
-				
 				$command.= "cd ".$this->dlpath.";";
 				$command.= " HOME=".$cfg["path"]."; ";
-				$command.= "export HOME; nohup " . $pyCmd;
+				$command.= " export HOME; nohup " . $pyCmd;
 				$command.= " ".escapeshellarg($cfg["btphpbin"])." ";
 				$command.= escapeshellarg($this->runtime).' '.escapeshellarg($this->sharekill)." '".$cfg["torrent_file_path"].$this->stat.'\'' .' '.$this->owner;
 				$command.= " --responsefile '".$cfg["torrent_file_path"].$this->torrent."'";
@@ -118,12 +117,15 @@ Class BtControl {
 				$command.= " --priority ".escapeshellarg($this->prio);
 		//		$command.= " --check_hashes 0 ";
 				$command .= " ".escapeshellarg($cfg["cmd_options"]);
-				$command .="  >> ".$cfg["torrent_file_path"].$this->log." &";
+				$command .="  1>> ".$cfg["torrent_file_path"].$this->log;
+				$command .="  2>> ".$cfg["torrent_file_path"].$this->log;
+				$command .=" &";
 				//showmessage($command,0,0);
 				passthru($command);
 				$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
 				$db->Execute($sql);
 				AuditAction($cfg["constants"]["start_torrent"],"Torrent: ".$this->file_name." Started");
+			
 			}
 	}
 	
