@@ -1715,7 +1715,7 @@ function SecurityClean($string)
 // ***************************************************************************
 //check if user home folder exist, if not  , creat it 
 function CheckHomeDir($owner){
-	global $owner;
+	global $cfg;
 		if (!is_dir($cfg["path"]."/".$owner)){
 				if (is_writable($cfg["path"])){
 					mkdir($cfg["path"]."/".$owner, 0777);
