@@ -28,7 +28,7 @@ include_once(ENGINE_ROOT.'include/db.class.php');
 session_name("TorrentFlux");
 session_start();
 header("Content-Type: text/html; charset=utf-8"); 
-$cfg["user"] = isset($_SESSION['user'])?strtolower($_SESSION['user']):'';
+$cfg["user"] = isset($_SESSION['useraa'])?strtolower($_SESSION['useraa']):'';
 include_once(ENGINE_ROOT.'include/settings.functions.php');
 $usejs=getRequestVar('usejs');
 // Create Connection.
@@ -41,14 +41,16 @@ $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
 $cfg["torrent_file_path"] = $cfg["path"].".torrents/";
-if($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'login.php' || (($_SERVER['argv'][0]==ENGINE_ROOT.'cronwork.php') &&($_SERVER['SCRIPT_FILENAME']==ENGINE_ROOT.'cronwork.php' ))){
-	$CronRobot=1;
-}else{
-	$CronRobot=0;
-	Authenticate();
-	include_once("language/".$cfg['language_file']);
-	include_once("themes/".$cfg['theme']."/index.php");
-}
+	if($SkipCheck==1){
+		$CronRobot=1;
+	}else{
+		$CronRobot=0;
+		Authenticate();
+	}
+	if($myuid){
+		include_once("language/".$cfg['language_file']);
+		include_once("themes/".$cfg['theme']."/index.php");
+	}
 PruneDB();
 // is there a stat and torrent dir?  If not then it will create it.
 checkTorrentPath();
@@ -63,6 +65,7 @@ include ENGINE_ROOT."include/queue.func.php";
 include ENGINE_ROOT."include/rss.func.php";
 include ENGINE_ROOT."include/space_limit.functions.php";
 //*********************************************************
+
 function getLinkSortOrder($lid){
 	global $db;
 	// Get Current sort order index of link with this link id:
@@ -122,14 +125,14 @@ function GrabUserData($uid,$field='*'){
 // Authenticate()
 function Authenticate(){
 	global $cfg, $db;
-
 	$create_time = time();
-	if(!isset($_SESSION['user'])){
+	if(!isset($_SESSION['useraa'])){
+		
 		header('location: login.php');
 		exit();
 	}
 
-	if ($_SESSION['user'] == md5($cfg["pagetitle"])){
+	if ($_SESSION['useraa'] == md5($cfg["pagetitle"])){
 		// user changed password and needs to login again
 		header('location: logout.php');
 		exit();
@@ -138,7 +141,6 @@ function Authenticate(){
 	$sql = "SELECT newpm,user_level,uid, hits, hide_offline, theme, language_file ,allow_view_other_torrent,transferlimit_period,transferlimit_number FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
 	$recordset = $db->Execute($sql);
 	showError($db, $sql);
-
 	if($recordset->RecordCount() != 1){
 		AuditAction($cfg["constants"]["error"], "FAILED AUTH: ".$cfg['user']);
 		session_destroy();

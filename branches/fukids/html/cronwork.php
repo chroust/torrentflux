@@ -21,6 +21,7 @@
     along with TorrentFlux; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+$SkipCheck=1;
 Ignore_User_Abort(True);
 set_time_limit(0);
 include_once('include/functions.php');

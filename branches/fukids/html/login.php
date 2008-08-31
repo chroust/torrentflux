@@ -21,7 +21,7 @@
     along with TorrentFlux; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
+$SkipCheck=1;
 // ADODB support.
 include_once('include/functions.php');
 
@@ -67,7 +67,7 @@ session_start();
 include_once("config.php");
 include("themes/".$cfg["default_theme"]."/index.php");
 global $cfg;
-if(isset($_SESSION['user']))
+if(isset($_SESSION['useraa']))
 {
     header("location: index.php");
     exit;
@@ -191,7 +191,7 @@ if(!empty($user) && !empty($iamhim)){
             $result = $db->Execute($sql);
             showError($db, $sql);
     
-            $_SESSION['user'] = $user;
+            $_SESSION['useraa'] = $user;
             session_write_close();
     
             header("location: ".$next_loc);

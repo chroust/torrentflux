@@ -32,7 +32,6 @@ if($action=='listtorrent'){
 			$maxtext= formatBytesToKBMGGB($max*1024*1024);
 			$halfmaxtext= formatBytesToKBMGGB($halfmax*1024*1024);
 			$imgsrc= "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,x,x&chxl=0:|0|$halfmaxtext|$maxtext|1:|$mindate|$maxdate|2:||time|";
-
 			include template('ajax_Tips_user_profile');
 		}elseif($id=='checkport'){
 			$minport=intval(getRequestVar('minport'));
@@ -140,7 +139,7 @@ if($action=='listtorrent'){
 			$priolist=explode(',',$Bt->prio);
 			include template('ajax_Edit_Torrent');
 		}elseif($id=='_Admin_Setting'){
-			$CronRobotLog=nl2br(file_get_contents($cfg['cronwork_log']));
+			$CronRobotLog=file_exists($cfg['cronwork_log'])?nl2br(file_get_contents($cfg['cronwork_log'])):'';
 			include template('ajax_icon_admin_setting');
 		}
 }elseif($action=='tabs'){
@@ -172,7 +171,7 @@ if($action=='listtorrent'){
 			$af = new AliasFile($cfg["torrent_file_path"].torrent2stat(TorrentIDtoTorrent($torrentId)), $torrentowner);
 			//display
 			foreach ( $af->files as $fileInfo ){
-			echo  $fileInfo->inplace.$fileInfo->complete;
+				echo $fileInfo->inplace.$fileInfo->complete;
 			}
 				foreach($info['info']['files'] as $file){
 					echo $file['path.utf-8']['0'].'<br />';
