@@ -47,14 +47,15 @@ Class BtControl {
 		$this->pid=torrent2pid($this->torrent);
 		$this->stat=torrent2stat($this->torrent);
 		$this->log=torrent2log($this->torrent);
-		$this->dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].Uid2Username($this->owner)):($cfg["path"]);
+		$this->username=Uid2Username($this->owner);
+		$this->dlpath=$cfg['force_dl_in_home_dir']?($cfg["path"].$this->username):($cfg["path"]);
 		$this->dlpath.=$this->location;
 	}
 	function Start(){
 		GLOBAL $cfg,$db;
 		// check if home dir exist, if not, creat it 
 		//* this is not unix user home dir
-		CheckHomeDir($this->owner);
+		CheckHomeDir($this->username);
 		if(!checkSpaceLimit($this->owner)){
 			showmessage('_Max_Space_Limit_Reached',1,0);
 		}
@@ -120,7 +121,6 @@ Class BtControl {
 				$command .="  1>> ".$cfg["torrent_file_path"].$this->log;
 				$command .="  2>> ".$cfg["torrent_file_path"].$this->log;
 				$command .=" &";
-				//showmessage($command,0,0);
 				passthru($command);
 				$sql="UPDATE `tf_torrents` SET `statusid`='".$this->statusid."',`seeds`='0.000',`peers`='0',`haspid`='0' WHERE `id`='".$this->torrentid."'";
 				$db->Execute($sql);

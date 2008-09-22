@@ -75,7 +75,8 @@ $cfg["constants"]["error"] = "ERROR";
 $cfg["constants"]["hit"] = "HIT";
 $cfg["constants"]["update"] = "UPDATE";
 $cfg["constants"]["admin"] = "ADMIN";
-
+$cfg["constants"]["tor_completed"] = 'download completed';
+$cfg["constants"]["tor_stopped"]='download stopped';
 asort($cfg["constants"]);
 
 // Add file extensions here that you will allow to be uploaded

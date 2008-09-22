@@ -440,12 +440,13 @@ window.addEvent('domready', function() {
 			UpdateSelectedUser();
 		})
 	});
+	{if $isadmin>0}
 	new DDMenu ('torrent_multiselect2RightClick', 'ms_torrent_multiselect2', {
 		onItemSelect: function(act_id, act_el, menu_bindon){
-		
 			OpenWindow(act_id,act_id,'rightclick');
 		}
 	});
+	{/if}
 	{foreach $userlist $index $user}
 		build_UserList_Extra({$index},{$user['uid']},'{$user['user_id']}');
 	{/foreach}
