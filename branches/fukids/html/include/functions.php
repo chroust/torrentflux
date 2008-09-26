@@ -57,6 +57,7 @@ checkTorrentPath();
 $thispid=$cfg['torrent_file_path'].'.cronwork';
 $dieCall=$cfg['torrent_file_path'].'.Killcron';
 $cfg['cronwork_log']=$cfg['torrent_file_path'].'cronwork.log';
+$cfg['cronwork_log2']=$cfg['torrent_file_path'].'cronwork2.log';
 $maxdietime=300;
 //**********************************************************************************
 // START FUNCTIONS HERE

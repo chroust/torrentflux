@@ -232,9 +232,9 @@ function CronworkLog($msg){
 	$msg=is_array($msg)?implode('|',$msg):$msg;
 	$timestamp=date('Y-m-d H:i:s');
 	$msg=$timestamp.' :'.$msg."\n";
-	//echo $msg;
-	//ob_flush();
-    //flush();
+	echo $msg;
+	ob_flush();
+    flush();
 	
     $f = @fopen($cfg['cronwork_log'], 'a');
     if ($f === false) {

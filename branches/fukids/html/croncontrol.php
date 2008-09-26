@@ -29,9 +29,12 @@ if($op=='start'){
 		if(file_exists($cfg['cronwork_log'])){
 			unlink($cfg['cronwork_log']);
 		}
+		if(file_exists($cfg['cronwork_log2'])){
+			unlink($cfg['cronwork_log2']);
+		}
 	$command = 'cd '.ENGINE_ROOT.'; ';
 	$command.= $cfg['phpbin'].' '.ENGINE_ROOT.'cronwork.php';
-	$command.= ' >> '.$cfg['cronwork_log'];
+	$command.= ' >> '.$cfg['cronwork_log2'];
 	$command.= ' &';
 	showmessage($command);
 	passthru($command);

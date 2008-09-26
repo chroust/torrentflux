@@ -1,0 +1,119 @@
+
+<html>
+<head>
+<link href="install/install.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/mootools-1.2-core.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/mootools-1.2-more.js" charset="utf-8"></script>
+</head>
+<body>
+<div id="loading">
+loading..... please wait
+</div>
+<div id="container">
+<div id="zero" class="container">
+Welcome to Torrentflux installer, <br />
+please click next to continue.
+</div>
+<div id="first" class="container">
+	<div>
+		Please set the DATABASE related setting in config.php, or the setting is not corrent
+	</div>
+	<div>
+		config.php Setting are corrent,<br />
+		please click next to continue.
+	</div>
+</div>
+<div id="second" class="container">
+	<div>
+		Dir Permition are not corrent.
+	</div>
+	<div>
+		Dir Permition are corrent,<br />
+		please click next to continue.
+	</div>
+</div>
+<div id="third" class="container">
+	<div>
+		DATABASE CREAT ERROR with the following error(s):<br />
+		<span></span>
+	</div>
+	<div>
+		DATABASE CREAT SUCESS!!<br />
+		please DELETE install.php and login as root , the password is also root.<br />
+		please remember to CHANGE THE PASSWORD and change the setting in the upper bar.
+	</div>
+	<div>
+		Sorry, your database type does not support install script yet!<br />
+		please insert it from the database yourself.
+	</div>
+</div>
+</div>
+
+<div id="controller">
+	<button id="next">next</button>
+</div>
+
+<script  type="text/javascript">
+window.addEvent('domready', function() {
+//container
+	$('zero').setStyle('display','block');
+	
+//controller
+	step=0;
+	containers=$('container').getElements('div.container');
+	$('next').addEvent('click', function(e) {
+		ShowLoading(1);
+		e = new Event(e);
+		e.stop();
+		containers[step].setStyle('display','none');
+		this.fireEvent('jsstep'+step);
+		ShowLoading(0);
+	});
+
+	//js steps
+	$('next').addEvent('jsstep0', function(e) {
+		new Request({url:'install.php?action=checkDatabaseConfig',
+		onSuccess:function(text,xml){
+			GoNextStep();
+			containers[step].getElements('div')[parseInt(text)].setStyle('display','block');
+		}
+		}).send();
+	});
+	$('next').addEvent('jsstep1', function(e) {
+		new Request({url:'install.php?action=CheckWritable',
+		onSuccess:function(text,xml){
+			GoNextStep();
+			containers[step].getElements('div')[parseInt(text)].setStyle('display','block');
+		}
+		}).send();
+	});
+	$('next').addEvent('jsstep2', function(e) {
+		new Request({url:'install.php?action=CreatDB',
+		onSuccess:function(text,xml){
+			GoNextStep();
+			Sucess=text[0]==1?1:0;
+			containers[step].getElements('div')[parseInt(text)].setStyle('display','block');
+			if(Sucess=='0'){
+				containers[step].getElements('div')[0].getElement('span').set('text',text);
+			}
+		}
+		}).send();
+	});
+	
+	ShowLoading(0);
+});
+
+function ShowLoading($isloading){
+	if($isloading){
+		$('loading').setStyle('display','inline');
+	}else{
+		$('loading').setStyle('display','none');
+	}
+}
+function GoNextStep(){
+	step++;
+	containers[step].setStyle('display','block');
+}
+</script>
+</body>
+</html>
