@@ -62,7 +62,7 @@ define("_STOPDOWNLOAD","Stop Torrent");
 define("_RUNTORRENT","Run Torrent");
 define("_SEEDTORRENT","Seed Torrent");
 define("_DELETE","Delete");
-define("_ABOUTTODELETE","You are about to delete");
+define("_ABOUTTODELETE","You Are About To Delete");
 define("_NOTOWNER","Not Owner of Torrent");
 define("_MESSAGETOALL","This message was sent to ALL USERS");
 define("_TRYDIFFERENTUSERID","Error: Try a different User ID.");
@@ -168,39 +168,31 @@ define("_show_status_Finished","Finished");
 define("_show_status_active","Active");
 define("_show_status_inactive","Inactive");
 
-// new torrent
-define('_Upload_Torrent','Upload a Torrent');
-define('_Url_Torrent','Upload a Torrent from Url');
-define('_AutoStart','Start Automatically');
-define('_Url','Url');
 //torrent config
 define("_Torrent_Details","Torrent Details");
 define("_Name","Name");
-
 define("_TRAFFIC_SETTING","Traffic Setting");
 define("_Max_Upload_Rate","Max Upload Rate");
 define("_Max_Download_Rate","Max Download Rate");
 define("_Max_Uploads_Connections","Max Upload Connections");
-
 define("_SEEDING_SETTING","Seeding Setting");
 define("_KillWhen","Kill When");
 define("_Die_When_Done","Finished");
 define("_Die_Until_Ratio","Until Sharing Ratio > ");
-
 define("_OTHER_SETTING","Other Setting");
 define("_Port","Port(s)");
 define("_Rerequest_Interval","Rerequest Interval");
 define("_File_Setting","Files Setting");
-
 define("_START","Start");
 
 //index ,list torrent, left click menu 
-define("_Creat_Torrent","Creat a Torrent");
+define("_Creat_Torrent","Create A Torrent");
 define("_All","All");
-define("_Creat_Torrent","Creat a Torrent");
+define("_Creat_Torrent","Create A Torrent");
 define("_Start","Start");
 define("_Stop","Stop");
 define("_Add_Feed","Add Feed");
+
 //index ,torrent, left click menu 
 define("_Kill","Stop");
 define("_Del","Delete");
@@ -210,6 +202,7 @@ define("_Remove_Files","Remove Files");
 define("_Remove_Torrent_And_Files","Remove Torrent And Files");
 define("_Edit_Torrent","Edit");
 define("_Download_Torrent","Download Torrent");
+
 //index,list user, left click menu
 define("_VIEW_PM","View Message");
 define("_SEND_PM","Send Message");
@@ -217,40 +210,18 @@ define("_VIEW_HISTORY","View History");
 define("_DELETEUSER","Delete User");
 define("_ADD_USER","Add User");
 
-//admin setting
-define("_Admin_Setting","Setting");
 //admin setting ,display
 define("_Display","Display");
 define("_Display_Options","Display");
-define("_Confirm_When_Delete_Torrent","confirm when deleting Torrent(s)");
-define("_Display_Current_Speed_in_Title","display current speed in the title bar");
-define("_Display_Torrent_Search","display Torrent searching");
-define("_Show_Server_Load","show server load");
-define("_Show_Disk_Space","show disk space");
-define("_Refresh_interval","refresh interval");
-define("_When_Adding_Torrents","when adding new Torrent");
-define("_Auto_Start","start automatically");
-define("_Smart_Select","smart select download file(s)");
-//admin setting ,Directories
-define("_Directories","Directories");
-define("_Enable_File_download","enable file downloading");
-define("_Enable_Download_Compressed_Dir","enable downloading whole folder as compressed file");
-define("_Preview","Preview");
-define("_Allow_text_Preview","allow text preview");
-define("_Allow_pic_Preview"," allow picture preview");
-define("_Allow_video_Preview","allow video preview");
+define("_When_Adding_Torrents","When Adding New Torrent");
+
+
 //admin setting ,Connection
 define("_Connection","Connection");
 define("_Port_LIMIT","Global port limit");
 //admin setting ,BitTorrent
 define("_BitTorrent","BitTorrent");
-define("_Force_Download_In_Home_Dir","limit user download in their home directories");
-define("_Enable_Make_Torrent","enable user creat Torrent");
-define("_encrypted_connections","encrypted connections");
-define("_Allow_Encrypted_Connections","allow encrypted connections");
-define("_Only_Allow_Encrypted_Connections","only allow encrypted connections");
-define("_When_Complete_Torrents","When torrent is completed");
-define("_Run_Command","Run command");
+define("_When_Complete_Torrents","When Torrent Is Completed");
 define("_global_finished_command_explain",
 '
 %finish_time% : time when finished,<br />
@@ -264,18 +235,147 @@ define("_global_finished_command_explain",
 
 ');
 
-//admin edit user
-define("_torrentlimit_period","In");
-define("_torrentlimit_number","day(s), only allow maximum");
-define("_torrentlimit_number_after","new torrent(s)");
-define("_zero_is_no_limit","zero means no limit");
+//AJAX ADDITIONS ADDED BY TORRENT-CORE.CO.UK
 
+
+//Ajax Additions - Cron Robot - By Torrent-Core.Co.Uk
+define("_CronRobot","Cron Robot");
+define("_CronRobot_Setting","Cron Robot Settings");
+define("_CronRobot_Stat","Cron Robot Stats");
+define("_CronRobot_Control","Cron Robot Control");
+define("_CronRobot_Start","Service Start");
+define("_CronRobot_Stop","Service Stop");
+define("_CronRobot_Setting","Cron Robot Settings");
+
+
+//Ajax Additions - Queuing - By Torrent-Core.Co.Uk
+define("_Queueing","Queueing");
+define("_Torrent_Number_Control","Torrent Queueing Control");
+define("Max_Server_Total_Threads","Max Server Threads");
+define("Max_Server_Seed_Threads","Max Seed Threads");
+define("Max_Server_Download_Threads","Max Download Threads");
+define("_Torrent_Transfer_Control","Torrent Transfer Control");
+
+
+//Ajax Additions - Advanced Settings - By Torrent-Core.Co.Uk
+define("_Advanced","Advanced");
+define("_Path_Setting","Path Settings");
+define("_Python_Path","Python Path");
+define("_btphptornado_Path","BT PHP Tornado Path");
+define("_btmakemetafilepy_Path","BT Make Torrent Path");
+define("_loadavg_Path","Load Avg Path");
+define("_Others","Other Settings");
+define("Extra_BitTornado_Commandline","Extra BitTornado commandline");
+define("_SQL_Debug","SQL Debug");
+
+
+//Ajax Additions - Edit Admin Users - By Torrent-Core.Co.Uk
+define("_EDITUSER","Edit Admin User Details");
+
+
+//Ajax Additions - Edit Users - By Torrent-Core.Co.Uk
+define("_ADMIN_EDIT_USER","Edit User Details");
+define("_allow_view_other_torrent","Allow User To View Other Torrents?");
+define("Max_Active_Torrent","Max Active Torrents");
+define("Max_Download_Torrent","Max Downloading Torrents");
+define("Max_Seeding_Torrent","Max Seeding Torrents");
+
+
+//Ajax Additions - Speed Graph - By Torrent-Core.Co.Uk
+define("_Download","Downloaded");
+define("_Upload","Uploaded");
+define("_TotalTorrent","Total Added Torrents To Date");
+define("_QueuedTorrent","Queued Torrents");
+define("_TotalTransfer","Total Data Transfered");
+
+
+//Ajax Additions - PM - By Torrent-Core.Co.Uk
+define("_VIEW_PM","View Private Message");
+
+
+//Ajax Additions - Live Torrent Options - By Torrent-Core.Co.Uk
+define("_sure_delete","Are You Sure You Wish To Delete This Torrent?");
+define("_sure_delete_n_tor","Are You Sure You Wish To Delete This Torrent And The Meta File?");
+define("_sure_delete_tor_n_file","Are You Sure You Wish To Delete This Torrent, The Meta File And All Relevant Data Associated With This Torrent?");
+define("_sure_delete_n_file","Are You Sure You Wish To Delete This Torrent And All Relevant Data Associated With this Torrent?");
+
+//Ajax Additions - New User - By Torrent-Core.Co.Uk
+define("_user_created","User Creation Successful");
+
+//Ajax Additions - Main Torrent Window - By Torrent-Core.Co.Uk
+define("_SEEDS","Seeds");
+define("_PEERS","Peers");
+define("%","Percentage Complete");
+
+//Ajax Additions - Bit Torrent - By Torrent-Core.Co.Uk
+define("_Download_Path","Download Path");
+
+//Ajax Additions - Connection - By Torrent-Core.Co.Uk
+define("_Check_Ports"," Check Ports ");
+
+//Ajax Additions - Changed Variables Below - By Torrent-Core.Co.Uk
+define("_Enable_Make_Torrent","Allow User To Create Torrent");
+define("_Auto_Start","Start Automatically");
+define("_Smart_Select","Smart Select Download File(s)");
+define("_Run_Command","Run Command");
+define("_Confirm_When_Delete_Torrent","Confirm When Deleting Torrent(s)");
+define("_Display_Current_Speed_in_Title","Display Current Speed In The Title Bar");
+define("_Display_Torrent_Search","display Torrent Searching");
+define("_Show_Server_Load","Show Server Load");
+define("_Show_Disk_Space","Show Disk Space");
+define("_Refresh_interval","Refresh Interval");
+define("_Directories","Directories");
+define("_Enable_File_download","Enable File Downloading");
+define("_Enable_Download_Compressed_Dir","Enable Downloading Whole Folder As Compressed File");
+define("_Preview","Preview");
+define("_Allow_text_Preview","Allow Text Preview");
+define("_Allow_pic_Preview"," Allow Picture Preview");
+define("_Allow_video_Preview","Allow Video Preview");
+define("_Force_Download_In_Home_Dir","Limit User Download In Their Home Directories");
+define("_encrypted_connections","Encrypted Connections");
+define("_Allow_Encrypted_Connections","Allow Encrypted Connections");
+define("_Only_Allow_Encrypted_Connections","Only Allow Encrypted Connections");
+
+//Ajax Additions - Admin Edit User 2 - By Torrent-Core.Co.Uk
+define("_torrentlimit_period","In");
+define("_torrentlimit_number","Day(s), Only Allow Maximum");
+define("_torrentlimit_number_after","New Torrent(s)");
+define("_zero_is_no_limit","Zero Means No Limit");
+
+//Ajax Additions - Torrent Transfer Control - By Torrent-Core.Co.Uk
 define("_transferlimit_period","In");
-define("_transferlimit_number","day(s), only allow maximum");
-define("_transferlimit_number_after","MB transfer(s)");
-define("_zero_is_no_limit","zero means no limit");
-define("_spacelimit_number","Maximum allowed space");
+define("_transferlimit_number","Day(s), Only Allow Maximum");
+define("_transferlimit_number_after","MB Transfer(s)");
+define("_zero_is_no_limit","Zero Means No Limit");
+define("_spacelimit_number","Maximum Allowed Space");
 define("_spacelimit_number_after","MB");
 
+//Ajax Additions - Main Menu - By Torrent-Core.Co.Uk
+define("_New_Feed","New Feed");
+define("_Logout","Logout");
+define("_Admin_Setting","Settings");
+define("_AJ_MY_DIR","My Directory");
+define("_AJ_ROOT_DIR","Root Download Directory");
+define('_Upload_Torrent','Upload A Torrent');
+define('_Url_Torrent','Upload A Torrent From Url');
+define('_AutoStart','Start Automatically');
+define('_Url','Url');
+
+//Ajax Additions - Main Menu - NEW FEED - By Torrent-Core.Co.Uk
+define("_Feed_List","Feed List");
+define("_Feed","Feed");
+define("_LastUpdate","Last Updated");
+define("_AutoDownload","Auto Download");
+
+//Ajax Additions - PM - By Torrent-Core.Co.Uk
+define("_NEW_PM_RECEIVED","New Private Message Received");
+
+//Ajax Additions - Main Menu - DIR - By Torrent-Core.Co.Uk
+define("_AJ_MY_DIR","My Directory");
+define("_AJ_ROOT_DIR","Root Download Directory");
+define("_DRIVE","Server Drive Space");
+
+//Ajax Additions - Misc - DIR - By Torrent-Core.Co.Uk
+define("_WARNING_Cronrobot_Is_Not_Running","Cron Robot Is Not Running");
 
 ?>
