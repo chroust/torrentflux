@@ -14,24 +14,37 @@ if($action=='listtorrent'){
 			$TotalTransfer=GetTransferCount($uid);
 			$TotalQueue=getNumberOfQueuedTorrents($uid);
 			//creat img for transfer static
-			$sql="SELECT `date`,`download`,`upload` FROM `tf_xfer` WHERE `user`='$uid'";
+			//dat limit : 30days
+			$mindatetimestamp=time()-2556000;
+			$mindate=date('Y-m-d',$mindatetimestamp);
+			$sql="SELECT `date`,`download`,`upload` FROM `tf_xfer` WHERE `user`='$uid' AND date>'$mindate' ORDER BY `tf_xfer`.`date` ASC ";
 			$result = $db->Execute($sql);
 			showError($db,$sql);
-			$mindate=$maxdate=$maxval=$upstr=$downstr=$comma='';
+			$maxval=$upstr=$downstr=$comma='';
+			$datestr=$dateand=$lastdate='';
 			$max=0;
 				while($row = $result->FetchRow()){
-					$mindate=($mindate=='')?$row['date']:$mindate;
-					$maxdate=$row['date'];
+					//make date timestamp
+					$dates=split('-',$row['date']);
+					$timestamp=mktime(1,0,0,$dates[1],$dates[2],$dates[0]);
 					$max=$max<$row['download']?$row['upload']:($max<$row['download']?$row['download']:$max);
-					$upstr.=$comma.$row['upload'];
-					$downstr.=$comma.$row['download'];
+					$uploadArray[$dates[2]]=$row['upload'];
+					$dlloadArray[$dates[2]]=$row['download'];
+				}
+				$lasttimestamp=$mindatetimestamp;
+				while($lasttimestamp<=time()){
+					$thisday=date('d',$lasttimestamp);
+					$datestr.=$and.$thisday;
+					$and='|';
+					$upstr.=$comma.($uploadArray[$thisday]?$uploadArray[$thisday]:0);
+					$downstr.=$comma.($dlloadArray[$thisday]?$dlloadArray[$thisday]:0);
 					$comma=',';
-					$row[]=$row;
+					$lasttimestamp +=85200;
 				}
 			$halfmax=$max/2;
 			$maxtext= formatBytesToKBMGGB($max*1024*1024);
 			$halfmaxtext= formatBytesToKBMGGB($halfmax*1024*1024);
-			$imgsrc= "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,x,x&chxl=0:|0|$halfmaxtext|$maxtext|1:|$mindate|$maxdate|2:||time|";
+			$imgsrc= "http://chart.apis.google.com/chart?cht=lc&chs=700x160&chd=t:$downstr|$upstr&chds=0,$max&chco=ff0000,00ff00&chdl=Download|Upload&chtt=Speed+Chart&chg=5,25&chxt=y,x,x&chxl=0:|0|$halfmaxtext|$maxtext|1:|$datestr|2:||date|";
 			include template('ajax_Tips_user_profile');
 		}elseif($id=='checkport'){
 			$minport=intval(getRequestVar('minport'));
