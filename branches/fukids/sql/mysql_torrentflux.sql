@@ -1,23 +1,5 @@
--- phpMyAdmin SQL Dump
--- version 2.11.6
--- http://www.phpmyadmin.net
---
--- 主機: localhost
--- 建立日期: Sep 22, 2008, 10:11 PM
--- 伺服器版本: 5.0.45
--- PHP 版本: 5.2.3-1ubuntu6.4
-
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
---
--- 資料庫: `torrentflux`
---
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_cookies`
---
 
 CREATE TABLE IF NOT EXISTS `tf_cookies` (
   `cid` int(10) NOT NULL auto_increment,
@@ -27,16 +9,6 @@ CREATE TABLE IF NOT EXISTS `tf_cookies` (
   PRIMARY KEY  (`cid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
---
--- 列出以下資料庫的數據： `tf_cookies`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_links`
---
 
 CREATE TABLE IF NOT EXISTS `tf_links` (
   `lid` int(10) NOT NULL auto_increment,
@@ -46,16 +18,6 @@ CREATE TABLE IF NOT EXISTS `tf_links` (
   PRIMARY KEY  (`lid`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
---
--- 列出以下資料庫的數據： `tf_links`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_log`
---
 
 CREATE TABLE IF NOT EXISTS `tf_log` (
   `cid` int(14) NOT NULL auto_increment,
@@ -69,16 +31,6 @@ CREATE TABLE IF NOT EXISTS `tf_log` (
   PRIMARY KEY  (`cid`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=261 ;
 
---
--- 列出以下資料庫的數據： `tf_log`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_messages`
---
 
 CREATE TABLE IF NOT EXISTS `tf_messages` (
   `mid` int(10) NOT NULL auto_increment,
@@ -92,17 +44,6 @@ CREATE TABLE IF NOT EXISTS `tf_messages` (
   PRIMARY KEY  (`mid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
---
--- 列出以下資料庫的數據： `tf_messages`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_queue`
---
-
 CREATE TABLE IF NOT EXISTS `tf_queue` (
   `qid` int(10) NOT NULL auto_increment,
   `torrentid` int(10) NOT NULL,
@@ -111,16 +52,6 @@ CREATE TABLE IF NOT EXISTS `tf_queue` (
   UNIQUE KEY `torrentid` (`torrentid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
---
--- 列出以下資料庫的數據： `tf_queue`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_rss`
---
 
 CREATE TABLE IF NOT EXISTS `tf_rss` (
   `rid` int(10) NOT NULL auto_increment,
@@ -133,16 +64,6 @@ CREATE TABLE IF NOT EXISTS `tf_rss` (
   PRIMARY KEY  (`rid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
---
--- 列出以下資料庫的數據： `tf_rss`
---
-
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_settings`
---
 
 CREATE TABLE IF NOT EXISTS `tf_settings` (
   `tf_key` varchar(255) NOT NULL default '',
@@ -150,9 +71,6 @@ CREATE TABLE IF NOT EXISTS `tf_settings` (
   UNIQUE KEY `tf_key` (`tf_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- 列出以下資料庫的數據： `tf_settings`
---
 
 INSERT INTO `tf_settings` (`tf_key`, `tf_value`) VALUES
 ('path', '/path/to/download/dir'),
@@ -232,11 +150,6 @@ INSERT INTO `tf_settings` (`tf_key`, `tf_value`) VALUES
 ('maxUserThreads', '99'),
 ('totalseeding', '1');
 
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_torrents`
---
 
 CREATE TABLE IF NOT EXISTS `tf_torrents` (
   `id` mediumint(8) NOT NULL auto_increment,
@@ -273,16 +186,6 @@ CREATE TABLE IF NOT EXISTS `tf_torrents` (
   UNIQUE KEY `hash` (`hash`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=263 ;
 
---
--- 列出以下資料庫的數據： `tf_torrents`
---
-
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_users`
---
-
 CREATE TABLE IF NOT EXISTS `tf_users` (
   `uid` int(10) NOT NULL auto_increment,
   `user_id` varchar(32) NOT NULL default '',
@@ -314,17 +217,8 @@ CREATE TABLE IF NOT EXISTS `tf_users` (
   PRIMARY KEY  (`uid`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=34 ;
 
---
--- 列出以下資料庫的數據： `tf_users`
---
-
 INSERT INTO `tf_users` (`uid`, `user_id`, `password`, `hits`, `last_visit`, `time_created`, `user_level`, `hide_offline`, `theme`, `language_file`, `newpm`, `allow_view_other_torrent`, `totaltorrent`, `runningtorrent`, `activetorrent`, `downloadingtorrent`, `seedingtorrent`, `DownloadSpeed`, `UploadSpeed`, `torrentlimit_period`, `torrentlimit_number`, `transferlimit_period`, `transferlimit_number`, `space_limit`, `maxActiveTorrent`, `maxDownloadTorrent`, `maxSeedTorrent`) VALUES
 (1, 'root',  MD5( 'root' ), 272154, '1222085251', '1212757861', 2, 0, 'BlueFlux', 'lang-english.php', 0, 0, 104, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
--- --------------------------------------------------------
-
---
--- 資料表格式： `tf_xfer`
---
 
 CREATE TABLE IF NOT EXISTS `tf_xfer` (
   `user` mediumint(8) NOT NULL,
@@ -333,8 +227,4 @@ CREATE TABLE IF NOT EXISTS `tf_xfer` (
   `upload` int(10) NOT NULL default '0',
   PRIMARY KEY  (`user`,`date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- 列出以下資料庫的數據： `tf_xfer`
---
 
