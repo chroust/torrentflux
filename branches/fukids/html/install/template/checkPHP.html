@@ -1,0 +1,40 @@
+<script type="text/javascript">
+step=1;
+navbars[step].setStyle('background','#91FF92');
+containers.setStyle('display','block');
+ window.location.hash = 'step'+step;
+</script>
+<? $error=0; ?>
+<ol>
+<li>
+PHP <?=$LANG['checkPHP_version']?> : <?=$php_version?>
+...
+<? if ($php_version > '5.2.0'){?>
+	<span class="pass">[pass]</span>
+<?}else{?>
+	<? $error=1; ?>
+	<span class="fail">[fail]</span> require >5.2.0
+<?}?>
+</li>
+
+<li>
+php-curl
+...
+<? if (function_exists('curl_init')){?>
+	<span class="pass">[pass]</span>
+<?}else{?>
+	<? $error=1; ?>
+	<span class="fail">[fail]</span>
+<?}?>
+</li>
+
+</ol>
+	<?=$LANG['Click_Next_To_continue']?>
+	
+	<script type="text/javascript">
+<? if ($error==1){?>
+		$('next').disabled=true;
+<?}else{?>
+		$('next').disabled=false;
+<?}?>
+	</script>

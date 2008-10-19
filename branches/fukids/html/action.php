@@ -105,7 +105,7 @@ include_once("include/BtControl_Tornado.class.php");
 						if($autostart){
 							$Bt= new BtControl($torrentid);
 							$Bt->Start();
-							showmessage('',1,1);
+							showmessage('',1,1,1);
 						}else{
 							?> OpenWindow('Edit_Torrent','<?=Edit_Torrent?>','icon','torrentid=<?=$torrentid?>');<?
 						}
@@ -119,7 +119,7 @@ include_once("include/BtControl_Tornado.class.php");
 					if($autostart){
 						$Bt= new BtControl($torrentid);
 						$Bt->Start();
-						showmessage('',1,1);
+						showmessage('',1,1,1);
 					}
 			}
 		$closewindow=getRequestVar('closewindow')=='0'?0:1;

@@ -2070,7 +2070,7 @@ function DumpCurlError($errno,$errstring){
 // ***************************************************************************
 // ***************************************************************************
 //showmessage:
-function showmessage($msg,$stop=0,$closewindow=0){
+function showmessage($msg,$stop=0,$closewindow=0,$forceUpdate=0){
 	global $usejs,$CronRobot;
 		if($closewindow){
 				if($usejs){
@@ -2087,6 +2087,9 @@ function showmessage($msg,$stop=0,$closewindow=0){
 					echo $msg;
 				}
 			}
+		}
+		if($forceUpdate && $usejs){
+			echo 'forceUpdate();';
 		}
 		if($stop){
 			exit();

@@ -1,11 +1,24 @@
-div.container {
+div#navbar{
+	padding:15px;
+	height:40px;
+}
+div#navbar div{
+	padding:5px;
+	border: 3px solid #3B3E12;
+	width:100px;
+	height:35px;
+	float:left;
+	text-align:center;
+	margin:0px 15px 0px 15px;
+	
+}
+div#container {
 	background: #C2C2C2;
 	color: #3D2312;
 	padding: 10px;
 	margin: 20px;
 	border: 10px solid #3B3E12;
 	min-height:200px;
-	display:none;
 }
 div#controller{
 	text-align:center;
@@ -18,6 +31,9 @@ div#loading{
 	background:#fff;
 	color:red;
 }
-div#container div{
-	display:none;
+span.pass{
+	color:green;
+}
+span.fail{
+	color:red;
 }

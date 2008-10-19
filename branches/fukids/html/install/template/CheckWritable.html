@@ -1,0 +1,21 @@
+<script type="text/javascript">
+step=3;
+navbars[step].setStyle('background','#91FF92');
+containers.setStyle('display','block');
+ window.location.hash = 'step'+step;
+</script>
+<? if (CheckWritable()){?>
+	<span class="pass"><?=$LANG['CheckWritable_OK']?></span> <br />
+	<?=$LANG['Click_Next_To_continue']?>
+		<script type="text/javascript">
+		$('next').disabled=false;
+		</script>
+<?}else{?>
+	<span class="fail"><?=$LANG['CheckWritable_Err']?>, <br />
+	please set the following folders to writable: <br />
+	<?=implode(",<br/>", $need_writable_list)?>
+		<script type="text/javascript">
+		$('next').disabled=true;
+		</script>
+<?}?>
+

@@ -1,0 +1,24 @@
+<script type="text/javascript">
+step=4;
+navbars[step].setStyle('background','#91FF92');
+containers.setStyle('display','block');
+ window.location.hash = 'step'+step;
+</script>
+<? if ($error==0){?>
+	<span class="pass"><?=$LANG['CreatDB_OK']?></span> <br />
+	<?=$LANG['Click_Next_To_continue']?>
+		<script type="text/javascript">
+		$('next').disabled=false;
+		navbars[step].setStyle('background','#91FF92');
+		</script>
+<?}else{?>
+		<? if($cfg["db_type"]=='mysql'){ ?>
+			<span class="fail"><?=$LANG['CreatDB_ERR']?> :</span> <br /> <?=mysql_error($db)?>
+		<? }else{?>
+			<span class="fail"><?=$LANG['CreatDB_NotSupported']?></span>
+		<?}?>
+		<script type="text/javascript">
+		$('next').disabled=true;
+		navbars[step].setStyle('background','#FF9291');
+		</script>
+<?}?>

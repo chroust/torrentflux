@@ -1,0 +1,20 @@
+<script type="text/javascript">
+step=2;
+navbars[step].setStyle('background','#91FF92');
+containers.setStyle('display','block');
+ window.location.hash = 'step'+step;
+</script>
+<? if (CheckDataBaseConfig()){?>
+	<span class="pass"><?=$LANG['DataBaseConfig_OK']?></span> <br />
+	<?=$LANG['Click_Next_To_continue']?>
+		<script type="text/javascript">
+		$('next').disabled=false;
+		navbars[step].setStyle('background','#91FF92');
+		</script>
+<?}else{?>
+	<span class="fail"><?=$LANG['DataBaseConfig_Err']?>
+		<script type="text/javascript">
+		$('next').disabled=true;
+		navbars[step].setStyle('background','#FF9291');
+		</script>
+<?}?>

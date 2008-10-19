@@ -9,20 +9,43 @@
 <div id="loading">
 loading..... please wait
 </div>
+<div id="navbar">
+	<div>
+	Welcome
+	</div>
+	<div>
+	Server Requirement
+	</div>
+	<div>
+	Config.php
+	</div>
+	<div>
+	Check Writable
+	</div>
+	<div>
+	Creat Database
+	</div>
+	<div>
+	Finish
+	</div>
+</div>
+
 <div id="container">
 Welcome to Torrentflux installer, <br />
 please click next to continue.
 </div>
 
 <div id="controller">
+	<button id="reload">reload</button>
 	<button id="next">next</button>
 </div>
 
 <script  type="text/javascript">
 window.addEvent('domready', function() {
-	
+	navbars=$('navbar').getElements('div');
 //controller
 	step=0;
+	navbars[step].setStyle('background','#91FF92');
 	containers=$('container');
 	$('next').addEvent('click', function(e) {
 		ShowLoading(1);
@@ -30,39 +53,49 @@ window.addEvent('domready', function() {
 		e.stop();
 		this.fireEvent('jsstep'+step);
 		ShowLoading(0);
+		console.log(step);
+	});
+	$('reload').addEvent('click', function(e) {
+		ShowLoading(1);
+		e = new Event(e);
+		e.stop();
+		step--;
+		$('next').fireEvent('jsstep'+step);
+		ShowLoading(0);
+		console.log(step);
 	});
 
 	//js steps
 	$('next').addEvent('jsstep0', function(e) {
 		new Request({url:'install.php?action=checkPHP',
-		onSuccess:function(text,xml){
-			GoNextStep();
+		onSuccess:function(text,xml){containers
 			containers.set('html',text);
-		}
+			},
+		evalScripts :true
 		}).send();
 	});
 	$('next').addEvent('jsstep1', function(e) {
 		new Request({url:'install.php?action=checkDatabaseConfig',
-		onSuccess:function(text,xml){
-			GoNextStep();
+		onSuccess:function(text,xml){containers
 			containers.set('html',text);
-			}
+			},
+		evalScripts :true
 		}).send();
 	});
 	$('next').addEvent('jsstep2', function(e) {
 		new Request({url:'install.php?action=CheckWritable',
-		onSuccess:function(text,xml){
-			GoNextStep();
+		onSuccess:function(text,xml){containers
 			containers.set('html',text);
-		}
+			},
+		evalScripts :true
 		}).send();
 	});
 	$('next').addEvent('jsstep3', function(e) {
 		new Request({url:'install.php?action=CreatDB',
-		onSuccess:function(text,xml){
-			GoNextStep();
+		onSuccess:function(text,xml){containers
 			containers.set('html',text);
-		}
+			},
+		evalScripts :true
 		}).send();
 	});
 	
@@ -75,11 +108,6 @@ function ShowLoading($isloading){
 	}else{
 		$('loading').setStyle('display','none');
 	}
-}
-function GoNextStep(){
-	step++;
-	containers.setStyle('display','block');
-}
-</script>
+}</script>
 </body>
 </html>
