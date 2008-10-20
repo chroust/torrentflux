@@ -5,7 +5,9 @@ include'install/lang/eng.php';
 	if($action=='index'){
 		include 'install/template/index.html';
 	}elseif($action=='checkPHP'){
-		$php_version=substr(phpversion(),0,strpos(phpversion(), '-'));
+		$php_version=strpos(phpversion(), '-')===false?
+			phpversion()
+			:substr(phpversion(),0,strpos(phpversion(), '-'));
 		include 'install/template/checkPHP.html';
 	}elseif($action=='checkDatabaseConfig'){
 		include 'install/template/checkDatabaseConfig.html';
