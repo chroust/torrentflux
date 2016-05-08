@@ -34,6 +34,7 @@ class RunningTorrent
     function RunningTorrent( $psLine )
     {
         global $cfg;
+
         if (strlen($psLine) > 0)
         {
             while (strpos($psLine,"  ") > 0)
@@ -41,7 +42,7 @@ class RunningTorrent
                 $psLine = str_replace("  ",' ',trim($psLine));
             }
 
-            $arr = split(' ',$psLine);
+            $arr = preg_split('/ +/',$psLine);
 
             $this->processId = $arr[0];
 

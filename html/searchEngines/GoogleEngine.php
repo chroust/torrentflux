@@ -108,12 +108,12 @@ class SearchEngine extends SearchEngineBase
             }
 
             // ok so now we have the listing.
-            //$tmpListArr = split("</p>",$tmpList);
+            //$tmpListArr = preg_split("</p>",$tmpList);
 
             $allowedTags = '<a><b><i><br>';
 
             // ok so now we have the listing.
-            $tmpListArr = split("</a>",strip_tags($tmpList,$allowedTags));
+            $tmpListArr = preg_split("</a>",strip_tags($tmpList,$allowedTags));
 
             $langFile = _FILE;
 
