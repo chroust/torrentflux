@@ -53,7 +53,7 @@ if ($del != "")
 
         $del = stripslashes(stripslashes($del));
 
-        if (!ereg("(\.\.\/)", $del))
+        if (!preg_match("(\.\.\/)", $del))
         {
             avddelete($cfg["path"].$del);
 
@@ -93,7 +93,7 @@ if ($down != "" && $cfg["enable_file_download"])
 
     $down = stripslashes(stripslashes($down));
 
-    if (!ereg("(\.\.\/)", $down))
+    if (!preg_match("(\.\.\/)", $down))
     {
         $path = $cfg["path"].$down;
 
@@ -154,7 +154,7 @@ if ($tar != "" && $cfg["enable_file_download"])
 
     $tar = stripslashes(stripslashes($tar));
 
-    if (!ereg("(\.\.\/)", $tar))
+    if (!preg_match("(\.\.\/)", $tar))
     {
         // This prevents the script from getting killed off when running lengthy tar jobs.
         ini_set("max_execution_time", 3600);
@@ -224,7 +224,7 @@ if ($dir == "")
 
 if (isset($dir))
 {
-    if (ereg("(\.\.)", $dir))
+    if (preg_match("(\.\.)", $dir))
     {
         unset($dir);
     }

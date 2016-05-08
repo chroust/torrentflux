@@ -146,7 +146,7 @@ function showMetaInfo($torrent, $allowSave=false)
     
             if ( is_readable($prioFileName))
             {
-                $prio = split(',',file_get_contents($prioFileName));
+                $prio = preg_split(',',file_get_contents($prioFileName));
                 $prio = array_splice($prio,1);
             }
             else
