@@ -201,7 +201,7 @@
         $tfile = getRequestVar("download");
 
         // ../ is not allowed in the file name
-        if (!ereg("(\.\.\/)", $tfile))
+        if (!preg_match("(\.\.\/)", $tfile))
         {
             // Does the file exist?
             if (file_exists($tpath . $tfile))
