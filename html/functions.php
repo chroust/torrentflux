@@ -135,16 +135,15 @@ function Authenticate()
     }
 
     list($uid, $hits, $cfg["hide_offline"], $cfg["theme"], $cfg["language_file"]) = $recordset->FetchRow();
-
     // Check for valid theme
-    if (!ereg('^[^./][^/]*$', $cfg["theme"]))
+    if (!preg_match('^[^./][^/]*$', $cfg["theme"]))
     {
         AuditAction($cfg["constants"]["error"], "THEME VARIABLE CHANGE ATTEMPT: ".$cfg["theme"]." from ".$cfg['user']);
         $cfg["theme"] = $cfg["default_theme"];
     }
 
     // Check for valid language file
-    if(!ereg('^[^./][^/]*$', $cfg["language_file"]))
+    if(!preg_match('^[^./][^/]*$', $cfg["language_file"]))
     {
         AuditAction($cfg["constants"]["error"], "LANGUAGE VARIABLE CHANGE ATTEMPT: ".$cfg["language_file"]." from ".$cfg['user']);
         $cfg["language_file"] = $cfg["default_language"];
@@ -525,11 +524,11 @@ function GetActivityCount($user="")
 function GetSpeedValue($inValue)
 {
     $rtnValue = 0;
-    $arTemp = split(" ", trim($inValue));
-
-    if (is_numeric($arTemp[0]))
-    {
-        $rtnValue = $arTemp[0];
+    if(strlen($inValue)>0) {
+        $arTemp = preg_split( " ", trim( $inValue ) );
+        if ( is_numeric( $arTemp[0] ) ) {
+            $rtnValue = $arTemp[0];
+        }
     }
     return $rtnValue;
 }
@@ -1313,17 +1312,17 @@ function check_html ($str, $strip="")
         $AllowableHTML=array('');
     }
     $str = stripslashes($str);
-    $str = eregi_replace("<[[:space:]]*([^>]*)[[:space:]]*>",'<\\1>', $str);
+    $str = preg_match("<[[:space:]]*([^>]*)[[:space:]]*>",'<\\1>', $str);
             // Delete all spaces from html tags .
-    $str = eregi_replace("<a[^>]*href[[:space:]]*=[[:space:]]*\"?[[:space:]]*([^\" >]*)[[:space:]]*\"?[^>]*>",'<a href="\\1">', $str);
+    $str = preg_match("<a[^>]*href[[:space:]]*=[[:space:]]*\"?[[:space:]]*([^\" >]*)[[:space:]]*\"?[^>]*>",'<a href="\\1">', $str);
             // Delete all attribs from Anchor, except an href, double quoted.
-    $str = eregi_replace("<[[:space:]]* img[[:space:]]*([^>]*)[[:space:]]*>", '', $str);
+    $str = preg_match("<[[:space:]]* img[[:space:]]*([^>]*)[[:space:]]*>", '', $str);
         // Delete all img tags
-    $str = eregi_replace("<a[^>]*href[[:space:]]*=[[:space:]]*\"?javascript[[:punct:]]*\"?[^>]*>", '', $str);
+    $str = preg_match("<a[^>]*href[[:space:]]*=[[:space:]]*\"?javascript[[:punct:]]*\"?[^>]*>", '', $str);
         // Delete javascript code from a href tags -- Zhen-Xjell @ http://nukecops.com
     $tmp = "";
 
-    while (ereg("<(/?[[:alpha:]]*)[[:space:]]*([^>]*)>",$str,$reg))
+    while (preg_match("<(/?[[:alpha:]]*)[[:space:]]*([^>]*)>",$str,$reg))
     {
         $i = strpos($str,$reg[0]);
         $l = strlen($reg[0]);
@@ -1451,15 +1450,15 @@ function formatFreeSpace($freeSpace)
 // Takes in an array of file types.
 function getFileFilter($inArray)
 {
-    $filter = "(\.".strtolower($inArray[0]).")|"; // used to hold the file type filter
-    $filter .= "(\.".strtoupper($inArray[0]).")";
+    $filter = "(\.".strtolower($inArray[0]).")"; // used to hold the file type filter
+//    $filter .= "(\.".strtoupper($inArray[0]).")";
     // Build the file filter
-    for($inx = 1; $inx < sizeof($inArray); $inx++)
-    {
-        $filter .= "|(\.".strtolower($inArray[$inx]).")";
-        $filter .= "|(\.".strtoupper($inArray[$inx]).")";
-    }
-    $filter .= "$";
+//    for($inx = 1; $inx < sizeof($inArray); $inx++)
+//    {
+//        $filter .= "|(\.".strtolower($inArray[$inx]).")";
+//        $filter .= "|(\.".strtoupper($inArray[$inx]).")";
+//    }
+//    $filter .= "$";
     return $filter;
 }
 
@@ -2321,7 +2320,7 @@ function getDirList($dirName)
             }
             else
             {
-                if (ereg($file_filter, $entry))
+                if (preg_match($file_filter, $entry))
                 {
                     $key = filemtime($dirName."/".$entry).md5($entry);
                     $arList[$key] = $entry;
@@ -2365,6 +2364,7 @@ function getDirList($dirName)
         foreach ($runningTorrents as $key => $value)
         {
             $rt = new RunningTorrent($value);
+
             if ($rt->statFile == $alias) {
                 if ($kill_id == "")
                 {
