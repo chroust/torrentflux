@@ -113,7 +113,7 @@ class SearchEngine extends SearchEngineBase
         $thing = $this->htmlPage;
 
         // Strip out those Nasty Iframes.
-        $thing = eregi_replace("<table[[:space:]]width=[[:punct:]]100%[[:punct:]][[:space:]]cellspacing=[[:punct:]]0[[:punct:]][[:space:]]cellpadding=[[:punct:]]0[[:punct:]][[:space:]]border=[[:punct:]]0[[:punct:]]><tr><td[[:space:]]width=[[:punct:]]10[[:punct:]]></td><td[[:space:]]style=[[:punct:]]border[[:punct:]]3px[[:space:]]solid[[:space:]]#003366[[:punct:]]><iframe[[:space:]]frameborder=[[:punct:]]0[[:punct:]][[:space:]]width=[[:punct:]]100%[[:punct:]][[:space:]]id=[[:punct:]]([a-zA-Z0-9])*[[:punct:]]></iframe></td></tr></table>",'',$thing);
+        $thing = preg_match("<table[[:space:]]width=[[:punct:]]100%[[:punct:]][[:space:]]cellspacing=[[:punct:]]0[[:punct:]][[:space:]]cellpadding=[[:punct:]]0[[:punct:]][[:space:]]border=[[:punct:]]0[[:punct:]]><tr><td[[:space:]]width=[[:punct:]]10[[:punct:]]></td><td[[:space:]]style=[[:punct:]]border[[:punct:]]3px[[:space:]]solid[[:space:]]#003366[[:punct:]]><iframe[[:space:]]frameborder=[[:punct:]]0[[:punct:]][[:space:]]width=[[:punct:]]100%[[:punct:]][[:space:]]id=[[:punct:]]([a-zA-Z0-9])*[[:punct:]]></iframe></td></tr></table>",'',$thing);
 
         // We got a response so display it.
         // Chop the front end off.
@@ -123,7 +123,7 @@ class SearchEngine extends SearchEngineBase
             $tmpList = substr($thing,0,strpos($thing,"</table>"));
 
             // ok so now we have the listing.
-            $tmpListArr = split("</tr>",$tmpList);
+            $tmpListArr = preg_split("</tr>",$tmpList);
 
             $bg = $this->cfg["bgLight"];
 
@@ -211,7 +211,7 @@ class mininova
 
 
             // Chunck up the row into columns.
-            $tmpListArr = split("</td>",$htmlLine);
+            $tmpListArr = preg_split("</td>",$htmlLine);
             array_pop($tmpListArr);
 //print_r($tmpListArr);
             //Age   Type    Torrent Names   MB  S   L

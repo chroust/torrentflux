@@ -59,7 +59,7 @@ if($action == "torrent" || $action == "data")
 
                    $del = stripslashes(stripslashes($delete));
 
-                   if (!ereg("(\.\.\/)", $del))
+                   if (!preg_match("(\.\.\/)", $del))
                    {
 
                        avddelete($cfg["path"].$del);
@@ -131,7 +131,7 @@ function delFile($del)
 
         $del = stripslashes(stripslashes($del));
 
-        if (!ereg("(\.\.\/)", $del))
+        if (!preg_match("(\.\.\/)", $del))
         {
             avddelete($cfg["path"].$del);
 
