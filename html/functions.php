@@ -46,7 +46,8 @@ $cfg["free_space"] = @disk_free_space($cfg["path"])/(1024*1024);
 
 // Path to where the torrent meta files will be stored... usually a sub of $cfg["path"]
 // also, not the '.' to make this a hidden directory
-$cfg["torrent_file_path"] = $cfg["path"].".torrents/";
+
+$cfg["torrent_file_path"] = (!isset($cfg["path"])?'':$cfg["path"]).".torrents/";
 
 Authenticate();
 
@@ -68,8 +69,11 @@ function getLinkSortOrder($lid)
     global $db;
 
     // Get Current sort order index of link with this link id:
-    $sql="SELECT sort_order FROM tf_links WHERE lid=$lid";
-    $rtnValue=$db->GetOne($sql);
+    $sql="SELECT sort_order FROM tf_links WHERE lid=:lid";
+
+    $sth = $db->prepare( $sql );
+    $sth->execute([':lid' => $lid]);
+    $rtnValue = $sth->fetchColumn();
     showError($db,$sql);
 
     return $rtnValue;
@@ -122,11 +126,12 @@ function Authenticate()
         exit();
     }
 
-    $sql = "SELECT uid, hits, hide_offline, theme, language_file FROM tf_users WHERE user_id=".$db->qstr($cfg['user']);
-    $recordset = $db->Execute($sql);
+    $sql = "SELECT uid, hits, hide_offline, theme, language_file FROM tf_users WHERE user_id=:user_id";
+    $recordset = $db->prepare($sql);
+    $recordset->execute([':user_id'=>$cfg['user']]);
     showError($db, $sql);
 
-    if($recordset->RecordCount() != 1)
+    if($recordset->rowCount() != 1)
     {
         AuditAction($cfg["constants"]["error"], "FAILED AUTH: ".$cfg['user']);
         session_destroy();
@@ -134,16 +139,16 @@ function Authenticate()
         exit();
     }
 
-    list($uid, $hits, $cfg["hide_offline"], $cfg["theme"], $cfg["language_file"]) = $recordset->FetchRow();
+    list($uid, $hits, $cfg["hide_offline"], $cfg["theme"], $cfg["language_file"]) = $recordset->fetch(PDO::FETCH_BOTH);
     // Check for valid theme
-    if (!preg_match('^[^./][^/]*$', $cfg["theme"]))
+    if (!preg_match('/^[^.\/][^\/]*$/', $cfg["theme"]))
     {
         AuditAction($cfg["constants"]["error"], "THEME VARIABLE CHANGE ATTEMPT: ".$cfg["theme"]." from ".$cfg['user']);
         $cfg["theme"] = $cfg["default_theme"];
     }
 
     // Check for valid language file
-    if(!preg_match('^[^./][^/]*$', $cfg["language_file"]))
+    if(!preg_match('/^[^.\/][^\/]*$/', $cfg["language_file"]))
     {
         AuditAction($cfg["constants"]["error"], "LANGUAGE VARIABLE CHANGE ATTEMPT: ".$cfg["language_file"]." from ".$cfg['user']);
         $cfg["language_file"] = $cfg["default_language"];
@@ -162,19 +167,22 @@ function Authenticate()
 
     $hits++;
 
-    $sql = 'select * from tf_users where uid = '.$uid;
-    $rs = $db->Execute($sql);
+    $sql = 'select * from tf_users where uid = :uid';
+    $rs = $db->prepare($sql);
+    $rs->execute([':uid'=>$uid]);
     showError($db, $sql);
 
     $rec = array(
-                    'hits' => $hits,
-                    'last_visit' => $create_time,
-                    'theme' => $cfg['theme'],
-                    'language_file' => $cfg['language_file']
+                    ':hits' => $hits,
+                    ':last_visit' => $create_time,
+                    ':theme' => $cfg['theme'],
+                    ':language_file' => $cfg['language_file'],
+                    ':uid' => $uid
                 );
-    $sql = $db->GetUpdateSQL($rs, $rec);
+    $sql ="UPDATE tf_users SET hits = :hits,last_visit = :last_visit,theme = :theme,language_file = :language_file WHERE uid = :uid";
 
-    $result = $db->Execute($sql);
+    $sth = $db->prepare( $sql );
+    $sth->execute($rec);
     showError($db,$sql);
 }
 
@@ -266,14 +274,19 @@ function PruneDB()
 
     // Prune LOG
     $testTime = time()-($cfg['days_to_keep'] * 86400); // 86400 is one day in seconds
-    $sql = "delete from tf_log where time < " . $db->qstr($testTime);
-    $result = $db->Execute($sql);
+    $sql = "delete from tf_log where time < :time";
+    $sth = $db->prepare($sql);
+    $sth->execute([':time' => $testTime]);
     showError($db,$sql);
     unset($result);
 
     $testTime = time()-($cfg['minutes_to_keep'] * 60);
-    $sql = "delete from tf_log where time < " . $db->qstr($testTime). " and action=".$db->qstr($cfg["constants"]["hit"]);
-    $result = $db->Execute($sql);
+    $sql = "delete from tf_log where time < :time and action=:hit";
+    $sth = $db->prepare( $sql );
+    $sth->execute([
+        ':time' => $testTime,
+        ':hit' => $cfg["constants"]["hit"]
+    ]);
     showError($db,$sql);
     unset($result);
 }
@@ -284,10 +297,13 @@ function IsOnline($user)
     global $cfg, $db;
 
     $online = false;
+    $hit = $cfg["constants"]["hit"];
 
-    $sql = "SELECT count(*) FROM tf_log WHERE user_id=" . $db->qstr($user)." AND action=".$db->qstr($cfg["constants"]["hit"]);
+    $sql = "SELECT count(*) FROM tf_log WHERE user_id=:user_id AND action=:hit";
 
-    $number_hits = $db->GetOne($sql);
+    $sth = $db->prepare( $sql );
+    $sth->execute([ ':user_id' => $user, ':hit' => $hit ]);
+    $number_hits = $sth->fetchColumn();
     showError($db,$sql);
 
     if ($number_hits > 0)
@@ -305,8 +321,11 @@ function IsUser($user)
 
     $isUser = false;
 
-    $sql = "SELECT count(*) FROM tf_users WHERE user_id=".$db->qstr($user);
-    $number_users = $db->GetOne($sql);
+    $sql = "SELECT count(*) FROM tf_users WHERE user_id=:user_id";
+
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $user]);
+    $number_users = $sth->fetchColumn();
 
     if ($number_users > 0)
     {
@@ -324,8 +343,15 @@ function getOwner($file)
     $rtnValue = "n/a";
 
     // Check log to see what user has a history with this file
-    $sql = "SELECT user_id FROM tf_log WHERE file=".$db->qstr($file)." AND (action=".$db->qstr($cfg["constants"]["file_upload"])." OR action=".$db->qstr($cfg["constants"]["url_upload"])." OR action=".$db->qstr($cfg["constants"]["reset_owner"]).") ORDER  BY time DESC";
-    $user_id = $db->GetOne($sql);
+    $sql = "SELECT user_id FROM tf_log WHERE file=:file AND (action=:action OR action=:action1 OR action=:action2) ORDER  BY time DESC";
+    $sth = $db->prepare( $sql );
+    $sth->execute([
+                    ':file' => $file,
+                   ':action'=> $cfg["constants"]["file_upload"],
+                   ':action1'=> $cfg["constants"]["url_upload"],
+                   ':action2'=> $cfg["constants"]["reset_owner"],
+    ]);
+    $user_id = $sth->fetchColumn();
 
     if($user_id != "")
     {
@@ -432,10 +458,18 @@ function addCookieInfo( $newCookie )
 {
     global $db, $cfg;
     // Get uid of user
-    $sql = "SELECT uid FROM tf_users WHERE user_id = '" . $cfg["user"] . "'";
-    $uid = $db->GetOne( $sql );
-    $sql = "INSERT INTO tf_cookies ( uid, host, data ) VALUES ( " . $uid . ", " . $db->qstr($newCookie["host"]) . ", " . $db->qstr($newCookie["data"]) . " )";
-    $db->Execute( $sql );
+    $sql = "SELECT uid FROM tf_users WHERE user_id = :user_id";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $cfg["user"]]);
+    $uid = $sth->fetchColumn();
+    $sql = "INSERT INTO tf_cookies ( uid, host, data ) VALUES ( :uid, :host, :data )";
+    $sth = $db->prepare( $sql );
+    $sth->execute([
+        ':uid' => $uid,
+        ':host' => $newCookie["host"],
+        ':data' => $newCookie["data"]
+    ]);
+
     showError( $db, $sql );
 }
 
@@ -454,10 +488,10 @@ function getSite($lid)
 {
     global $cfg, $db;
 
-    $rtnValue = "";
-
-    $sql = "SELECT sitename FROM tf_links WHERE lid=".$lid;
-    $rtnValue = $db->GetOne($sql);
+    $sql = "SELECT sitename FROM tf_links WHERE lid=:lid";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':lid' => $lid]);
+    $rtnValue = $sth->fetchColumn();
 
     return $rtnValue;
 }
@@ -469,8 +503,11 @@ function getLink($lid)
 
     $rtnValue = "";
 
-    $sql = "SELECT url FROM tf_links WHERE lid=".$lid;
-    $rtnValue = $db->GetOne($sql);
+    $sql = "SELECT url FROM tf_links WHERE lid=:lid";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':lid' => $lid]);
+    $rtnValue = $sth->fetchColumn();
+
 
     return $rtnValue;
 }
@@ -482,8 +519,10 @@ function getRSS($rid)
 
     $rtnValue = "";
 
-    $sql = "SELECT url FROM tf_rss WHERE rid=".$rid;
-    $rtnValue = $db->GetOne($sql);
+    $sql = "SELECT url FROM tf_rss WHERE rid=:rid";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':rid' => $rid]);
+    $rtnValue = $sth->fetchColumn();
 
     return $rtnValue;
 }
@@ -508,14 +547,19 @@ function GetActivityCount($user="")
 
     $count = 0;
     $for_user = "";
-
+    $params = [];
     if ($user != "")
     {
-        $for_user = "user_id=".$db->qstr($user)." AND ";
+        $for_user = "user_id=:user_id AND ";
+        $params[':user_id'] = $user;
     }
 
-    $sql = "SELECT count(*) FROM tf_log WHERE ".$for_user."(action=".$db->qstr($cfg["constants"]["file_upload"])." OR action=".$db->qstr($cfg["constants"]["url_upload"]).")";
-    $count = $db->GetOne($sql);
+    $sql = "SELECT count(*) FROM tf_log WHERE ".$for_user."(action=:action OR action=:action1)";
+    $sth = $db->prepare( $sql );
+    $params[':action'] = $cfg["constants"]["file_upload"];
+    $params[':action1'] = $cfg["constants"]["url_upload"];
+    $sth->execute($params);
+    $count = $sth->fetchColumn();
 
     return $count;
 }
@@ -547,8 +591,10 @@ function IsAdmin($user="")
         $user = $cfg["user"];
     }
 
-    $sql = "SELECT user_level FROM tf_users WHERE user_id=".$db->qstr($user);
-    $user_level = $db->GetOne($sql);
+    $sql = "SELECT user_level FROM tf_users WHERE user_id=:user_id";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $user]);
+    $user_level = $sth->fetchColumn();
 
     if ($user_level >= 1)
     {
@@ -571,8 +617,10 @@ function IsSuperAdmin($user="")
         $user = $cfg["user"];
     }
 
-    $sql = "SELECT user_level FROM tf_users WHERE user_id=".$db->qstr($user);
-    $user_level = $db->GetOne($sql);
+    $sql = "SELECT user_level FROM tf_users WHERE user_id=:user_id";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $user]);
+    $user_level = $sth->fetchColumn();
 
     if ($user_level > 1)
     {
@@ -589,8 +637,11 @@ function IsForceReadMsg()
     global $cfg, $db;
     $rtnValue = false;
 
-    $sql = "SELECT count(*) FROM tf_messages WHERE to_user=".$db->qstr($cfg["user"])." AND force_read=1";
-    $count = $db->GetOne($sql);
+    $sql = "SELECT count(*) FROM tf_messages WHERE to_user=:to_user AND force_read=1";
+
+    $sth = $db->prepare( $sql );
+    $sth->execute([':to_user' => $cfg['user']]);
+    $count = $sth->fetchColumn();
     showError($db,$sql);
 
     if ($count >= 1)
@@ -733,8 +784,11 @@ function DeleteThisUser($user_id)
 {
     global $db;
 
-    $sql = "SELECT uid FROM tf_users WHERE user_id = ".$db->qstr($user_id);
-    $uid = $db->GetOne( $sql );
+    $sql = "SELECT uid FROM tf_users WHERE user_id = :user_id";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $user_id]);
+    $uid = $sth->fetchColumn();
+
     showError($db,$sql);
 
     // delete any cookies this user may have had
@@ -943,9 +997,10 @@ function GetUsers()
     $user_array = array();
 
     $sql = "select user_id from tf_users order by user_id";
-    $user_array = $db->GetCol($sql);
+    $result = $db->query($sql);
     showError($db,$sql);
-    return $user_array;
+    $user_array = $result->fetchAll(PDO::FETCH_NUM);
+    return $user_array[0];
 }
 
 // ***************************************************************************
@@ -957,7 +1012,11 @@ function GetSuperAdmin()
     $rtnValue = "";
 
     $sql = "select user_id from tf_users WHERE user_level=2";
-    $rtnValue = $db->GetOne($sql);
+
+    $sth = $db->prepare( $sql );
+    $sth->execute();
+    $rtnValue = $sth->fetchColumn();
+
     showError($db,$sql);
     return $rtnValue;
 }
@@ -970,7 +1029,8 @@ function GetLinks()
 
     $link_array = array();
 
-    $link_array = $db->GetAssoc("SELECT lid, url, sitename, sort_order FROM tf_links ORDER BY sort_order");
+    $result = $db->query( "SELECT lid, url, sitename, sort_order FROM tf_links ORDER BY sort_order" );
+    $link_array = $result->fetchAll();
     return $link_array;
 }
 
@@ -980,10 +1040,11 @@ function GetRSSLinks()
 {
     global $cfg, $db;
 
-    $link_array = array();
-
     $sql = "SELECT rid, url FROM tf_rss ORDER BY rid";
-    $link_array = $db->GetAssoc($sql);
+
+    $result = $db->query( $sql );
+    $link_array = $result->fetchAll();
+
     showError($db,$sql);
 
     return $link_array;
@@ -1245,9 +1306,10 @@ function DisplayTitleBar($pageTitleText, $showButtons=true)
         echo "<a href=\"profile.php\"><img src=\"themes/".$cfg["theme"]."/images/profile.gif\" width=49 height=13 title=\""._MYPROFILE."\" border=0></a>&nbsp;";
 
         // Does the user have messages?
-        $sql = "select count(*) from tf_messages where to_user='".$cfg['user']."' and IsNew=1";
-
-        $number_messages = $db->GetOne($sql);
+        $sql = "select count(*) from tf_messages where to_user=:user and IsNew=1";
+        $sth = $db->prepare( $sql );
+        $sth->execute([':user'=>$cfg['user']]);
+        $number_messages = $sth->fetchColumn();
         showError($db,$sql);
         if ($number_messages > 0)
         {
@@ -1727,8 +1789,14 @@ function FetchHTML( $url, $referer = "" )
     // to see if it has cookies set to the domain name.
     if( ( strpos( $domain["query"], "passkey=" ) ) === false )
     {
-        $sql = "SELECT c.data FROM tf_cookies AS c LEFT JOIN tf_users AS u ON ( u.uid = c.uid ) WHERE u.user_id = '" . $cfg["user"] . "' AND c.host = '" . $domain['host'] . "'";
-        $cookie = $db->GetOne( $sql );
+        $sql = "SELECT c.data FROM tf_cookies AS c LEFT JOIN tf_users AS u ON ( u.uid = c.uid ) WHERE u.user_id = :user_id AND c.host = :host";
+        $sth = $db->prepare( $sql );
+        $sth->execute([
+                            ':user_id'=> $cfg['user'],
+                            ':host'=> $domain['host'],
+                        ]);
+
+        $cookie = $sth->fetchColumn();
         showError( $db, $sql );
     }
 
@@ -1930,8 +1998,12 @@ class ProcessInfo
     var $ppid = "";
     var $cmdline = "";
 
-    function ProcessInfo($psLine)
-    {
+    /**
+     * ProcessInfo constructor.
+     *
+     * @param string $pid
+     */
+    public function __construct( $psLine ) {
         $psLine = trim($psLine);
         if (strlen($psLine) > 12)
         {
@@ -1940,6 +2012,8 @@ class ProcessInfo
             $this->cmdline = trim(substr($psLine, 12));
         }
     }
+
+
 }
 
 //**************************************************************************

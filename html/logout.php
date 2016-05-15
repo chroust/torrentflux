@@ -45,10 +45,12 @@ function logoutUser()
 {
     global $cfg, $db;
 
-    $sql = "DELETE FROM tf_log WHERE user_id=".$db->qstr($cfg["user"])." and action=".$db->qstr($cfg["constants"]["hit"]);
+    $sql = "DELETE FROM tf_log WHERE user_id=:user_id and action=:action";
 
     // do the SQL
-    $result = $db->Execute($sql);
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $cfg["user"], ':action' => $cfg["constants"]["hit"]]);
+//    $result = $db->Execute($sql);
     showError($db, $sql);
 }
 ?>

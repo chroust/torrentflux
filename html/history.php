@@ -53,11 +53,20 @@ function displayActivity($min=0)
     $output = "";
     $morelink = "";
 
-    $sql = "SELECT user_id, file, time FROM tf_log WHERE action=".$db->qstr($cfg["constants"]["url_upload"])." OR action=".$db->qstr($cfg["constants"]["file_upload"])." ORDER BY time desc";
+    $sql = "SELECT user_id, file, time FROM tf_log WHERE action=:action OR action=:action1 ORDER BY time desc";
 
-    $result = $db->SelectLimit($sql, $offset, $min);
-    while(list($user_id, $file, $time) = $result->FetchRow())
-    {
+    $sth = $db->prepare( $sql );
+    $sth->execute([
+        ':action' => $cfg["constants"]["url_upload"],
+        ':action1' => $cfg["constants"]["file_upload"],
+    ]);
+//    $result = $db->SelectLimit($sql, $offset, $min);
+    $result = $sth->fetchAll(PDO::FETCH_OBJ);
+
+    foreach ($result as $item) {
+        $user_id = $item->user_id;
+        $file = $item->file;
+        $time = $item->time;
         $user_icon = "images/user_offline.gif";
         if (IsOnline($user_id))
         {

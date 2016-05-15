@@ -48,8 +48,17 @@ function showIndex()
 
     $total_activity = GetActivityCount();
 
-    $sql= "SELECT user_id, hits, last_visit, time_created, user_level FROM tf_users WHERE user_id=".$db->qstr($cfg["user"]);
-    list($user_id, $hits, $last_visit, $time_created, $user_level) = $db->GetRow($sql);
+    $sql= "SELECT user_id, hits, last_visit, time_created, user_level FROM tf_users WHERE user_id=:user_id";
+//    list($user_id, $hits, $last_visit, $time_created, $user_level) = $db->GetRow($sql);
+    $sth = $db->prepare( $sql );
+    $sth->execute([':user_id' => $cfg["user"]]);
+//    $result = $db->SelectLimit($sql, $offset, $min);
+    $result = $sth->fetch(PDO::FETCH_OBJ);
+    $user_id = $result->user_id;
+    $hits= $result->hits;
+    $last_visit = $result->last_visit;
+    $time_created = $result->time_created;
+    $user_level = $result->user_level;
 
     $user_type = _NORMALUSER;
     if (IsAdmin())

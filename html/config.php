@@ -30,9 +30,9 @@
 // you may choose from many (mysql is the default)
 $cfg["db_type"] = "mysql";       // mysql, postgres7, postgres8 view adodb/drivers/
 $cfg["db_host"] = "localhost";   // DB host computer name or IP
-$cfg["db_name"] = "torrentflux"; // Name of the Database
+$cfg["db_name"] = "tflux"; // Name of the Database
 $cfg["db_user"] = "root";        // username for your MySQL database
-$cfg["db_pass"] = "";            // password for database
+$cfg["db_pass"] = "root";            // password for database
 /**************************************************************************/
 
 
@@ -85,5 +85,8 @@ $cfg["file_types_array"] = array("torrent");
 $cfg["user"] = "";
 // Capture ip
 $cfg["ip"] = $_SERVER['REMOTE_ADDR'];
+
+$cfg["default_theme"] = "matrix";
+$cfg["default_language"] = "lang-english.php";
 
 ?>

@@ -178,27 +178,51 @@ if(!empty($user) && !empty($iamhim))
     /* First User check */
     $next_loc = "index.php";
     $sql = "SELECT count(*) FROM tf_users";
-    $user_count = $db->GetOne($sql);
+    $result = $db->query($sql);
+    $user_count = $result->fetchColumn();
     if($user_count == 0 && $allow_login)
     {
         // This user is first in DB.  Make them super admin.
         // this is The Super USER, add them to the user table
 
         $record = array(
-                        'user_id'=>$user,
-                        'password'=>md5($iamhim),
-                        'hits'=>1,
-                        'last_visit'=>$create_time,
-                        'time_created'=>$create_time,
-                        'user_level'=>2,
-                        'hide_offline'=>0,
-                        'theme'=>$cfg["default_theme"],
-                        'language_file'=>$cfg["default_language"]
+                        ':user_id'=>$user,
+                        ':password'=>md5($iamhim),
+                        ':hits'=>1,
+                        ':last_visit'=>$create_time,
+                        ':time_created'=>$create_time,
+                        ':user_level'=>2,
+                        ':hide_offline'=>0,
+                        ':theme'=>$cfg["default_theme"],
+                        ':language_file'=>$cfg["default_language"]
                         );
         $sTable = 'tf_users';
-        $sql = $db->GetInsertSql($sTable, $record);
 
-        $result = $db->Execute($sql);
+        $sql = "INSERT INTO $sTable (
+                                      'user_id',
+                                      'password',
+                                      'hits',
+                                      'last_visit',
+                                      'time_created',
+                                      'user_level',
+                                      'hide_offline',
+                                      'theme','language_file') 
+                VALUES(
+                        ':user_id',
+                        ':password',
+                        ':hits',
+                        ':last_visit',
+                        ':time_created',
+                        ':user_level',
+                        ':hide_offline',
+                        ':theme',
+                        ':language_file'
+                        )";
+
+//        $sql = $db->GetInsertSql($sTable, $record);
+
+        $sth = $db->prepare($sql);
+        $sth->execute();
         showError($db,$sql);
 
         // Test and setup some paths for the TF settings
@@ -234,8 +258,12 @@ if(!empty($user) && !empty($iamhim))
         
     if ($allow_login)
     {
-        $sql = "SELECT uid, hits, hide_offline, theme, language_file FROM tf_users WHERE user_id=".$db->qstr($user)." AND password=".$db->qstr(md5($iamhim));
-        $result = $db->Execute($sql);
+        $sql = "SELECT uid, hits, hide_offline, theme, language_file FROM tf_users WHERE user_id=:user_id AND password=:password";
+        $result = $db->prepare($sql);
+        $result->execute([
+            ':user_id' => $user,
+            ':password' => md5($iamhim)
+        ]);
         showError($db,$sql);
     
         list(
@@ -243,33 +271,36 @@ if(!empty($user) && !empty($iamhim))
         $hits,
         $cfg["hide_offline"],
         $cfg["theme"],
-        $cfg["language_file"]) = $result->FetchRow();
+        $cfg["language_file"]) = $result->fetchColumn(4);
     
         if(!array_key_exists("shutdown",$cfg))
             $cfg['shutdown'] = '';
         if(!array_key_exists("upload_rate",$cfg))
             $cfg['upload_rate'] = '';
     
-        if($result->RecordCount()==1)
+        if($result->rowCount()==1)
         {
             // Add a hit to the user
             $hits++;
     
-            $sql = 'select * from tf_users where uid = '.$uid;
-            $rs = $db->Execute($sql);
+            $sql = 'select * from tf_users where uid = :uid';
+            $rs = $db->prepare( $sql );
+            $rs->execute([':uid' => $uid]);
             showError($db, $sql);
     
             $rec = array(
-                            'hits'=>$hits,
-                            'last_visit'=>$db->DBDate($create_time),
-                            'theme'=>$cfg['theme'],
-                            'language_file'=>$cfg['language_file'],
-                            'shutdown'=>$cfg['shutdown'],
-                            'upload_rate'=>$cfg['upload_rate']
+                            ':hits'=>$hits,
+                            ':last_visit'=>'NOW()',
+                            ':theme'=>$cfg['theme'],
+                            ':language_file'=>$cfg['language_file'],
+                            ':shutdown'=>$cfg['shutdown'],
+                            ':upload_rate'=>$cfg['upload_rate'],
+                            ':uid' => $uid
                         );
-            $sql = $db->GetUpdateSQL($rs, $rec);
-    
-            $result = $db->Execute($sql);
+            $sql = "UPDATE tf_users SET hits = :hits,last_visit = :last_visit,theme = :theme,language_file = :language_file,shutdown = :shutdown,upload_rate = :upload_rate WHERE uid = :uid";
+            
+            $result = $db->prepare( $sql );
+            $result->execute($rec);
             showError($db, $sql);
     
             $_SESSION['user'] = $user;

@@ -70,11 +70,10 @@ function AuditAction($action, $file="")
                     'time' => $create_time
                 );
 
-    $sTable = 'tf_log';
-    $sql = $db->GetInsertSql($sTable, $rec);
-
+    $sql = "INSERT INTO tf_log(user_id,file,action,ip,ip_resolved,user_agent,time) VALUES (:user_id,:file,:action,:ip,:ip_resolved,:user_agent,:time);";
     // add record to the log
-    $result = $db->Execute($sql);
+    $sth = $db->prepare($sql);
+    $sth->execute($rec);
     showError($db,$sql);
 }
 
@@ -85,11 +84,13 @@ function loadSettings()
 
     // pull the config params out of the db
     $sql = "SELECT tf_key, tf_value FROM tf_settings";
-    $recordset = $db->Execute($sql);
+    $recordset = $db->query($sql);
     showError($db, $sql);
 
-    while(list($key, $value) = $recordset->FetchRow())
-    {
+//    while(list($key, $value) = $recordset->FetchRow())
+    foreach ( $recordset->fetchAll(PDO::FETCH_OBJ) as $settings ) {
+        $key = $settings->tf_key;
+        $value = $settings->tf_value;
         $tmpValue = '';
         if(strpos($key,"Filter")>0)
         {
@@ -118,11 +119,12 @@ function insertSetting($key,$value)
         $update_value = serialize($value);
     }
 
-    $sql = "INSERT INTO tf_settings VALUES ('".$key."', '".$update_value."')";
+    $sql = "INSERT INTO tf_settings(tf_key, tf_value) VALUES (:tf_key,:tf_value)";
 
     if ( $sql != "" )
     {
-        $result = $db->Execute($sql);
+        $sth = $db->prepare( $sql );
+        $sth->execute([':tf_key'=>$key,':tf_value'=>$update_value]);
         showError($db,$sql);
         // update the Config.
         $cfg[$key] = $value;
@@ -139,11 +141,13 @@ function updateSetting($key,$value)
         $update_value = serialize($value);
     }
 
-    $sql = "UPDATE tf_settings SET tf_value = '".$update_value."' WHERE tf_key = '".$key."'";
+    $sql = "UPDATE tf_settings SET tf_value = :tf_value WHERE tf_key = :tf_key";
 
     if ( $sql != "" )
     {
-        $result = $db->Execute($sql);
+//        $result = $db->Execute($sql);
+        $sth = $db->prepare( $sql );
+        $sth->execute([':tf_key'=>$key,':tf_value'=>$update_value]);
         showError($db,$sql);
         // update the Config.
         $cfg[$key] = $value;

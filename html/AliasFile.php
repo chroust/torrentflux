@@ -42,7 +42,7 @@ class AliasFile
     var $size = "";
     var $errors = array();
 
-    function AliasFile( $inFile, $user="" )
+    function __construct( $inFile, $user="" )
     {
         $this->theFile = $inFile;
         

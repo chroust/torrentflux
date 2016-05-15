@@ -2,15 +2,16 @@
 
 // will need include of config.php
 include_once('config.php');
-include_once('adodb/adodb.inc.php');
+//include_once('adodb/adodb.inc.php');
 
 function getdb()
 {
     global $cfg;
 
     // 2004-12-09 PFM: connect to database.
-    $db = NewADOConnection($cfg["db_type"]);
-    $db->Connect($cfg["db_host"], $cfg["db_user"], $cfg["db_pass"], $cfg["db_name"]);
+//    $db = NewADOConnection($cfg["db_type"]);
+    $db = new PDO( $cfg["db_type"].":dbname=".$cfg["db_name"].";host=".$cfg["db_host"], $cfg["db_user"], $cfg["db_pass"] );
+//    $db->Connect($cfg["db_host"], $cfg["db_user"], $cfg["db_pass"], $cfg["db_name"]);
     if(!$db)
     {
         die ('Could not connect to database: '.$db->ErrorMsg().'<br>Check your database settings in the config.php file.');
@@ -21,7 +22,8 @@ function getdb()
 function showError($db, $sql)
 {
     global $cfg;
-    if($db->ErrorNo() != 0)
+    $arr = $db->errorInfo();
+    if($arr[0] != 0)
     {
         include("themes/matrix/index.php");
 ?>
@@ -69,7 +71,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                     {
                         echo "Debug SQL is on. <br><br>SQL: <strong>".$sql."</strong><br><br><br>";
                     }
-                    echo "Database error: <strong>".$db->ErrorMsg()."</strong><br><br>";
+                    echo "Database error: <strong>".$arr[2]."</strong><br><br>";
                     echo "Always check your database variables in the config.php file.<br><br>"
 ?>
                     </td>

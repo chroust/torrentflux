@@ -31,7 +31,7 @@ class RunningTorrent
     var $processId = "";
     var $args = "";
 
-    function RunningTorrent( $psLine )
+    function __construct( $psLine )
     {
         global $cfg;
 

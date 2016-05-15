@@ -31,7 +31,7 @@ require_once("BDecode.php");
 class SearchEngine extends SearchEngineBase
 {
 
-    function SearchEngine($cfg)
+    function __construct($cfg)
     {
         $this->mainURL = "google.com";
         $this->altURL = "www.google.com";
@@ -181,7 +181,7 @@ class gOOGLE
     var $Peers = "";
     var $Data = "";
 
-    function gOOGLE( $htmlLine )
+    function __construct( $htmlLine )
     {
         $tmpVal = substr($htmlLine,strpos($htmlLine,"<a"));
         $tmpVal = trim($tmpVal);

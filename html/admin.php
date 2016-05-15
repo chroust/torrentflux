@@ -85,11 +85,13 @@ function moveLink($lid, $direction)
     $idx = getLinkSortOrder($lid);
     $position = array("up"=>-1, "down"=>1);
     $new_idx = $idx+$position[$direction];
-    $sql = "UPDATE tf_links SET sort_order=".$idx." WHERE sort_order=".$new_idx;
-    $db->Execute($sql);
+    $sql = "UPDATE tf_links SET sort_order=:sort_order WHERE sort_order=:sort_order1";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':sort_order' => $idx, ':sort_order1'=> $new_idx]);
     showError($db, $sql);
-    $sql = "UPDATE tf_links SET sort_order=".$new_idx." WHERE lid=".$lid;
-    $db->Execute($sql);
+    $sql = "UPDATE tf_links SET sort_order=".$new_idx." WHERE lid=:lid";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':sort_order' => $new_idx, ':lid'=> $lid]);
     showError($db, $sql);
     header("Location: admin.php?op=editLinks");
 }
@@ -360,11 +362,20 @@ function displayActivity($min=0, $user="", $srchFile="", $srchAction="")
     $output = "";
     $morelink = "";
 
-    $sql = "SELECT user_id, file, action, ip, ip_resolved, user_agent, time FROM tf_log WHERE ".$sqlForSearch."action!=".$db->qstr($cfg["constants"]["hit"])." ORDER BY time desc";
+    $sql = "SELECT user_id, file, action, ip, ip_resolved, user_agent, time FROM tf_log WHERE ".$sqlForSearch."action!=".$cfg["constants"]["hit"]." ORDER BY time desc";
 
-    $result = $db->SelectLimit($sql, $offset, $min);
-    while(list($user_id, $file, $action, $ip, $ip_resolved, $user_agent, $time) = $result->FetchRow())
-    {
+    $sth = $db->prepare($sql);
+    $sth->execute();
+    $result = $sth->fetchAll(PDO::FETCH_OBJ);
+//    while(list($user_id, $file, $action, $ip, $ip_resolved, $user_agent, $time) = )
+    foreach ($result AS $item){
+        $user_id = $item->user_id;
+        $file = $item->file;
+        $action = $item->action;
+        $ip = $item->ip;
+        $ip_resolved = $item->ip_resolved;
+        $user_agent = $item->user_agent;
+        $time = $item->time;
         $user_icon = "images/user_offline.gif";
         if (IsOnline($user_id))
         {
@@ -540,9 +551,14 @@ function displayUserSection()
     $total_activity = GetActivityCount();
 
     $sql= "SELECT user_id, hits, last_visit, time_created, user_level FROM tf_users ORDER BY user_id";
-    $result = $db->Execute($sql);
-    while(list($user_id, $hits, $last_visit, $time_created, $user_level) = $result->FetchRow())
-    {
+    $result = $db->query($sql);
+//    while(list($user_id, $hits, $last_visit, $time_created, $user_level) = $result->FetchRow())
+    foreach ($result->fetchAll(PDO::FETCH_OBJ)  as $item ) {
+        $user_id = $item->user_id;
+        $hits = $item->hits;
+        $last_visit = $item->last_visit;
+        $time_created = $item->time_created;
+        $user_level = $item->user_level;
         $user_activity = GetActivityCount($user_id);
 
         if ($user_activity == 0)

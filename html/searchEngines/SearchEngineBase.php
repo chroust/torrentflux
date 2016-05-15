@@ -83,7 +83,7 @@ class SearchEngineBase
     /**
      * Constructor
      */
-    function SearchEngineBase()
+    function __construct()
     {
         die('Virtual Class -- cannot instantiate');
     }

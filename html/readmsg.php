@@ -82,12 +82,21 @@ else
     echo "<td bgcolor=\"".$cfg["table_header_bg"]."\" width=\"10%\"><div align=center class=\"title\">"._ADMIN."</div></td>";
     echo "</tr>";
 
-    $sql = "SELECT mid, from_user, message, IsNew, ip, time, force_read FROM tf_messages WHERE to_user=".$db->qstr($cfg['user'])." ORDER BY time";
-    $result = $db->Execute($sql);
+    $sql = "SELECT mid, from_user, message, IsNew, ip, time, force_read FROM tf_messages WHERE to_user=:to_user ORDER BY time";
+    $sth = $db->prepare( $sql );
+    $sth->execute([':to_user' => $cfg['user']]);
+    $result = $sth->fetchAll(PDO::FETCH_OBJ);
     showError($db,$sql);
 
-    while(list($mid, $from_user, $message, $new, $ip, $time, $force_read) = $result->FetchRow())
-    {
+//    while(list($mid, $from_user, $message, $new, $ip, $time, $force_read) = $result->FetchRow())
+    foreach ($result  as $item ) {
+        $mid = $item->mid;
+        $from_user = $item->from_user;
+        $message = $item->message;
+        $new = $item->new;
+        $ip = $item->ip;
+        $time = $item->time;
+        $force_read = $item->force_read;
         if($new == 1)
         {
             $mail_image = "images/new_message.gif";
