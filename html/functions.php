@@ -2507,9 +2507,10 @@ function getDirList($dirName)
                 $estTime = $af->time_left;
             }
 
-            $sql_search_time = "Select time from tf_log where action like '%Upload' and file like '".$entry."%'";
-            $result_search_time = $db->Execute($sql_search_time);
-            list($uploaddate) = $result_search_time->FetchRow();
+            $sql_search_time = "Select time from tf_log where action like '%Upload' and file like ':file%'";
+            $sth = $db->prepare( $sql_search_time );
+            $sth->execute([':file' => $entry]);
+            $uploaddate = $sth->fetchColumn();
 
             $lastUser = $torrentowner;
             $sharing = $af->sharing."%";
