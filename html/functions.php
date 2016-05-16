@@ -569,7 +569,7 @@ function GetSpeedValue($inValue)
 {
     $rtnValue = 0;
     if(strlen($inValue)>0) {
-        $arTemp = preg_split( " ", trim( $inValue ) );
+        $arTemp = preg_split( "/  +/", trim( $inValue ) );
         if ( is_numeric( $arTemp[0] ) ) {
             $rtnValue = $arTemp[0];
         }
