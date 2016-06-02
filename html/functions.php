@@ -1472,19 +1472,12 @@ function displayDriveSpaceBar($drivespace)
         $freeSpace = " (".formatFreeSpace($cfg["free_space"])." Free)";
     }
 ?>
-    <table width="100%" border="0" cellpadding="0" cellspacing="0">
-    <tr nowrap>
-        <td width="2%"><div class="tiny"><?php echo _STORAGE ?>:</div></td>
-        <td width="80%">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td background="themes/<?php echo $cfg["theme"] ?>/images/proglass.gif" width="<?php echo $drivespace ?>%"><div class="tinypercent" align="center"><?php echo $drivespace."%".$freeSpace ?></div></td>
-                <td background="themes/<?php echo $cfg["theme"] ?>/images/noglass.gif" width="<?php echo (100 - $drivespace) ?>%"><img src="images/blank.gif" width="1" height="3" border="0"></td>
-            </tr>
-            </table>
-        </td>
-    </tr>
-    </table>
+    <div class="row">
+        <div class="col-md-1"><?php echo _STORAGE ?>:</div>
+        <div class="col-md-11">
+            <div style="background-color:#00FF12;border: 1px solid #bbb;width: <?php echo $drivespace ?>%;"><div class="tinypercent" align="center"><?php echo $drivespace."%".$freeSpace ?></div></div>
+        </div>
+    </div>
 <?php
 }
 

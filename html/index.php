@@ -533,13 +533,23 @@ $drivespace = getDriveSpace($cfg["path"]);
 /************************************************************
  ************************************************************/
 ?>
-<html>
+<!DOCTYPE html>
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $cfg["pagetitle"] ?></title>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
-    <LINK REL="StyleSheet" HREF="themes/<?php echo $cfg["theme"] ?>/style.css" TYPE="text/css">
-    <META HTTP-EQUIV="Pragma" CONTENT="no-cache" charset="<?php echo _CHARSET ?>">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <?php
     if (!isset($_SESSION['prefresh']) || ($_SESSION['prefresh'] == true)) {
         echo "<meta http-equiv=\"REFRESH\" content=\"" . $cfg["page_refresh"] . ";URL=index.php\">";
@@ -581,8 +591,8 @@ $drivespace = getDriveSpace($cfg["path"]);
 
 <body onLoad="UpdateRefresh();" topmargin="8" bgcolor="<?php echo $cfg["main_bgcolor"] ?>">
 
-<div align="center">
-
+<div class="container">
+    <div class="row"></div>
     <?php
     if ($messages != "") {
         ?>
@@ -596,7 +606,7 @@ $drivespace = getDriveSpace($cfg["path"]);
         <?php
     }
     ?>
-    <table border="0" cellpadding="0" cellspacing="0" width="760">
+    <table border="0" cellpadding="0" cellspacing="0">
         <tr>
             <td>
                 <table border="1" bordercolor="<?php echo $cfg["table_border_dk"] ?>" cellpadding="4" cellspacing="0"

@@ -75,18 +75,24 @@ if(isset($_SESSION['user']))
 }
 ob_start();
 ?>
-<!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-        <title><?php echo $cfg["pagetitle"] ?></title>
-        <link rel="StyleSheet" href="themes/<?php echo $cfg["default_theme"] ?>/style.css" type="text/css" />
+    <title><?php echo $cfg["pagetitle"] ?></title>
     <meta http-equiv="pragma" content="no-cache" />
-    <meta content="charset=iso-8859-1" />
-
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="themes/<?php echo $cfg["default_theme"] ?>/style.css" rel="stylesheet">
+    <style>
+        .form-signin {
+            max-width: 330px;
+            padding: 15px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
-<body bgcolor="<?php echo $cfg["main_bgcolor"] ?>">
+<body>
 
 <script type="text/javascript">
 <!--
@@ -118,34 +124,8 @@ function loginvalidate()
 -->
 </script>
 
+<div class="container">
 
-<br /><br /><br />
-<div align="center">
-    <table border="1" bordercolor="<?php echo $cfg["table_border_dk"] ?>" cellpadding="0" cellspacing="0">
-    <tr>
-        <td>
-        <table border="0" cellpadding="4" cellspacing="0" width="100%">
-            <tr>
-                    <td align="left" background="themes/<?php echo $cfg["default_theme"] ?>/images/bar.gif" bgcolor="<?php echo $cfg["main_bgcolor"] ?>">
-                    <font class="title"><?php echo $cfg["pagetitle"] ?> Login</font>
-                    </td>
-            </tr>
-        </table>
-        </td>
-    </tr>
-    <tr>
-        <td bgcolor="<?php echo $cfg["table_header_bg"] ?>">
-        <div align="center">
-        <table width="100%" bgcolor="<?php echo $cfg["body_data_bg"] ?>">
-         <tr>
-             <td>
-             <table bgcolor="<?php echo $cfg["body_data_bg"] ?>" width="352 pixels" cellpadding="1">
-             <tr>
-                 <td>
-                    <div align="center">
-                     <table border="0" cellpadding="4" cellspacing="0">
-                     <tr>
-                     <td>
 <?php
 
 $user = strtolower(getRequestVar('username'));
@@ -319,61 +299,47 @@ if(!empty($user) && !empty($iamhim))
     if (!$allow_login)
     {
         AuditAction($cfg["constants"]["access_denied"], $log_msg);
-        echo "<div align=\"center\">Login failed.<br>Please try again.</div>";
+        echo '<div align="center">Login failed.<br>Please try again.</div>';
     }
 }
 ?>
 
-                        <form name="theForm" action="login.php" method="post" onsubmit="return loginvalidate()">
-                        <table width="100%" cellpadding="5" cellspacing="0" border="0">
-                            <tr>
-                                <td align="right">Username: </td>
-                                <td><input type="text" name="username" value="" size="15" style="font-family:verdana,helvetica,sans-serif; font-size:9px; color:#000;" /></td>
-                            </tr>
-                            <tr>
-                                <td align="right">Password:</td>
-                                <td><input type="password" name="iamhim" value="" size="15" style="font-family:verdana,helvetica,sans-serif; font-size:9px; color:#000" /></td>
-                            </tr>
+                        <form class="form-signin" name="theForm" action="login.php" method="post" onsubmit="return loginvalidate()">
+
+                            <h2 class="form-signin-heading"><?php echo $cfg["pagetitle"] ?> Login</h2>
+                            <label for="inputEmail" class="sr-only">Username</label>
+                            <input type="email" id="inputEmail" class="form-control" name="username" placeholder="Email address" required="" autofocus="">
+                            <label for="inputPassword" class="sr-only">Password</label>
+                            <input type="password" id="inputPassword" name="iamhim" class="form-control" placeholder="Password" required="">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="remember-me"> Remember me
+                                </label>
+                            </div>
+                                <button class="btn btn-lg btn-primary btn-block button" type="submit" value="Login">Sign in</button>
+
 <?php
 if (extension_loaded('gd') && (imagetypes() & IMG_JPG) && array_key_exists("security_code", $cfg) && $cfg["security_code"])
 {
     mt_srand ((double)microtime()*1000000);
 	$rnd = mt_rand(0, 1000000);
 ?>
-                            <tr>
-                                <td align="right"><img border="1" align="middle" src="?gfx=gfx&rnd=<?php echo $rnd ?>">:</td>
-                                <td><input type="Text" name="security" value="" size="15" style="font-family:verdana,helvetica,sans-serif; font-size:9px; color:#000" /></td>
-                            </tr>
-                            <input type="Hidden" name="rnd_chk" value="<?php echo $rnd ?>">
+                                <img border="1" align="middle" src="?gfx=gfx&rnd=<?php echo $rnd ?>">:
+                                <input type="Text" name="security" value="" size="15" style="font-family:verdana,helvetica,sans-serif; font-size:9px; color:#000" />
+                            <input type="hidden" name="rnd_chk" value="<?php echo $rnd ?>">
 <?php 
 }
 ?>
-                            <tr>
-                                <td colspan="2" align="center"><input class="button" type="submit" value="Login"  /></td>
-                            </tr>
-                        </table>
+
                         </form>
-                    </td>
-                    </tr>
-                    </table>
-                    </div>
-                </td>
-            </tr>
-            </table>
-            </td>
-        </tr>
-        </table>
-        </div>
-        </td>
-    </tr>
-    </table>
 
 </div>
 
 <script language="JavaScript">
     document.theForm.username.focus();
 </script>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="themes/<?php echo $cfg["default_theme"] ?>/bootstrap.min.js"></script>
 </body>
 </html>
 
